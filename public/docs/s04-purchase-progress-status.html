@@ -23,11 +23,11 @@
       <span class="pill amber">REVIEW REQUESTED</span>
     </div>
     <h1>Purchase Progress Status Design</h1>
-    <p class="sub">Define <b>one end-user status</b> for PR and PO screens by combining the internal approval status with the task status. Please answer <b>Yes / No</b> on the 15 items below and add a comment.</p>
+    <p class="sub">Define <b>one end-user status</b> for PR and PO screens by combining the internal approval status with the task status. Please answer <b>Yes / No</b> on the 20 items below and add a comment.</p>
     <div class="hero-meta">
       <div><span class="k">Documents</span><strong>PR · PO · DN · GR · IR</strong></div>
       <div><span class="k">Deliverable</span><strong>FS04_GET_PUR_PROGRESS</strong></div>
-      <div><span class="k">Review items</span><strong>15</strong></div>
+      <div><span class="k">Review items</span><strong>20</strong></div>
       <div><span class="k">Document state</span><strong>Draft, not final</strong></div>
     </div>
   </header>
@@ -291,11 +291,16 @@
     <div class="sec-head">
       <div class="sec-num">05</div>
       <div>
-        <h2>PR / PO Modification <span class="tagline"><span class="pill blue">PR MODIFICATION</span></span></h2>
-        <p>Each card takes its own Yes/No and comment: modification timing, reapproval and downstream control.</p>
+        <h2>PR / PO Modification</h2>
+        <p>Each card takes its own Yes/No and comment: modification timing, reapproval and downstream control. PR first, then PO.</p>
       </div>
     </div>
+
     <div class="card">
+      <div class="band">
+        <b>5-1. PR Modification</b>
+        <p>Changing an approved requisition and pushing the change through to the linked order.</p>
+      </div>
       <div class="mod-intro">
         <div>
           <span class="k">SCOPE</span>
@@ -341,6 +346,64 @@
           <h4>5. Status during Reapproval</h4>
           <p>The existing PO may already be Supplier Confirmed while the increased quantity is under reapproval. Proposal: show the user 'PR Change Approval in Progress', keep PO Confirmed as the internal status of the previous PO version, and reset the revised PO to Open for re-confirmation after approval.</p>
           <div data-review="q15" data-variant="inline"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <div class="band">
+        <b>5-2. PO Modification</b>
+        <p>Changing an order that has already gone out to the supplier.</p>
+      </div>
+      <div class="notice">
+        <span class="k">SOURCE</span><strong>Drafted, not received</strong>
+        <p>The design file we received rendered only the <b>PR Modification</b> tab. The cards below are <b>our draft of the PO side</b>, written to mirror the PR rules — please correct them rather than confirm them.</p>
+      </div>
+      <div class="mod-intro">
+        <div>
+          <span class="k">SCOPE</span>
+          <h4>PO Modification</h4>
+          <p>Confirm when an issued PO may be changed, what may change, and how the supplier and the linked PR are kept in step.</p>
+        </div>
+        <div>
+          <span class="k">WORKING ASSUMPTION</span>
+          <p>Draft proposal: allow <b>Quantity and delivery date</b> changes until the first Goods Receipt, with a revision number and a resend to the supplier.</p>
+        </div>
+      </div>
+      <div class="warn">
+        <span class="k">REVIEW REQUIRED</span>
+        <p>A PO is approved at <b>header level</b>, so any change that crosses an approval threshold re-opens the whole order — not just the changed line. Where that line sits has to be decided before this can be built.</p>
+      </div>
+      <div class="mod-grid">
+        <div class="mod-item">
+          <div class="top"><span class="idx">01</span><span class="pill amber">Reconfirm</span></div>
+          <h4>1. Modification Window</h4>
+          <p>May an issued PO be changed until the first Goods Receipt is posted, or does the supplier's Delivery Note already lock it? A partially received PO — open lines only, or locked entirely?</p>
+          <div data-review="q16" data-variant="inline"></div>
+        </div>
+        <div class="mod-item">
+          <div class="top"><span class="idx">02</span><span class="pill amber">Reconfirm</span></div>
+          <h4>2. Editable Fields</h4>
+          <p>Draft: Quantity and delivery date are editable; unit price, currency, supplier and item are not — those need a new PO. Is that the right split?</p>
+          <div data-review="q17" data-variant="inline"></div>
+        </div>
+        <div class="mod-item">
+          <div class="top"><span class="idx">03</span><span class="pill amber">Reconfirm</span></div>
+          <h4>3. Quantity Decrease</h4>
+          <p>Draft: a decrease needs no reapproval — revise the PO, resend it and sync the linked PR. Does the supplier have to confirm the reduced quantity before it counts?</p>
+          <div data-review="q18" data-variant="inline"></div>
+        </div>
+        <div class="mod-item">
+          <div class="top"><span class="idx">04</span><span class="pill blue">Decision</span></div>
+          <h4>4. Quantity Increase</h4>
+          <p>An increase raises the order value, so header-level approval runs again. Should it instead be a <b>new PO</b> for the additional quantity, leaving the original untouched?</p>
+          <div data-review="q19" data-variant="inline"></div>
+        </div>
+        <div class="mod-item">
+          <div class="top"><span class="idx">05</span><span class="pill red">Risk</span></div>
+          <h4>5. Revision and Re-confirmation</h4>
+          <p>Draft: a changed PO gets a revision number, is resent to the supplier, and its status returns to <b>Open</b> until the supplier confirms again. Is a Supplier Confirmed order really reset by any change, or only by ones that alter quantity or date?</p>
+          <div data-review="q20" data-variant="inline"></div>
         </div>
       </div>
     </div>
@@ -471,7 +534,18 @@ window.REVIEW_DOC = {
     { id:"q14", sec:"05", label:"Quantity increase", variant:"inline",
       q:"Do you agree with handling an increase as a new PR for the additional quantity?" },
     { id:"q15", sec:"05", label:"Status during reapproval", variant:"inline",
-      q:"Do you agree with the displayed status during reapproval and with resetting the revised PO to Open?" }
+      q:"Do you agree with the displayed status during reapproval and with resetting the revised PO to Open?" },
+
+    { id:"q16", sec:"05", label:"PO modification window", variant:"inline",
+      q:"May an issued PO be changed until the first Goods Receipt, and what happens to a partially received PO?" },
+    { id:"q17", sec:"05", label:"PO editable fields", variant:"inline",
+      q:"Do you agree that only quantity and delivery date are editable, and price or supplier changes need a new PO?" },
+    { id:"q18", sec:"05", label:"PO quantity decrease", variant:"inline",
+      q:"Do you agree with revising and resending without reapproval — and must the supplier confirm the reduction?" },
+    { id:"q19", sec:"05", label:"PO quantity increase", variant:"inline",
+      q:"Should an increase re-run header approval on the same PO, or be raised as a new PO?" },
+    { id:"q20", sec:"05", label:"PO revision and re-confirmation", variant:"inline",
+      q:"Do you agree that a revised PO gets a revision number and returns to Open until the supplier re-confirms?" }
   ]
 };
 </script>

@@ -28,8 +28,8 @@ window.BOARD_DOCS = [
     id: "s04-purchase-progress-status",
     code: "MERP S04",
     title: "Purchase Progress Status Design",
-    desc: "One end-user status for PR and PO screens, task status per business process, cancellation triggers, modification policy",
-    items: 15,
+    desc: "One end-user status for PR and PO screens, task status per business process, cancellation triggers, PR and PO modification policy",
+    items: 20,
     date: "2026-07-31",
     href: "docs/s04-purchase-progress-status.html",
     tags: [["blue", "WORKING DRAFT"], ["amber", "REVIEW REQUESTED"]]
