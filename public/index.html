@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Review Board</title>
-<meta name="description" content="Shared-passcode board for design reviews — answer Yes/No per item and leave comments" />
+<title>Investigation Board</title>
+<meta name="description" content="Business investigations with a Yes/No and a comment on every item, shared by passcode" />
 <link rel="stylesheet" href="./assets/app.css" />
 </head>
 <body>
@@ -12,7 +12,7 @@
 <div class="topbar">
   <div class="topbar-in">
     <div class="tb-id">
-      <b>Review Board</b>
+      <b>Investigation Board</b>
       <span class="sub"><span id="roomName">Connecting…</span></span>
     </div>
     <div class="tb-actions">
@@ -22,82 +22,74 @@
   </div>
 </div>
 
+<div class="shell">
+<aside id="navMount"></aside>
+
 <div class="wrap">
   <header class="hero">
     <div class="hero-eyebrow">
-      <span class="code">REVIEW BOARD</span>
+      <span class="code">INVESTIGATION BOARD</span>
       <span class="pill blue">SHARED PASSCODE</span>
     </div>
-    <h1>Design review &amp; open questions</h1>
-    <p class="sub">Post a design or an open question as a document, then collect a <b>Yes / No</b> and a comment on every item. Everyone on the same passcode sees each other's replies straight away.</p>
+    <h1>Business investigations</h1>
+    <p class="sub">Each investigation is a document with a fixed set of questions. Answer <b>Yes / No</b> and leave a comment on every item; an investigation is <b>complete</b> once every item has a value. Everyone on the same passcode sees each other's answers.</p>
   </header>
 
   <section class="section">
     <div class="sec-head">
-      <div class="sec-num">DOCS</div>
+      <div class="sec-num">OPEN</div>
       <div>
-        <h2>Documents under review</h2>
-        <p>Open a document and answer item by item. Everything saves as you type.</p>
+        <h2>Investigations</h2>
+        <p>Pick one from the left, or from the cards below. Everything saves as you type.</p>
       </div>
     </div>
     <div class="portal-grid" id="docGrid"></div>
   </section>
 
   <footer>
-    <span class="code">REVIEW BOARD</span>
-    <p>Anyone with the passcode can read and write every document and reply in this workspace. Do not post confidential material.</p>
+    <span class="code">INVESTIGATION BOARD</span>
+    <p>Anyone with the passcode can read and write every investigation and reply in this workspace. Do not post confidential material.</p>
   </footer>
+</div>
 </div>
 
 <script src="./assets/firebase-config.js"></script>
 <script src="./assets/board-core.js"></script>
+<script src="./assets/docs.js"></script>
+<script src="./assets/nav.js"></script>
 <script>
-/* Document registry — add one entry per new review document. */
-window.BOARD_DOCS = [
-  {
-    id: "s04-procurement-status-flow",
-    code: "MERP PROCUREMENT",
-    title: "Procurement Status Flow Guide",
-    desc: "PR → PO → DN → GR → IR status flow, conflicts between the two design documents, cancellation triggers, rejected-PR reuse, on-screen display",
-    items: 12,
-    href: "./docs/s04-procurement-status-flow.html",
-    tags: [["red", "FIRST UP"], ["blue", "STATUS FLOW"]]
-  },
-  {
-    id: "s04-purchase-progress-status",
-    code: "MERP S04",
-    title: "Purchase Progress Status Design",
-    desc: "One end-user status for PR and PO screens, cancellation (CN) triggers, modification policy, status resolution rules",
-    items: 13,
-    href: "./docs/s04-purchase-progress-status.html",
-    tags: [["blue", "WORKING DRAFT"], ["amber", "REVIEW REQUESTED"]]
-  }
-];
-
 (function () {
   "use strict";
-  var B = window.Board, esc = B.esc;
+  var B = window.Board, esc = B.esc, N = window.BoardNav;
   var grid = document.getElementById("docGrid");
+  var STATE_LABEL = { new: "Not started", prog: "In progress", done: "Complete" };
 
-  function card(d, count) {
+  function card(d, replies) {
+    var p = N.progressOf(d);
+    var pct = p.total ? Math.round(p.answered / p.total * 100) : 0;
     var tags = (d.tags || []).map(function (t) { return '<span class="pill ' + t[0] + '">' + esc(t[1]) + '</span>'; }).join("");
     return '<a class="doc-card" href="' + esc(d.href) + '">' +
       '<div class="top"><span class="code">' + esc(d.code) + '</span>' + tags + '</div>' +
       '<h3>' + esc(d.title) + '</h3>' +
       '<p>' + esc(d.desc) + '</p>' +
-      '<div class="foot"><span>' + d.items + ' items</span><span>' + (count == null ? "" : count + " replied") + '</span></div>' +
+      '<span class="ri-bar"><i style="width:' + pct + '%"></i></span>' +
+      '<div class="foot">' +
+        '<span class="ri-state ' + p.state + '">' + STATE_LABEL[p.state] + '</span>' +
+        '<span>' + p.answered + ' / ' + p.total + ' answered</span>' +
+        '<span>opened ' + esc(d.date || "") + '</span>' +
+        '<span>' + (replies == null ? "" : replies + " replied") + '</span>' +
+      '</div>' +
     '</a>';
   }
 
-  function render(counts) {
+  function render(replies) {
     grid.innerHTML = window.BOARD_DOCS.map(function (d) {
-      return card(d, counts ? counts[d.id] : null);
+      return card(d, replies ? replies[d.id] : null);
     }).join("");
   }
 
   function setSync(kind, text) {
-    var badge = document.getElementById("syncBadge");
-    badge.className = "sync " + kind;
+    document.getElementById("syncBadge").className = "sync " + kind;
     document.getElementById("syncText").textContent = text;
   }
 
@@ -110,7 +102,7 @@ window.BOARD_DOCS = [
 
   if (!B.hasConfig) {
     setSync("off", "Local only");
-    document.getElementById("roomName").textContent = "Shared storage not configured — documents still open";
+    document.getElementById("roomName").textContent = "Shared storage not configured — investigations still open";
     document.getElementById("btnSwitch").hidden = true;
   } else {
     setSync("busy", "Connecting…");
@@ -118,10 +110,10 @@ window.BOARD_DOCS = [
       if (!room || !room.key) { setSync("off", "Local only"); return; }
       setSync("on", "Shared");
       document.getElementById("roomName").textContent = room.label ? ("Workspace: " + room.label) : "Connected";
-      var counts = {};
+      var replies = {};
       return Promise.all(window.BOARD_DOCS.map(function (d) {
-        return B.listAll(d.id).then(function (list) { counts[d.id] = list.length; }, function () {});
-      })).then(function () { render(counts); });
+        return B.listAll(d.id).then(function (list) { replies[d.id] = list.length; }, function () {});
+      })).then(function () { render(replies); });
     }).catch(function (err) {
       setSync("err", "Connection failed");
       document.getElementById("roomName").textContent = "Connection failed — " + err.message;

@@ -119,11 +119,24 @@
       var host = document.querySelector('[data-review="' + item.id + '"]');
       if (!host) return;
       var n = i + 1;
-      var inline = (host.dataset.variant || item.variant) === "inline";
-      host.className = "review" + (inline ? " inline" : "");
+      var variant = host.dataset.variant || item.variant;
+      var inline = variant === "inline";
+      var note = variant === "note";
+      host.className = "review" + (inline ? " inline" : "") + (note ? " note" : "");
       host.id = "rv-" + item.id;
 
-      host.innerHTML = inline
+      host.innerHTML = note
+        ? '<div class="rv-head">' +
+            '<span class="rv-tag">Q' + n + '</span>' +
+            '<div><div class="rv-q">' + esc(item.q) + (item.hint ? '<em>' + esc(item.hint) + '</em>' : '') + '</div></div>' +
+          '</div>' +
+          '<div class="rv-body">' +
+            '<div class="rv-comment">' +
+              '<label for="c-' + item.id + '">Your view <span class="opt">comment only — no yes/no</span></label>' +
+              '<textarea id="c-' + item.id + '" rows="3" placeholder="Write what you think it should be"></textarea>' +
+            '</div>' +
+          '</div>'
+        : inline
         ? '<div class="rv-mini">' +
             '<span class="rv-tag">Q' + n + '</span>' +
             '<div class="choices" role="group" aria-label="' + esc(item.label) + ' reply">' + choiceBtns() + '</div>' +
@@ -171,14 +184,25 @@
     refresh();
   }
 
+  function itemById(id) {
+    for (var i = 0; i < ITEMS.length; i++) if (ITEMS[i].id === id) return ITEMS[i];
+    return null;
+  }
+  function isNote(it) { return it && it.variant === "note"; }
+  function answered(it, src) {
+    var a = (src || state.answers)[it.id] || {};
+    return isNote(it) ? !!(a.c || "").trim() : !!a.v;
+  }
+
   function paint(id) {
     var host = document.getElementById("rv-" + id);
     if (!host) return;
+    var it = itemById(id) || {};
     var a = state.answers[id] || {};
     host.querySelectorAll(".choice").forEach(function (btn) {
       btn.setAttribute("aria-pressed", a.v === btn.dataset.v ? "true" : "false");
     });
-    host.classList.toggle("answered", !!a.v);
+    host.classList.toggle("answered", answered(it));
     host.classList.toggle("needs-note", a.v === "N" && !(a.c || "").trim());
   }
 
@@ -231,10 +255,12 @@
 
   /* ---------------- progress · summary ---------------- */
   function counts(answers) {
-    var src = answers || state.answers, c = { Y: 0, N: 0, H: 0, none: 0 };
+    var src = answers || state.answers, c = { Y: 0, N: 0, H: 0, note: 0, none: 0 };
     ITEMS.forEach(function (it) {
+      if (!answered(it, src)) { c.none++; return; }
+      if (isNote(it)) { c.note++; return; }
       var v = (src[it.id] || {}).v;
-      if (v === "Y") c.Y++; else if (v === "N") c.N++; else if (v === "H") c.H++; else c.none++;
+      if (v === "Y") c.Y++; else if (v === "N") c.N++; else if (v === "H") c.H++;
     });
     return c;
   }
@@ -249,13 +275,22 @@
     var meter = document.getElementById("meter");
     if (meter) meter.setAttribute("aria-valuenow", String(done));
 
+    try {
+      localStorage.setItem("board.progress." + DOC.id,
+        JSON.stringify({ a: done, t: ITEMS.length, u: state.updatedAt || 0 }));
+    } catch (e) {}
+    if (window.BoardNav) window.BoardNav.refresh();
+
     var body = document.getElementById("sumBody");
     if (body) {
       body.innerHTML = ITEMS.map(function (it, i) {
         var a = state.answers[it.id] || {}, cm = (a.c || "").trim();
+        var reply = isNote(it)
+          ? '<span class="' + (cm ? "a-note" : "a-x") + '">' + (cm ? "Comment" : "—") + '</span>'
+          : '<span class="' + (a.v ? ANSWER_CLASS[a.v] : "a-x") + '">' + (a.v ? ANSWER_LABEL[a.v] : "—") + '</span>';
         return '<tr>' +
           '<td><span class="qn">Q' + (i + 1) + '</span> ' + esc(it.label) + '</td>' +
-          '<td class="a"><span class="' + (a.v ? ANSWER_CLASS[a.v] : "a-x") + '">' + (a.v ? ANSWER_LABEL[a.v] : "—") + '</span></td>' +
+          '<td class="a">' + reply + '</td>' +
           '<td class="c' + (cm ? "" : " empty") + '">' + (cm ? esc(cm) : "—") + '</td>' +
         '</tr>';
       }).join("");
@@ -270,12 +305,16 @@
     L.push("[" + DOC.title + "] Review reply");
     L.push("Date: " + B.today());
     L.push("Answered: " + (ITEMS.length - c.none) + "/" + ITEMS.length +
-      "  (agree " + c.Y + " · needs change " + c.N + " · hold " + c.H + " · no answer " + c.none + ")");
+      "  (agree " + c.Y + " · needs change " + c.N + " · hold " + c.H +
+      (c.note ? " · comment " + c.note : "") + " · no answer " + c.none + ")");
     L.push("");
     ITEMS.forEach(function (it, i) {
       var a = (s.answers || {})[it.id] || {};
-      L.push("Q" + (i + 1) + ". [" + it.sec + "] " + it.label + " — " + (a.v ? ANSWER_LABEL[a.v] + " (" + a.v + ")" : "no answer"));
       var cm = (a.c || "").trim();
+      var head = isNote(it)
+        ? (cm ? "comment" : "no answer")
+        : (a.v ? ANSWER_LABEL[a.v] + " (" + a.v + ")" : "no answer");
+      L.push("Q" + (i + 1) + ". [" + it.sec + "] " + it.label + " — " + head);
       L.push("    Comment: " + (cm ? cm.replace(/\n/g, "\n             ") : "-"));
     });
     if ((s.overall || "").trim()) {
@@ -340,11 +379,19 @@
     var agg = document.getElementById("aggBody");
     if (agg) {
       agg.innerHTML = ITEMS.map(function (it, i) {
-        var y = 0, n = 0, h = 0;
+        var y = 0, n = 0, h = 0, notes = 0;
         lastAll.forEach(function (r) {
-          var v = ((r.answers || {})[it.id] || {}).v;
-          if (v === "Y") y++; else if (v === "N") n++; else if (v === "H") h++;
+          var a = (r.answers || {})[it.id] || {};
+          if (isNote(it)) { if ((a.c || "").trim()) notes++; return; }
+          if (a.v === "Y") y++; else if (a.v === "N") n++; else if (a.v === "H") h++;
         });
+        if (isNote(it)) {
+          return '<tr>' +
+            '<td><span class="qn">Q' + (i + 1) + '</span> ' + esc(it.label) + '</td>' +
+            '<td class="n dash">—</td><td class="n dash">—</td><td class="n dash">—</td>' +
+            '<td><span class="a-note">' + notes + ' comment' + (notes === 1 ? "" : "s") + '</span></td>' +
+          '</tr>';
+        }
         var tot = y + n + h || 1;
         return '<tr>' +
           '<td><span class="qn">Q' + (i + 1) + '</span> ' + esc(it.label) + '</td>' +
@@ -369,10 +416,12 @@
         var a = (r.answers || {})[it.id] || {};
         var cm = (a.c || "").trim();
         if (!a.v && !cm) return "";
+        var reply = isNote(it)
+          ? '<span class="a-note">Comment</span>'
+          : '<span class="' + (a.v ? ANSWER_CLASS[a.v] : "a-x") + '">' + (a.v ? ANSWER_LABEL[a.v] : "—") + '</span>';
         return '<div class="pline">' +
           '<span class="q">Q' + (i + 1) + '</span>' +
-          '<span class="v">' +
-            '<span class="' + (a.v ? ANSWER_CLASS[a.v] : "a-x") + '">' + (a.v ? ANSWER_LABEL[a.v] : "—") + '</span>' +
+          '<span class="v">' + reply +
             (cm ? '<span class="c">' + esc(cm) + '</span>' : "") +
           '</span>' +
         '</div>';
@@ -403,13 +452,20 @@
     if (!lastAll.length) { toast("Nothing to copy yet."); return; }
     var L = ["[" + DOC.title + "] All replies (" + lastAll.length + " reviewers) · " + B.today(), ""];
     ITEMS.forEach(function (it, i) {
-      var y = [], n = [], h = [];
+      var y = [], n = [], h = [], notes = [];
       lastAll.forEach(function (r, idx) {
         var a = (r.answers || {})[it.id] || {};
         var cm = (a.c || "").trim();
         var entry = "      - " + reviewerName(r, idx) + (cm ? ": " + cm.replace(/\n/g, " ") : "");
+        if (isNote(it)) { if (cm) notes.push(entry); return; }
         if (a.v === "Y") y.push(entry); else if (a.v === "N") n.push(entry); else if (a.v === "H") h.push(entry);
       });
+      if (isNote(it)) {
+        L.push("Q" + (i + 1) + ". [" + it.sec + "] " + it.label + "  (" + notes.length + " comment" + (notes.length === 1 ? "" : "s") + ")");
+        L = L.concat(notes.length ? notes : ["      - none"]);
+        L.push("");
+        return;
+      }
       L.push("Q" + (i + 1) + ". [" + it.sec + "] " + it.label +
         "  (agree " + y.length + " · change " + n.length + " · hold " + h.length + ")");
       if (y.length) { L.push("   Agree"); L = L.concat(y); }
@@ -448,7 +504,7 @@
     document.getElementById("btnJump").addEventListener("click", function () {
       var target = null;
       for (var i = 0; i < ITEMS.length; i++) {
-        if (!(state.answers[ITEMS[i].id] || {}).v) { target = ITEMS[i]; break; }
+        if (!answered(ITEMS[i])) { target = ITEMS[i]; break; }
       }
       if (!target) {
         document.getElementById("summary").scrollIntoView({ block: "start" });

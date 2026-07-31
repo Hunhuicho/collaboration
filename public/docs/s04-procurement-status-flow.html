@@ -84,6 +84,9 @@
 
 <div id="topbarMount"></div>
 
+<div class="shell">
+<aside id="navMount"></aside>
+
 <div class="wrap">
 
   <header class="hero">
@@ -93,11 +96,11 @@
       <span class="pill red">FIRST UP</span>
     </div>
     <h1>Procurement Status Flow Guide</h1>
-    <p class="sub">How status codes drive the Purchase Requisition → Purchase Order → Delivery → Goods Receipt → Invoice cycle, and how they appear on screen. Please answer <b>Yes / No</b> on the 12 items below and add a comment.</p>
+    <p class="sub">How status codes drive the Purchase Requisition → Purchase Order → Delivery → Goods Receipt → Invoice cycle, and how they appear on screen. Please answer <b>Yes / No</b> on the 13 items below and add a comment.</p>
     <div class="hero-meta">
       <div><span class="k">Documents</span><strong>PR · PO · DN · GR · IR</strong></div>
       <div><span class="k">Approval applies to</span><strong>PR · IR (per this guide)</strong></div>
-      <div><span class="k">Review items</span><strong>12</strong></div>
+      <div><span class="k">Review items</span><strong>13</strong></div>
       <div><span class="k">Open questions</span><strong>Cancellation trigger · rejected-PR reuse</strong></div>
     </div>
   </header>
@@ -282,92 +285,42 @@
       <div class="sec-num">04</div>
       <div>
         <h2>Open question ① — what sets a PR / PO to <span class="badge b-cancel">Cancelled</span> <span class="tagline"><span class="pill red">DECISION NEEDED</span></span></h2>
-        <p>The original guide leaves the trigger blank. Below is a proposal to settle it — flag any row you disagree with.</p>
+        <p>The guide leaves the trigger blank. Rather than pick a rule for you, we would like your view — PR and PO separately, since they behave differently.</p>
       </div>
     </div>
-    <div class="card">
-      <div class="openq">
-        <span class="k">The original question</span>
-        <p>There is no definition of when cancellation happens or who does it. For example:</p>
-        <ul>
-          <li>Manual cancel by the requester before approval, or before goods receipt?</li>
-          <li>Automatic cancel when an approver rejects (reject → cancel)?</li>
-          <li>PO cancel only when no GR exists yet — or also after partial delivery?</li>
-          <li>Who has the authority to cancel, and is a reason required?</li>
-        </ul>
-      </div>
 
-      <div class="prop-head">
-        <span class="pill blue">PROPOSAL</span>
-        <h3>Cancellation triggers, authority and downstream handling</h3>
-        <p>Cancellation is split by stage into <b>allowed / needs agreement / not allowed</b>, and the not-allowed stages are handled by other means (close short, credit memo).</p>
+    <div class="card ask">
+      <div class="ask-head">
+        <span class="pill red">OPEN QUESTION</span>
+        <h3>PR cancellation (CN) — what should the trigger be?</h3>
       </div>
-      <div class="scroll-x">
-        <table class="trig">
-          <thead><tr><th>Scope</th><th>Condition</th><th>Proposed trigger · handling</th><th>Authority</th><th>Downstream</th></tr></thead>
-          <tbody>
-            <tr>
-              <td class="cond">PR<small>before approval</small></td>
-              <td>OP / SM / UA</td>
-              <td class="act">Not a cancellation — <b>withdraw the submission and delete</b>. <code>CN</code> is not used</td>
-              <td>Requester</td><td class="dash">—</td>
-            </tr>
-            <tr>
-              <td class="cond">PR<small>approved · no PO</small></td>
-              <td>Approved, no linked PO</td>
-              <td class="act"><b>Cancel with a mandatory reason → PR_STATUS = CN</b></td>
-              <td>Requester or Purchasing</td><td class="dash">—</td>
-            </tr>
-            <tr>
-              <td class="cond">PR<small>approved · PO exists</small></td>
-              <td><code>PR_STATUS = PO</code></td>
-              <td class="act">PR cannot be cancelled on its own. <b>The PO must be cancelled first</b>; the PR then follows to CN</td>
-              <td>Purchasing</td><td>PO cancellation required</td>
-            </tr>
-            <tr>
-              <td class="cond">PR<small>rejected</small></td>
-              <td><code>PR_STATUS = RJ</code></td>
-              <td class="act">Rejection is <b>not</b> cancellation. RJ never converts to CN automatically (see open question ②)</td>
-              <td>Approver</td><td class="dash">—</td>
-            </tr>
-            <tr>
-              <td class="cond">PO<small>just issued</small></td>
-              <td><code>PO_STATUS = OP</code>, no GR</td>
-              <td class="act"><b>Purchasing cancels → PO_STATUS = CN</b> and notifies the supplier</td>
-              <td>Purchasing</td><td>Linked PR → CN or back to Open</td>
-            </tr>
-            <tr>
-              <td class="cond">PO<small>supplier confirmed</small></td>
-              <td><code>PO_STATUS = CF</code>, no GR</td>
-              <td class="act"><b>Supplier agreement required.</b> Cancellation request → supplier accepts → CN</td>
-              <td>Purchasing + supplier</td><td>Cancel the DN first if one exists</td>
-            </tr>
-            <tr>
-              <td class="cond">PO<small>partially received</small></td>
-              <td><code>PO_STATUS = PD</code></td>
-              <td class="act">Full cancellation <b>not allowed</b>. Handle as <b>close short</b> — what was received stays valid</td>
-              <td>Purchasing</td><td>Only the open quantity is closed</td>
-            </tr>
-            <tr>
-              <td class="cond">PO<small>invoice received</small></td>
-              <td><code>IR_STATUS = OP / MC / PS</code></td>
-              <td class="act">Cancellation <b>not allowed</b>. Use a return or a credit memo instead</td>
-              <td>Purchasing + Finance</td><td>Links to the AP document</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="defs">
-        <div><b>Cancel (CN)</b><p>Voids an approved document for a business reason. History stays; nothing moves on</p></div>
-        <div><b>Reject (RJ)</b><p>Sent back by an approver. Rework, not cancellation</p></div>
-        <div><b>Close</b><p>Stop receiving the remainder. What already happened stays valid</p></div>
-        <div><b>Delete</b><p>Remove a pre-approval document. Not kept for audit</p></div>
-      </div>
-      <div class="note">
-        <b>Applies to all rows:</b> cancellation requires a <b>reason code plus free text</b>, and the cancellation record (who, when, why) is written to the document history. Nothing cancels automatically — every cancellation is an explicit action.
+      <div class="ask-body">
+        <p>A PR is internal, so cancelling it mostly affects the requester and Purchasing. In your own words:</p>
+        <ul>
+          <li>Before approval — cancel, or withdraw the submission and delete it?</li>
+          <li>Once a PO exists — can the PR still be cancelled on its own?</li>
+          <li>Who has the authority, and is a reason mandatory?</li>
+          <li>Does a rejection ever turn into a cancellation automatically?</li>
+        </ul>
       </div>
     </div>
     <div data-review="q9"></div>
+
+    <div class="card ask" style="margin-top:14px;">
+      <div class="ask-head">
+        <span class="pill red">OPEN QUESTION</span>
+        <h3>PO cancellation (CN) — what should the trigger be?</h3>
+      </div>
+      <div class="ask-body">
+        <p>A PO has already gone to the supplier, so cancelling it reaches outside the company — and once goods or an invoice arrive, Finance is involved too. In your own words:</p>
+        <ul>
+          <li>Before and after the supplier confirms — does the supplier have to agree?</li>
+          <li>After partial receipt, or once an invoice exists — still cancellable?</li>
+          <li>Who has the authority, and what happens to the linked PR and DN?</li>
+        </ul>
+      </div>
+    </div>
+    <div data-review="q10"></div>
   </section>
 
   <!-- ============ 05 · open question 2 ============ -->
@@ -407,7 +360,7 @@
         <b>Proposal:</b> take <b>A (reuse)</b> as the default, with limits — for example resubmission is allowed <b>within N business days</b> of the rejection and only when the edit <b>does not push the value into a different approval band</b>; anything else needs a new PR. The rejection reason is mandatory and is kept per revision in the PR history.
       </div>
     </div>
-    <div data-review="q10"></div>
+    <div data-review="q11"></div>
   </section>
 
   <!-- ============ 06 · display ============ -->
@@ -445,7 +398,7 @@
         </div>
       </div>
     </div>
-    <div data-review="q11"></div>
+    <div data-review="q12"></div>
 
     <div class="card" style="margin-top:14px;">
       <div class="band">
@@ -480,7 +433,7 @@
         <p>A row that is green across all five columns is complete — received and invoice posted. An empty cell means that step has not started. Amber flags steps needing follow-up (partial delivery, invoice on hold); red and grey flag rejected or cancelled requisitions.</p>
       </div>
     </div>
-    <div data-review="q12"></div>
+    <div data-review="q13"></div>
   </section>
 
   <div id="summaryMount"></div>
@@ -489,6 +442,7 @@
     <span class="code">MERP PROCUREMENT</span>
     <p>Status Flow Guide · PR → PO → DN → GR → IR · open policy items are not treated as final decisions.</p>
   </footer>
+</div>
 </div>
 
 <script>
@@ -545,6 +499,8 @@
 
 <script src="../assets/firebase-config.js"></script>
 <script src="../assets/board-core.js"></script>
+<script src="../assets/docs.js"></script>
+<script src="../assets/nav.js"></script>
 <script>
 window.REVIEW_DOC = {
   id: "s04-procurement-status-flow",
@@ -575,16 +531,19 @@ window.REVIEW_DOC = {
     { id:"q8", sec:"03", label:"IR_STATUS — four codes",
       q:"Do you agree with Open · Matched · Posted · On Hold and the 3-way matching criteria?",
       hint:"If there are matching tolerances on quantity or value, please state them." },
-    { id:"q9", sec:"04", label:"Open question ① — cancellation triggers",
-      q:"Do you agree with the proposed allowed / needs-agreement / not-allowed split across the eight stages, including authority and downstream handling?",
-      hint:"The two to check hardest: closing short instead of cancelling a partially received PO, and no cancellation once an invoice has been received." },
-    { id:"q10", sec:"05", label:"Open question ② — reusing a rejected PR",
+    { id:"q9", sec:"04", label:"PR cancellation (CN) trigger", variant:"note",
+      q:"What should set a PR to Cancelled?",
+      hint:"When it may happen, who may do it, whether a reason is mandatory, and what happens to a linked PO." },
+    { id:"q10", sec:"04", label:"PO cancellation (CN) trigger", variant:"note",
+      q:"What should set a PO to Cancelled?",
+      hint:"Supplier agreement, what happens after partial receipt or once an invoice exists, who has the authority, and the effect on the linked PR and DN." },
+    { id:"q11", sec:"05", label:"Open question \u2461 \u2014 reusing a rejected PR",
       q:"Do you agree with option A — send a rejected PR back to Open and reuse it?",
       hint:"If reuse, give the time limit and value conditions. If a new PR, say how it should reference the original." },
-    { id:"q11", sec:"06", label:"Phase tab (detail screen history)",
+    { id:"q12", sec:"06", label:"Phase tab (detail screen history)",
       q:"Do you agree with the Phase tab stacking PR · PO · DN · GR · IR vertically?",
       hint:"Say if each row also needs owner, date or quantity." },
-    { id:"q12", sec:"06", label:"PR list — five status columns",
+    { id:"q13", sec:"06", label:"PR list — five status columns",
       q:"Do you agree with one row per PR and five colour-coded status columns?",
       hint:"Say what a cell should show when one PR has several POs — the least advanced step, or a count." }
   ]

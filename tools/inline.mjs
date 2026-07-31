@@ -20,6 +20,14 @@ async function readAsset(href) {
   return readFile(resolve(baseDir, href), "utf8");
 }
 
+// The rail links to sibling pages that do not travel with a single file.
+html = html
+  .replace(/<div class="shell">\s*/, "")
+  .replace(/<aside id="navMount"><\/aside>\s*/, "")
+  .replace(/<script src="[^"]*nav\.js"><\/script>\s*/, "")
+  .replace(/<script src="[^"]*docs\.js"><\/script>\s*/, "")
+  .replace(/<\/div>\n<\/div>\n\n<script/, "</div>\n\n<script");
+
 // <link rel="stylesheet" href="..."> → inline <style>
 for (const m of [...html.matchAll(/<link[^>]+rel="stylesheet"[^>]+href="([^"]+)"[^>]*>/g)]) {
   const css = await readAsset(m[1]);

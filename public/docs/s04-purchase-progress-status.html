@@ -11,6 +11,9 @@
 
 <div id="topbarMount"></div>
 
+<div class="shell">
+<aside id="navMount"></aside>
+
 <div class="wrap">
 
   <header class="hero">
@@ -20,11 +23,11 @@
       <span class="pill amber">REVIEW REQUESTED</span>
     </div>
     <h1>Purchase Progress Status Design</h1>
-    <p class="sub">Define <b>one end-user status</b> for PR and PO screens by combining the internal approval status with the task status. Please answer <b>Yes / No</b> on the 13 items below and add a comment.</p>
+    <p class="sub">Define <b>one end-user status</b> for PR and PO screens by combining the internal approval status with the task status. Please answer <b>Yes / No</b> on the 15 items below and add a comment.</p>
     <div class="hero-meta">
       <div><span class="k">Documents</span><strong>PR · PO · DN · GR · IR</strong></div>
       <div><span class="k">Deliverable</span><strong>FS04_GET_PUR_PROGRESS</strong></div>
-      <div><span class="k">Review items</span><strong>13</strong></div>
+      <div><span class="k">Review items</span><strong>15</strong></div>
       <div><span class="k">Document state</span><strong>Draft, not final</strong></div>
     </div>
   </header>
@@ -100,11 +103,20 @@
     <div class="sec-head">
       <div class="sec-num">03</div>
       <div>
-        <h2>Task Status <span class="tagline"><span class="pill blue">PR TAB ONLY</span></span></h2>
-        <p>Each process keeps its own status. The CN (cancellation) policy is still open.</p>
+        <h2>Task Status — one code group per business process</h2>
+        <p>Every process keeps its own status. Each code group takes its own reply below, and PR and PO additionally need their cancellation trigger settled.</p>
       </div>
     </div>
+
     <div class="card">
+      <div class="notice">
+        <span class="k">SOURCE</span><strong>PO · DN · IR reconstructed</strong>
+        <p>The design file we received rendered only the <b>PR tab</b>. The PO, DN and IR code groups below are reconstructed from the rule table in section 06, so please confirm them rather than assume they are as designed.</p>
+      </div>
+    </div>
+
+    <!-- PR -->
+    <div class="card" style="margin-top:14px;">
       <div class="catalog-head">
         <div>
           <span class="group-label">TC00_CODE_LIST · PR_STATUS</span>
@@ -119,86 +131,109 @@
       <div class="code-grid">
         <div class="code-cell"><div class="top"><span class="idx">01</span><span class="pill blue">Open</span></div><div class="key">PR</div><h4>Open</h4><p>Saved as Draft</p></div>
         <div class="code-cell"><div class="top"><span class="idx">02</span><span class="pill violet">PO Converted</span></div><div class="key">PO</div><h4>PO Converted</h4><p>PO created from PR</p></div>
-        <div class="code-cell"><div class="top"><span class="idx">03</span><span class="pill red">Cancelled</span></div><div class="key">CN</div><h4>Cancelled</h4><p>PR cancelled after approval for a later business reason</p><p class="flagnote">Cancellation policy needs a decision</p></div>
+        <div class="code-cell"><div class="top"><span class="idx">03</span><span class="pill red">Cancelled</span></div><div class="key">CN</div><h4>Cancelled</h4><p>PR cancelled after approval for a later business reason</p><p class="flagnote">Trigger undefined — see below</p></div>
       </div>
     </div>
-
     <div data-review="q3"></div>
 
-    <div class="card propose">
-      <div class="prop-head">
-        <span class="pill red">DECISION NEEDED</span>
-        <h3>Cancelled (CN) triggers — proposal for review</h3>
-        <p>Today CN is described only as "cancelled after approval for a later business reason" — there is no <b>timing, authority or downstream handling</b>. Below is a proposal to settle it. If you disagree with a row, name it in your comment.</p>
+    <!-- PR cancellation -->
+    <div class="card ask">
+      <div class="ask-head">
+        <span class="pill red">OPEN QUESTION</span>
+        <h3>PR cancellation (CN) — what should the trigger be?</h3>
       </div>
-
-      <div class="scroll-x">
-        <table class="trig">
-          <thead>
-            <tr><th>Scope</th><th>Condition</th><th>Proposed trigger · handling</th><th>Authority</th><th>Downstream</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="cond">PR<small>before approval</small></td>
-              <td>Draft / Submitted / In Progress</td>
-              <td class="act">Not a cancellation — <b>withdraw the submission and delete</b>. <code>CN</code> is not used</td>
-              <td>Requester</td><td class="dash">—</td>
-            </tr>
-            <tr>
-              <td class="cond">PR<small>approved · no PO</small></td>
-              <td><code>PR APPR = A</code>, no linked PO</td>
-              <td class="act"><b>Cancel with a mandatory reason → PR_STATUS = CN.</b> End-user status shows Cancelled</td>
-              <td>Requester or Purchasing</td><td class="dash">—</td>
-            </tr>
-            <tr>
-              <td class="cond">PR<small>approved · PO exists</small></td>
-              <td><code>PR_STATUS = PO</code></td>
-              <td class="act">PR cannot be cancelled on its own. <b>The PO must be cancelled first</b>; the PR then follows to CN</td>
-              <td>Purchasing</td><td>PO cancellation required</td>
-            </tr>
-            <tr>
-              <td class="cond">PR<small>rejected</small></td>
-              <td><code>PR APPR = R</code></td>
-              <td class="act">Rejection is an <b>approval state</b>, not a cancellation. It never converts to CN automatically</td>
-              <td>Approver</td><td class="dash">—</td>
-            </tr>
-            <tr>
-              <td class="cond">PO<small>just issued</small></td>
-              <td><code>PO_STATUS = OP</code>, no GR</td>
-              <td class="act"><b>Purchasing cancels → PO_STATUS = CN</b> and notifies the supplier</td>
-              <td>Purchasing</td><td>Linked PR → CN or back to Open</td>
-            </tr>
-            <tr>
-              <td class="cond">PO<small>supplier confirmed</small></td>
-              <td><code>PO_STATUS = CF</code>, no GR</td>
-              <td class="act"><b>Supplier agreement required.</b> Cancellation request → supplier accepts → CN</td>
-              <td>Purchasing + supplier</td><td>Cancel the DN first if one exists</td>
-            </tr>
-            <tr>
-              <td class="cond">PO<small>partially received</small></td>
-              <td><code>PO_STATUS = PD</code></td>
-              <td class="act">Full cancellation <b>not allowed</b>. Handle as <b>close short</b>, ending at FD or a separate Closed status</td>
-              <td>Purchasing</td><td>Only the open quantity is closed</td>
-            </tr>
-            <tr>
-              <td class="cond">PO<small>invoice received</small></td>
-              <td><code>IR_STATUS = OP / MC / PS</code></td>
-              <td class="act">Cancellation <b>not allowed</b>. Use a return or a credit memo instead</td>
-              <td>Purchasing + Finance</td><td>Links to the AP document</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="defs">
-        <div><b>Cancel (CN)</b><p>Voids an approved document for a business reason. History stays; nothing moves on</p></div>
-        <div><b>Reject (R)</b><p>Sent back by an approver. An approval state, not a task status</p></div>
-        <div><b>Close</b><p>Stop receiving the remainder. What already happened stays valid</p></div>
-        <div><b>Delete</b><p>Remove a pre-approval document. Not kept for audit</p></div>
+      <div class="ask-body">
+        <p>CN is described only as "cancelled after approval for a later business reason". There is no rule for <b>when it happens, who may do it, or what happens to the linked documents</b>. Tell us how it should work in your own words.</p>
+        <ul>
+          <li>Before approval — cancel, or withdraw and delete?</li>
+          <li>Once a PO exists — can the PR still be cancelled on its own?</li>
+          <li>Who has the authority, and is a reason mandatory?</li>
+        </ul>
       </div>
     </div>
-
     <div data-review="q4"></div>
+
+    <!-- PO -->
+    <div class="card" style="margin-top:26px;">
+      <div class="catalog-head">
+        <div>
+          <span class="group-label">TC00_CODE_LIST · PO_STATUS</span>
+          <h3>Purchase Order</h3>
+        </div>
+        <div class="meta-grid">
+          <span>Approval</span><strong>Used · Header level</strong>
+          <span>Status level</span><strong>Item</strong>
+          <span>Source</span><strong>Reconstructed from the section 06 rules</strong>
+        </div>
+      </div>
+      <div class="code-grid">
+        <div class="code-cell"><div class="top"><span class="idx">01</span><span class="pill blue">Open</span></div><div class="key">OP</div><h4>Open</h4><p>PO approved and issued to the supplier</p></div>
+        <div class="code-cell"><div class="top"><span class="idx">02</span><span class="pill violet">Confirmed</span></div><div class="key">CF</div><h4>Confirmed</h4><p>Supplier confirmed the order</p></div>
+        <div class="code-cell"><div class="top"><span class="idx">03</span><span class="pill amber">Partially Delivered</span></div><div class="key">PD</div><h4>Partially Delivered</h4><p>Partial GR posted</p></div>
+        <div class="code-cell"><div class="top"><span class="idx">04</span><span class="pill green">Fully Delivered</span></div><div class="key">FD</div><h4>Fully Delivered</h4><p>Full GR posted</p></div>
+        <div class="code-cell"><div class="top"><span class="idx">05</span><span class="pill red">Cancelled</span></div><div class="key">CN</div><h4>Cancelled</h4><p>PO cancelled or closed</p><p class="flagnote">Trigger undefined — see below</p></div>
+      </div>
+    </div>
+    <div data-review="q5"></div>
+
+    <!-- PO cancellation -->
+    <div class="card ask">
+      <div class="ask-head">
+        <span class="pill red">OPEN QUESTION</span>
+        <h3>PO cancellation (CN) — what should the trigger be?</h3>
+      </div>
+      <div class="ask-body">
+        <p>A PO has already gone out to the supplier, so cancelling it touches the supplier and — once goods or an invoice arrive — Finance. Tell us how it should work in your own words.</p>
+        <ul>
+          <li>Before the supplier confirms, and after — does the supplier have to agree?</li>
+          <li>Once goods are partly received, or an invoice has arrived — still cancellable?</li>
+          <li>Who has the authority, and what happens to the linked PR and DN?</li>
+        </ul>
+      </div>
+    </div>
+    <div data-review="q6"></div>
+
+    <!-- DN -->
+    <div class="card" style="margin-top:26px;">
+      <div class="catalog-head">
+        <div>
+          <span class="group-label">TC00_CODE_LIST · DN_STATUS</span>
+          <h3>Delivery Note</h3>
+        </div>
+        <div class="meta-grid">
+          <span>Approval</span><strong>Not used</strong>
+          <span>Status level</span><strong>Item</strong>
+          <span>Source</span><strong>Reconstructed from the section 06 rules</strong>
+        </div>
+      </div>
+      <div class="code-grid">
+        <div class="code-cell"><div class="top"><span class="idx">01</span><span class="pill blue">In Transit</span></div><div class="key">IT</div><h4>In Transit</h4><p>ASN or delivery note received, or entered by a user</p></div>
+        <div class="code-cell"><div class="top"><span class="idx">02</span><span class="pill green">Delivered</span></div><div class="key">DL</div><h4>Delivered</h4><p>Goods Receipt posted against the delivery</p></div>
+      </div>
+    </div>
+    <div data-review="q7"></div>
+
+    <!-- IR -->
+    <div class="card" style="margin-top:26px;">
+      <div class="catalog-head">
+        <div>
+          <span class="group-label">TC00_CODE_LIST · IR_STATUS</span>
+          <h3>Invoice Receipt</h3>
+        </div>
+        <div class="meta-grid">
+          <span>Approval</span><strong>Used · Header level</strong>
+          <span>Status level</span><strong>Header</strong>
+          <span>Source</span><strong>Reconstructed from the section 06 rules</strong>
+        </div>
+      </div>
+      <div class="code-grid">
+        <div class="code-cell"><div class="top"><span class="idx">01</span><span class="pill blue">Open</span></div><div class="key">OP</div><h4>Open</h4><p>Supplier invoice received</p></div>
+        <div class="code-cell"><div class="top"><span class="idx">02</span><span class="pill violet">Matched</span></div><div class="key">MC</div><h4>Matched</h4><p>Three-way match completed successfully</p></div>
+        <div class="code-cell"><div class="top"><span class="idx">03</span><span class="pill green">Posted</span></div><div class="key">PS</div><h4>Posted</h4><p>AP accounting document created</p></div>
+        <div class="code-cell"><div class="top"><span class="idx">04</span><span class="pill amber">On Hold</span></div><div class="key">HD</div><h4>On Hold</h4><p>Three-way match failed and needs review</p></div>
+      </div>
+    </div>
+    <div data-review="q8"></div>
   </section>
 
   <!-- ============ 04 ============ -->
@@ -206,7 +241,7 @@
     <div class="sec-head">
       <div class="sec-num">04</div>
       <div>
-        <h2>Business Team Workshop — End-User Status <span class="tagline"><span class="pill blue">CALLED FROM PR</span></span></h2>
+        <h2>End-User Status <span class="tagline"><span class="pill blue">CALLED FROM PR</span></span></h2>
         <p>Only the status the user sees and the business event that changes it. Technical codes are deliberately hidden.</p>
       </div>
     </div>
@@ -247,8 +282,8 @@
         <div class="step red"><span class="n">EXCEPTION</span><h4>Cancelled</h4><span class="when">Changes when</span><p>An approved PR or PO is cancelled due to a later business decision.</p></div>
       </div>
     </div>
-    <div data-review="q5"></div>
-    <div data-review="q6"></div>
+    <div data-review="q9"></div>
+    <div data-review="q10"></div>
   </section>
 
   <!-- ============ 05 ============ -->
@@ -256,14 +291,14 @@
     <div class="sec-head">
       <div class="sec-num">05</div>
       <div>
-        <h2>PR / PO Modification Workshop <span class="tagline"><span class="pill blue">PR MODIFICATION</span></span></h2>
-        <p>Each card takes its own Yes/No and comment. Modification timing, reapproval and downstream control.</p>
+        <h2>PR / PO Modification <span class="tagline"><span class="pill blue">PR MODIFICATION</span></span></h2>
+        <p>Each card takes its own Yes/No and comment: modification timing, reapproval and downstream control.</p>
       </div>
     </div>
     <div class="card">
       <div class="mod-intro">
         <div>
-          <span class="k">WORKSHOP SCOPE</span>
+          <span class="k">SCOPE</span>
           <h4>PR Modification</h4>
           <p>Confirm the core rules for modifying an approved PR and propagating the change to the linked PO.</p>
         </div>
@@ -281,31 +316,31 @@
           <div class="top"><span class="idx">01</span><span class="pill amber">Reconfirm</span></div>
           <h4>1. Modification Window</h4>
           <p>Is PR modification allowed until the supplier registers a Delivery Note? The exact DN event that locks the PR and the linked PO has to be pinned down.</p>
-          <div data-review="q7" data-variant="inline"></div>
+          <div data-review="q11" data-variant="inline"></div>
         </div>
         <div class="mod-item">
           <div class="top"><span class="idx">02</span><span class="pill amber">Reconfirm</span></div>
           <h4>2. Editable Fields</h4>
           <p>Are Quantity and RDD (Requested Delivery Date) the only editable fields? Confirm whether any other field must stay editable after approval.</p>
-          <div data-review="q8" data-variant="inline"></div>
+          <div data-review="q12" data-variant="inline"></div>
         </div>
         <div class="mod-item">
           <div class="top"><span class="idx">03</span><span class="pill amber">Reconfirm</span></div>
           <h4>3. Quantity Decrease</h4>
           <p>For a decrease, may the system modify the PR, update the linked PO and resend the revised PO without another approval?</p>
-          <div data-review="q9" data-variant="inline"></div>
+          <div data-review="q13" data-variant="inline"></div>
         </div>
         <div class="mod-item">
           <div class="top"><span class="idx">04</span><span class="pill blue">Decision</span></div>
           <h4>4. Quantity Increase</h4>
           <p>An increase needs reapproval, but the supplier may ship or register a DN while approval is running. Should the increase be handled as a <b>new PR</b> for the additional quantity instead?</p>
-          <div data-review="q10" data-variant="inline"></div>
+          <div data-review="q14" data-variant="inline"></div>
         </div>
         <div class="mod-item">
           <div class="top"><span class="idx">05</span><span class="pill red">Risk</span></div>
           <h4>5. Status during Reapproval</h4>
           <p>The existing PO may already be Supplier Confirmed while the increased quantity is under reapproval. Proposal: show the user 'PR Change Approval in Progress', keep PO Confirmed as the internal status of the previous PO version, and reset the revised PO to Open for re-confirmation after approval.</p>
-          <div data-review="q11" data-variant="inline"></div>
+          <div data-review="q15" data-variant="inline"></div>
         </div>
       </div>
     </div>
@@ -316,11 +351,15 @@
     <div class="sec-head">
       <div class="sec-num">06</div>
       <div>
-        <h2>IT Development Rules <span class="tagline"><span class="pill blue">PR RULE SET</span></span></h2>
+        <h2>IT Development Rules <span class="tagline"><span class="pill slate">IT ONLY</span></span></h2>
         <p>How approval status, task status and downstream documents combine into a single end-user status.</p>
       </div>
     </div>
     <div class="card">
+      <div class="itonly">
+        <span class="k">FOR IT ONLY</span>
+        <p><b>No reply needed on this section.</b> It exists so the development team can implement the rules — reference only for the business team.</p>
+      </div>
       <div class="scroll-x">
         <table class="rules">
           <thead>
@@ -369,8 +408,6 @@
         <div><span class="k">Result</span><strong>One Status</strong><p>Return the end-user status for the calling screen</p></div>
       </div>
     </div>
-    <div data-review="q12"></div>
-    <div data-review="q13"></div>
   </section>
 
   <div id="summaryMount"></div>
@@ -380,9 +417,12 @@
     <p>Meeting draft · open policy items are not treated as final decisions.</p>
   </footer>
 </div>
+</div>
 
 <script src="../assets/firebase-config.js"></script>
 <script src="../assets/board-core.js"></script>
+<script src="../assets/docs.js"></script>
+<script src="../assets/nav.js"></script>
 <script>
 window.REVIEW_DOC = {
   id: "s04-purchase-progress-status",
@@ -395,34 +435,43 @@ window.REVIEW_DOC = {
     { id:"q2", sec:"02", label:"Approval status codes (MP_APPR_STATUS)",
       q:"Do Draft · Submitted · In Progress · Approved · Rejected cover every approval state?",
       hint:"Say if you need extra states such as withdrawn/recalled submissions or delegated approval." },
-    { id:"q3", sec:"03", label:"PR task status codes (PR_STATUS)",
-      q:"Do you agree with PR_STATUS being just Open · PO Converted · Cancelled?",
+
+    { id:"q3", sec:"03", label:"PR_STATUS — task status codes",
+      q:"Do you agree with PR_STATUS being Open · PO Converted · Cancelled?",
       hint:"Worth checking whether a partially converted PR — only some lines turned into a PO — needs its own status." },
-    { id:"q4", sec:"03", label:"PR / PO cancellation (CN) trigger proposal",
-      q:"Do you agree with the eight rows of triggers, authority and downstream handling above?",
-      hint:"The two to check hardest: closing short instead of cancelling a partially received PO, and no cancellation once an invoice has been received." },
-    { id:"q5", sec:"04", label:"End-user status — 12 normal steps",
+    { id:"q4", sec:"03", label:"PR cancellation (CN) trigger", variant:"note",
+      q:"What should set a PR to Cancelled?",
+      hint:"When it may happen, who may do it, whether a reason is mandatory, and what happens to a linked PO." },
+    { id:"q5", sec:"03", label:"PO_STATUS — task status codes",
+      q:"Do you agree with PO_STATUS being Open · Confirmed · Partially Delivered · Fully Delivered · Cancelled?",
+      hint:"These were reconstructed from the section 06 rules. Say whether Confirmed may only arrive through the Ariba interface or manual entry is allowed too." },
+    { id:"q6", sec:"03", label:"PO cancellation (CN) trigger", variant:"note",
+      q:"What should set a PO to Cancelled?",
+      hint:"Supplier agreement, what happens after partial receipt or once an invoice exists, who has the authority, and the effect on the linked PR and DN." },
+    { id:"q7", sec:"03", label:"DN_STATUS — task status codes",
+      q:"Can In Transit and Delivered alone describe delivery status?",
+      hint:"Consider whether partial delivery, return to supplier or a cancelled shipment need their own status." },
+    { id:"q8", sec:"03", label:"IR_STATUS — task status codes",
+      q:"Do you agree with Open · Matched · Posted · On Hold and the three-way matching criteria?",
+      hint:"If there are matching tolerances on quantity or value, please state them. Also say whether a cancelled or reversed invoice needs a status." },
+
+    { id:"q9", sec:"04", label:"End-user status — 12 normal steps",
       q:"Do the twelve step names and their triggering events match how the business actually works?",
       hint:"Say if a step is missing, two should merge, or a name should change." },
-    { id:"q6", sec:"04", label:"End-user status — 4 exceptions",
+    { id:"q10", sec:"04", label:"End-user status — 4 exceptions",
       q:"Do PR Rejected · PO Rejected · Invoice On Hold · Cancelled cover every exception?",
       hint:"Say if returns, claims or similar need their own visible status." },
-    { id:"q7", sec:"05", label:"Modification window", variant:"inline",
+
+    { id:"q11", sec:"05", label:"Modification window", variant:"inline",
       q:"Do you agree that PR modification is allowed only until the supplier registers a Delivery Note?" },
-    { id:"q8", sec:"05", label:"Editable fields", variant:"inline",
+    { id:"q12", sec:"05", label:"Editable fields", variant:"inline",
       q:"Do you agree with limiting edits to Quantity and RDD?" },
-    { id:"q9", sec:"05", label:"Quantity decrease", variant:"inline",
+    { id:"q13", sec:"05", label:"Quantity decrease", variant:"inline",
       q:"Do you agree with handling a decrease without reapproval, updating and resending the PO automatically?" },
-    { id:"q10", sec:"05", label:"Quantity increase", variant:"inline",
+    { id:"q14", sec:"05", label:"Quantity increase", variant:"inline",
       q:"Do you agree with handling an increase as a new PR for the additional quantity?" },
-    { id:"q11", sec:"05", label:"Status during reapproval", variant:"inline",
-      q:"Do you agree with the displayed status during reapproval and with resetting the revised PO to Open?" },
-    { id:"q12", sec:"06", label:"Status resolution rule table",
-      q:"Are the conditions for all sixteen end-user statuses correct — approval, task status and downstream?",
-      hint:"Point at the specific rows if any conditions overlap or a case is missing." },
-    { id:"q13", sec:"06", label:"Status resolution priority",
-      q:"Do you agree with applying exception statuses first, then falling back to the least-advanced item to return a single status?",
-      hint:"Say if something other than 'least advanced' should represent the document." }
+    { id:"q15", sec:"05", label:"Status during reapproval", variant:"inline",
+      q:"Do you agree with the displayed status during reapproval and with resetting the revised PO to Open?" }
   ]
 };
 </script>
