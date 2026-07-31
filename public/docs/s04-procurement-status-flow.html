@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Procurement Status Flow Guide — 검토 회신</title>
+<meta name="description" content="PR → PO → DN → GR → IR 상태 흐름 가이드 · 항목별 Y/N과 의견 회신" />
+<link rel="stylesheet" href="../assets/app.css" />
+<style>
+/* 이 문서 전용 컴포넌트 — 원본 가이드의 표현을 보드 토큰으로 옮긴 것 */
+.flow{display:flex; align-items:stretch; flex-wrap:wrap; gap:0; padding:18px 20px; background:var(--surface);}
+.stage{flex:1 1 0; min-width:132px; background:var(--surface-2); border:1px solid var(--line); border-radius:6px; padding:14px 12px; text-align:center;}
+.stage .code{font-family:var(--mono); font-weight:700; font-size:16px; color:var(--accent);}
+.stage .name{font-size:11.5px; color:var(--muted); margin-top:3px;}
+.stage .use{display:inline-block; margin-top:9px; font-size:10px; font-weight:700; letter-spacing:.04em; padding:3px 9px; border-radius:4px;}
+.use.on{background:var(--p-green-bg); color:var(--p-green);}
+.use.off{background:var(--p-slate-bg); color:var(--p-slate);}
+.arrow{display:flex; align-items:center; justify-content:center; font-size:19px; color:var(--line-3); padding:0 7px; font-weight:700;}
+
+.legend{display:flex; flex-wrap:wrap; gap:9px; padding:16px 20px;}
+.chip{display:inline-flex; align-items:center; gap:8px; font-size:12.5px; color:var(--ink-2); background:var(--surface-2); border:1px solid var(--line); border-radius:5px; padding:6px 12px;}
+.chip .dot{width:11px; height:11px; border-radius:3px; display:inline-block;}
+
+.badge{display:inline-block; font-size:12px; font-weight:660; padding:3px 10px; border-radius:4px; white-space:nowrap;}
+.b-open{background:var(--p-slate-bg); color:var(--p-slate);}
+.b-prog{background:var(--p-blue-bg); color:var(--p-blue);}
+.b-wait{background:var(--p-amber-bg); color:var(--p-amber);}
+.b-done{background:var(--p-green-bg); color:var(--p-green);}
+.b-rej{background:var(--p-red-bg); color:var(--p-red);}
+.b-cancel{background:var(--p-slate-bg); color:var(--p-slate); text-decoration:line-through;}
+.b-empty{background:transparent; color:var(--muted); border:1px dashed var(--line-2);}
+
+.stbl{width:100%; border-collapse:collapse; font-size:13.5px; min-width:560px;}
+.stbl th{background:var(--surface-3); text-align:left; font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); font-weight:680; padding:10px 13px;}
+.stbl td{padding:10px 13px; border-top:1px solid var(--line); vertical-align:top;}
+.stbl td.c{font-family:var(--mono); font-weight:700; color:var(--ink-2); width:62px;}
+.stbl td.s{width:180px;}
+.stbl td.t{color:var(--muted);}
+.stbl tr.flag td{background:var(--no-bg);}
+.stbl tr.flag td.t{color:var(--ink-2);}
+.mark{color:var(--no); font-weight:800; font-size:10.5px; vertical-align:super; margin-left:4px; letter-spacing:.04em;}
+
+.mock{padding:18px 20px; background:var(--surface-2); border-top:1px solid var(--line);}
+.simctl{display:flex; align-items:center; gap:11px; margin-bottom:15px; background:var(--surface); border:1px solid var(--line-2); border-radius:5px; padding:9px 13px; max-width:560px;}
+.simctl label{font-size:12.5px; font-weight:660; color:var(--ink-2); white-space:nowrap;}
+.simctl select{flex:1; font:inherit; font-size:13px; padding:6px 9px; border:1px solid var(--line-2); border-radius:4px; background:var(--surface-2); color:var(--ink); cursor:pointer;}
+.hist{display:flex; flex-direction:column; max-width:600px;}
+.hist .row{display:grid; grid-template-columns:46px 1fr 150px; align-items:center; gap:12px; padding:11px 14px; background:var(--surface); border:1px solid var(--line); position:relative;}
+.hist .row + .row{border-top:none;}
+.hist .row:first-child{border-radius:6px 6px 0 0;}
+.hist .row:last-child{border-radius:0 0 6px 6px;}
+.hist .stp{font-family:var(--mono); font-weight:700; font-size:12.5px; color:var(--accent); position:relative; z-index:2;}
+.hist .doc{font-family:var(--mono); font-size:12.5px; color:var(--ink-2);}
+.hist .doc small{display:block; color:var(--muted); font-family:var(--sans); font-size:11px;}
+.hist .row:not(:last-child)::after{content:""; position:absolute; left:23px; top:50%; width:2px; height:100%; background:var(--line-2);}
+
+.listtbl{width:100%; border-collapse:collapse; font-size:13px; min-width:720px;}
+.listtbl th{background:var(--accent); color:#fff; font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; font-weight:700; padding:10px 12px; text-align:center;}
+.listtbl th:first-child{text-align:left;}
+.listtbl th .sub{display:block; font-size:9.5px; font-weight:500; opacity:.8; letter-spacing:.04em;}
+:root[data-theme="dark"] .listtbl th{background:var(--accent-soft); color:var(--accent-2);}
+@media (prefers-color-scheme:dark){.listtbl th{background:var(--accent-soft); color:var(--accent-2);}}
+:root[data-theme="light"] .listtbl th{background:var(--accent); color:#fff;}
+.listtbl td{padding:9px 12px; border-top:1px solid var(--line); text-align:center;}
+.listtbl td.docno{font-family:var(--mono); font-size:11.5px; color:var(--ink-2); text-align:left;}
+
+.note{background:var(--hold-bg); border:1px solid var(--line); border-radius:6px; padding:14px 18px; font-size:13px; color:var(--ink-2); margin-top:14px;}
+.note b{color:var(--ink);}
+.openq{background:var(--no-bg); border-top:1px solid var(--line);  padding:16px 20px; display:flex; flex-direction:column; gap:8px;}
+.openq .k{font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--no); font-weight:720;}
+.openq h4{font-size:14.5px; font-weight:700;}
+.openq p{font-size:13px; color:var(--ink-2);}
+.openq ul{margin:2px 0 0; padding-left:19px; font-size:13px; color:var(--ink-2); display:flex; flex-direction:column; gap:3px;}
+
+.cmp{width:100%; border-collapse:collapse; font-size:13.5px; min-width:700px;}
+.cmp th{background:var(--surface-3); text-align:left; font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); font-weight:680; padding:10px 13px;}
+.cmp td{padding:11px 13px; border-top:1px solid var(--line); vertical-align:top;}
+.cmp td.topic{font-weight:680; white-space:nowrap;}
+.cmp td.a{background:var(--surface-2);}
+.cmp code{font-family:var(--mono); font-size:11.5px; background:var(--surface-3); padding:2px 6px; border-radius:3px; color:var(--ink-2);}
+.cmp .src{display:block; font-size:11px; color:var(--muted); font-weight:500; margin-top:3px;}
+</style>
+</head>
+<body>
+
+<div id="topbarMount"></div>
+
+<div class="wrap">
+
+  <header class="hero">
+    <div class="hero-eyebrow">
+      <span class="code">MERP PROCUREMENT</span>
+      <span class="pill blue">STATUS FLOW GUIDE</span>
+      <span class="pill red">첫 번째 논의 대상</span>
+    </div>
+    <h1>Procurement Status Flow Guide</h1>
+    <p class="sub">PR → PO → DN → GR → IR 사이클에서 각 문서의 상태 코드가 어떻게 움직이고 화면에 어떻게 보이는지 정리한 가이드입니다. 아래 12개 항목에 <b>Y / N</b>과 의견을 남겨 주세요.</p>
+    <div class="hero-meta">
+      <div><span class="k">대상 문서</span><strong>PR · PO · DN · GR · IR</strong></div>
+      <div><span class="k">승인 대상</span><strong>PR · IR (이 문서 기준)</strong></div>
+      <div><span class="k">검토 항목</span><strong>12건</strong></div>
+      <div><span class="k">미결 항목</span><strong>취소 트리거 · 반려 PR 재사용</strong></div>
+    </div>
+  </header>
+
+  <div class="howto">
+    <h2>회신 방법</h2>
+    <ol>
+      <li>아래 <b>검토자</b> 칸에 이름과 소속을 적습니다.</li>
+      <li>각 항목에서 <b>동의(Y) / 수정 필요(N) / 보류</b>를 고르고 의견을 적습니다. <b>N을 고르면 사유는 필수</b>입니다.</li>
+      <li>입력하는 즉시 공유 공간에 저장됩니다. 상단 <b>전체 응답</b>에서 다른 분들의 회신도 볼 수 있습니다.</li>
+    </ol>
+  </div>
+
+  <div id="reviewerMount"></div>
+
+  <!-- ============ 00 · 문서 간 불일치 ============ -->
+  <section class="section">
+    <div class="sec-head">
+      <div class="sec-num">00</div>
+      <div>
+        <h2>먼저 정리할 것 — 두 설계 문서의 불일치 <span class="tagline"><span class="pill red">선결</span></span></h2>
+        <p>이 가이드와 <b>Purchase Progress Status Design</b>이 같은 대상을 다르게 정의하고 있습니다. 아래 두 건을 먼저 정하지 않으면 나머지 항목의 답이 달라집니다.</p>
+      </div>
+    </div>
+    <div class="card scroll-x">
+      <table class="cmp">
+        <thead>
+          <tr><th>쟁점</th><th>이 가이드 (Status Flow Guide)</th><th>Purchase Progress Status Design</th><th>영향</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="topic">상태 모델</td>
+            <td class="a">결재 진행을 <b>업무 상태 안에</b> 넣음<span class="src">PR_STATUS = OP · SM · UA · PO · RJ · CN</span></td>
+            <td>결재 상태와 업무 상태를 <b>분리</b><span class="src">MP_APPR_STATUS(D·S·I·A·R) + PR_STATUS(PR·PO·CN)</span></td>
+            <td>테이블 구조, 상태 판정 함수, 화면 표시가 전부 달라짐</td>
+          </tr>
+          <tr>
+            <td class="topic">PO 승인</td>
+            <td class="a"><b>사용 안 함</b> — PO·DN은 시스템이 자동 진행<span class="src">승인은 PR·IR만</span></td>
+            <td><b>사용함</b> — PO는 헤더 레벨 결재<span class="src">'PO Approval in Progress' 상태 존재</span></td>
+            <td>발주 프로세스와 사용자 표시 상태 12단계의 유효성</td>
+          </tr>
+          <tr>
+            <td class="topic">DN 상태</td>
+            <td class="a">IT · DL 2종 사용</td>
+            <td>DN_STATUS 아이템 레벨 관리 (동일)</td>
+            <td>일치</td>
+          </tr>
+          <tr>
+            <td class="topic">GR</td>
+            <td class="a">자체 상태 없음, PO·DN을 전진시키는 이벤트</td>
+            <td>자체 상태 없음 (동일)</td>
+            <td>일치</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div data-review="q1"></div>
+    <div data-review="q2"></div>
+  </section>
+
+  <!-- ============ 01 · 흐름 ============ -->
+  <section class="section">
+    <div class="sec-head">
+      <div class="sec-num">01</div>
+      <div>
+        <h2>Process Flow Overview</h2>
+        <p>각 문서는 자기 상태를 가지며, 다음 문서에서 일어난 행위가 앞 문서의 상태를 갱신합니다.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="flow">
+        <div class="stage"><div class="code">PR</div><div class="name">Purchase Requisition</div><span class="use on">APPROVAL</span></div>
+        <div class="arrow">→</div>
+        <div class="stage"><div class="code">PO</div><div class="name">Purchase Order</div><span class="use off">NO&nbsp;APPROVAL</span></div>
+        <div class="arrow">→</div>
+        <div class="stage"><div class="code">DN</div><div class="name">Delivery Note / ASN</div><span class="use off">NO&nbsp;APPROVAL</span></div>
+        <div class="arrow">→</div>
+        <div class="stage"><div class="code">GR</div><div class="name">Goods Receipt</div><span class="use off">EVENT</span></div>
+        <div class="arrow">→</div>
+        <div class="stage"><div class="code">IR</div><div class="name">Invoice Receipt</div><span class="use on">APPROVAL</span></div>
+      </div>
+      <div class="notice">
+        <span class="k">원칙</span>
+        <p><b>모든 문서가 자기 상태를 가지고 화면에 표시</b>합니다. 다만 <b>승인 프로세스는 PR과 IR에만</b> 적용되고, PO·DN은 시스템이 자동으로 진행합니다. <b>GR</b>은 자체 상태가 없으며, GR 전기(posting)가 PO(Partially / Fully Delivered)와 DN(Delivered)을 전진시키는 <i>이벤트</i>입니다.</p>
+      </div>
+    </div>
+    <div data-review="q3"></div>
+  </section>
+
+  <!-- ============ 02 · 색상 ============ -->
+  <section class="section">
+    <div class="sec-head">
+      <div class="sec-num">02</div>
+      <div>
+        <h2>Color Legend</h2>
+        <p>모든 화면에서 같은 색 언어를 씁니다.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="legend">
+        <span class="chip"><span class="dot" style="background:var(--p-slate)"></span> Open / Draft — 시작 전</span>
+        <span class="chip"><span class="dot" style="background:var(--p-blue)"></span> In Progress — 진행 중</span>
+        <span class="chip"><span class="dot" style="background:var(--p-amber)"></span> Waiting / On Hold — 조치 필요</span>
+        <span class="chip"><span class="dot" style="background:var(--p-green)"></span> Completed — 완료</span>
+        <span class="chip"><span class="dot" style="background:var(--p-red)"></span> Rejected — 반려</span>
+        <span class="chip"><span class="dot" style="background:var(--p-slate)"></span> Cancelled — 취소(취소선)</span>
+      </div>
+    </div>
+    <div data-review="q4"></div>
+  </section>
+
+  <!-- ============ 03 · 상태 코드 ============ -->
+  <section class="section">
+    <div class="sec-head">
+      <div class="sec-num">03</div>
+      <div>
+        <h2>Status Code Reference</h2>
+        <p>문서별 상태 코드와 전환 트리거입니다. 붉은 행은 트리거가 정해지지 않은 항목입니다.</p>
+      </div>
+    </div>
+
+    <div class="card scroll-x">
+      <table class="stbl">
+        <thead><tr><th colspan="3">PR_STATUS — Purchase Requisition · 승인 사용</th></tr>
+        <tr><th>Code</th><th>Status</th><th>Trigger / Meaning</th></tr></thead>
+        <tbody>
+          <tr><td class="c">OP</td><td class="s"><span class="badge b-open">Open</span></td><td class="t">Saved as Draft</td></tr>
+          <tr><td class="c">SM</td><td class="s"><span class="badge b-prog">Submitted</span></td><td class="t">Submitted</td></tr>
+          <tr><td class="c">UA</td><td class="s"><span class="badge b-prog">Under Approval</span></td><td class="t">Approval process started</td></tr>
+          <tr><td class="c">PO</td><td class="s"><span class="badge b-done">PO Converted</span></td><td class="t">PO created from PR</td></tr>
+          <tr class="flag"><td class="c">RJ</td><td class="s"><span class="badge b-rej">Rejected</span></td><td class="t">Rejected<span class="mark">② 결정 필요</span> — 이 PR을 재사용(Open 복귀)할지, 신규 PR을 만들지</td></tr>
+          <tr class="flag"><td class="c">CN</td><td class="s"><span class="badge b-cancel">Cancelled</span></td><td class="t">Cancelled by requester or approver<span class="mark">① 트리거 미정</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div data-review="q5"></div>
+
+    <div class="card scroll-x" style="margin-top:14px;">
+      <table class="stbl">
+        <thead><tr><th colspan="3">PO_STATUS — Purchase Order · 승인 없음(자동)</th></tr>
+        <tr><th>Code</th><th>Status</th><th>Trigger / Meaning</th></tr></thead>
+        <tbody>
+          <tr><td class="c">OP</td><td class="s"><span class="badge b-prog">Open</span></td><td class="t">PO approved and released</td></tr>
+          <tr><td class="c">CF</td><td class="s"><span class="badge b-prog">Confirmed</span></td><td class="t">PO confirmation received from Ariba or supplier</td></tr>
+          <tr><td class="c">PD</td><td class="s"><span class="badge b-wait">Partially Delivered</span></td><td class="t">Partial GR posted</td></tr>
+          <tr><td class="c">FD</td><td class="s"><span class="badge b-done">Fully Delivered</span></td><td class="t">Full GR posted</td></tr>
+          <tr class="flag"><td class="c">CN</td><td class="s"><span class="badge b-cancel">Cancelled</span></td><td class="t">PO cancelled or closed<span class="mark">① 트리거 미정</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div data-review="q6"></div>
+
+    <div class="card scroll-x" style="margin-top:14px;">
+      <table class="stbl">
+        <thead><tr><th colspan="3">DN_STATUS — Delivery Note / ASN · 승인 없음(자동)</th></tr>
+        <tr><th>Code</th><th>Status</th><th>Trigger / Meaning</th></tr></thead>
+        <tbody>
+          <tr><td class="c">IT</td><td class="s"><span class="badge b-prog">In Transit</span></td><td class="t">ASN/DN received from Ariba, or user inputs DN data</td></tr>
+          <tr><td class="c">DL</td><td class="s"><span class="badge b-done">Delivered</span></td><td class="t">Goods Receipt posted</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div data-review="q7"></div>
+
+    <div class="card scroll-x" style="margin-top:14px;">
+      <table class="stbl">
+        <thead><tr><th colspan="3">IR_STATUS — Invoice Receipt · 승인 사용</th></tr>
+        <tr><th>Code</th><th>Status</th><th>Trigger / Meaning</th></tr></thead>
+        <tbody>
+          <tr><td class="c">OP</td><td class="s"><span class="badge b-prog">Open</span></td><td class="t">Invoice received</td></tr>
+          <tr><td class="c">MC</td><td class="s"><span class="badge b-done">Matched</span></td><td class="t">3-way matching completed successfully</td></tr>
+          <tr><td class="c">PS</td><td class="s"><span class="badge b-done">Posted</span></td><td class="t">AP accounting document created</td></tr>
+          <tr><td class="c">HD</td><td class="s"><span class="badge b-wait">On Hold</span></td><td class="t">3-way matching failed</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div data-review="q8"></div>
+  </section>
+
+  <!-- ============ 04 · 미결 ① 취소 ============ -->
+  <section class="section">
+    <div class="sec-head">
+      <div class="sec-num">04</div>
+      <div>
+        <h2>미결 ① — PR / PO를 <span class="badge b-cancel">Cancelled</span>로 만드는 트리거 <span class="tagline"><span class="pill red">결정 필요</span></span></h2>
+        <p>원본 가이드에는 트리거가 비어 있습니다. 아래는 확정을 위한 제안이며, 이견이 있는 행을 지목해 주세요.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="openq">
+        <span class="k">원본 가이드의 질문</span>
+        <p>취소를 언제, 누가 하는지 정의가 없습니다. 예를 들어:</p>
+        <ul>
+          <li>승인 전 · 입고 전 요청자가 직접 취소?</li>
+          <li>결재자가 반려하면 자동 취소(반려 → 취소)?</li>
+          <li>PO 취소는 GR이 없을 때만? 부분 입고 후에도 가능?</li>
+          <li>취소 권한은 누구에게 있고, 사유 입력은 필수인가?</li>
+        </ul>
+      </div>
+
+      <div class="prop-head">
+        <span class="pill blue">제안</span>
+        <h3>취소 트리거 · 권한 · 후속 처리</h3>
+        <p>업무 단계별로 취소를 <b>허용 / 합의 필요 / 불가</b>로 나누고, 불가 구간은 다른 수단(잔량 종결, 대변전표)으로 처리하는 안입니다.</p>
+      </div>
+      <div class="scroll-x">
+        <table class="trig">
+          <thead><tr><th>구분</th><th>조건</th><th>제안 트리거 · 처리</th><th>권한</th><th>후속 문서</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="cond">PR<small>결재 전</small></td>
+              <td>OP / SM / UA</td>
+              <td class="act">취소가 아니라 <b>상신 회수 후 삭제</b>로 처리. <code>CN</code>을 쓰지 않음</td>
+              <td>요청자</td><td class="dash">—</td>
+            </tr>
+            <tr>
+              <td class="cond">PR<small>승인 후 · PO 없음</small></td>
+              <td>승인 완료, 연결 PO 없음</td>
+              <td class="act"><b>사유 입력 후 취소 → PR_STATUS = CN</b></td>
+              <td>요청자 또는 구매팀</td><td class="dash">—</td>
+            </tr>
+            <tr>
+              <td class="cond">PR<small>승인 후 · PO 있음</small></td>
+              <td><code>PR_STATUS = PO</code></td>
+              <td class="act">PR 단독 취소 <b>불가</b>. <b>PO 취소가 선행</b>되어야 하고, PO 취소 시 PR도 CN으로 연동</td>
+              <td>구매팀</td><td>PO 취소 필수</td>
+            </tr>
+            <tr>
+              <td class="cond">PR<small>반려</small></td>
+              <td><code>PR_STATUS = RJ</code></td>
+              <td class="act">반려는 <b>취소가 아님</b>. RJ를 CN으로 자동 전환하지 않음 (미결 ② 참조)</td>
+              <td>결재자</td><td class="dash">—</td>
+            </tr>
+            <tr>
+              <td class="cond">PO<small>발주 직후</small></td>
+              <td><code>PO_STATUS = OP</code>, GR 없음</td>
+              <td class="act"><b>구매팀 취소 → PO_STATUS = CN</b> + 공급사 취소 통보</td>
+              <td>구매팀</td><td>연결 PR → CN 또는 Open 복귀</td>
+            </tr>
+            <tr>
+              <td class="cond">PO<small>공급사 확정 후</small></td>
+              <td><code>PO_STATUS = CF</code>, GR 없음</td>
+              <td class="act">공급사 <b>합의 필요</b>. 취소 요청 → 공급사 수락 후 CN</td>
+              <td>구매팀 + 공급사</td><td>DN 있으면 DN 선(先) 취소</td>
+            </tr>
+            <tr>
+              <td class="cond">PO<small>부분 입고</small></td>
+              <td><code>PO_STATUS = PD</code></td>
+              <td class="act">전체 취소 <b>불가</b>. <b>잔량 종결(Close short)</b>로 처리 — 입고분은 유효</td>
+              <td>구매팀</td><td>미입고 잔량만 종결</td>
+            </tr>
+            <tr>
+              <td class="cond">PO<small>송장 접수 후</small></td>
+              <td><code>IR_STATUS = OP / MC / PS</code></td>
+              <td class="act">취소 <b>불가</b>. 반품 또는 대변전표(Credit Memo)로 처리</td>
+              <td>구매팀 + 회계</td><td>AP 전표 연동</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="defs">
+        <div><b>Cancel (CN)</b><p>승인된 문서를 업무 사유로 무효화. 이력은 남고 후속 진행은 중단</p></div>
+        <div><b>Reject (RJ)</b><p>결재선에서 반려. 재작업 대상이며 취소가 아님</p></div>
+        <div><b>Close</b><p>잔량을 더 받지 않고 종결. 이미 진행된 부분은 유효</p></div>
+        <div><b>Delete</b><p>결재 전 문서를 삭제. 이력 조회 대상 아님</p></div>
+      </div>
+      <div class="note">
+        <b>공통 제안:</b> 취소는 <b>사유 코드 + 자유 입력</b>을 필수로 하고, 취소 이력(누가·언제·왜)을 문서 이력에 남깁니다. 자동 취소는 두지 않고 <b>모두 명시적 행위</b>로 처리합니다.
+      </div>
+    </div>
+    <div data-review="q9"></div>
+  </section>
+
+  <!-- ============ 05 · 미결 ② 반려 PR ============ -->
+  <section class="section">
+    <div class="sec-head">
+      <div class="sec-num">05</div>
+      <div>
+        <h2>미결 ② — 반려된 PR을 재사용할 수 있는가 <span class="tagline"><span class="pill red">결정 필요</span></span></h2>
+        <p>PR 번호 체계, 감사 이력, 결재 재시작 방식이 함께 결정됩니다.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="openq">
+        <span class="k">원본 가이드의 질문</span>
+        <p>PR이 반려되면 요청자가 <b>같은 PR을 수정해 다시 상신</b>(RJ → OP 복귀)할 수 있는지, 아니면 <b>새 PR을 만들어야</b> 하는지 정해야 합니다.</p>
+      </div>
+      <div class="scroll-x">
+        <table class="cmp">
+          <thead><tr><th>안</th><th>동작</th><th>장점</th><th>유의점</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="topic">A. 재사용 <span class="pill blue">권장</span></td>
+              <td class="a"><code>RJ → OP</code> 복귀 후 수정·재상신. 결재 이력은 회차(rev)로 누적</td>
+              <td>요청자 입력 반복 없음, 같은 번호로 추적, 반려 사유와 수정 내용이 한 문서에 남음</td>
+              <td>결재 이력을 <b>회차 단위로 쌓는 구조</b>가 필요. 재상신 시 결재선 재계산 규칙 필요</td>
+            </tr>
+            <tr>
+              <td class="topic">B. 신규 생성</td>
+              <td class="a">반려된 PR은 종결 상태로 고정, 복사해 새 PR 생성</td>
+              <td>문서 1건 = 결재 1회로 단순. 감사 관점에서 명확</td>
+              <td>번호가 계속 늘어나고, 반려-재작성 이력이 문서 간에 흩어짐. 원본 연결(참조 필드) 필요</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note">
+        <b>제안:</b> <b>A(재사용)</b>를 기본으로 하되, 재사용 가능 횟수와 조건을 정합니다. 예 — 반려 후 <b>영업일 N일 이내</b>, <b>금액이 결재 기준 구간을 넘지 않는 수정</b>이면 재상신 허용, 그 밖에는 신규 PR. 반려 사유는 필수 입력으로 두고 PR 이력에 회차별로 남깁니다.
+      </div>
+    </div>
+    <div data-review="q10"></div>
+  </section>
+
+  <!-- ============ 06 · 화면 ============ -->
+  <section class="section">
+    <div class="sec-head">
+      <div class="sec-num">06</div>
+      <div>
+        <h2>화면에서의 상태 표시</h2>
+        <p>상세 화면의 Phase 탭과, 목록 화면의 5컬럼 배지 표현입니다.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="band">
+        <b>6-1. PR / PO 상세 — "Phase" 탭</b>
+        <p>PR·PO·DN·GR·IR 전체 체인을 세로로 쌓아 진행 정도를 한눈에 보여줍니다. 아래 선택으로 각 시점의 화면을 확인해 보세요.</p>
+      </div>
+      <div class="mock">
+        <div class="simctl">
+          <label for="sel_phase">시점 선택</label>
+          <select id="sel_phase">
+            <option value="pr">① PR 승인 → PO 생성</option>
+            <option value="po">② PO 공급사 확정</option>
+            <option value="dn" selected>③ DN — 배송 중</option>
+            <option value="gr">④ GR — 입고 완료</option>
+            <option value="ir">⑤ IR — 송장 전기</option>
+          </select>
+        </div>
+        <div class="hist" id="histPanel">
+          <div class="row"><span class="stp">PR</span><span class="doc" id="doc_pr">PR-WTFD-202603-00001<small id="sub_pr"></small></span><span id="bd_pr"></span></div>
+          <div class="row"><span class="stp">PO</span><span class="doc" id="doc_po">PO-WTFD-202603-00001<small id="sub_po"></small></span><span id="bd_po"></span></div>
+          <div class="row"><span class="stp">DN</span><span class="doc" id="doc_dn">DN-WTFD-202603-00001<small id="sub_dn"></small></span><span id="bd_dn"></span></div>
+          <div class="row"><span class="stp">GR</span><span class="doc" id="doc_gr">GR-WTFD-202603-00001<small id="sub_gr"></small></span><span id="bd_gr"></span></div>
+          <div class="row"><span class="stp">IR</span><span class="doc" id="doc_ir">IR-WTFD-202603-00001<small id="sub_ir"></small></span><span id="bd_ir"></span></div>
+        </div>
+      </div>
+    </div>
+    <div data-review="q11"></div>
+
+    <div class="card" style="margin-top:14px;">
+      <div class="band">
+        <b>6-2. PR 목록 — PR 한 건당 5개 프로세스 컬럼</b>
+        <p>PR 한 건이 한 행이고, 상태를 PR / PO / DN / GR / IR 5개 컬럼으로 나눠 배지로 보여줍니다.</p>
+      </div>
+      <div class="scroll-x">
+        <table class="listtbl">
+          <thead>
+            <tr>
+              <th>PR No.</th>
+              <th>PR <span class="sub">Requisition</span></th>
+              <th>PO <span class="sub">Order</span></th>
+              <th>DN <span class="sub">Delivery</span></th>
+              <th>GR <span class="sub">Receipt</span></th>
+              <th>IR <span class="sub">Invoice</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="docno">PR-WTFD-202603-00001</td><td><span class="badge b-done">PO Converted</span></td><td><span class="badge b-done">Fully Delivered</span></td><td><span class="badge b-done">Delivered</span></td><td><span class="badge b-done">Completed</span></td><td><span class="badge b-done">Posted</span></td></tr>
+            <tr><td class="docno">PR-WTFD-202603-00002</td><td><span class="badge b-done">PO Converted</span></td><td><span class="badge b-done">Fully Delivered</span></td><td><span class="badge b-done">Delivered</span></td><td><span class="badge b-done">Completed</span></td><td><span class="badge b-wait">On Hold</span></td></tr>
+            <tr><td class="docno">PR-WTFD-202603-00003</td><td><span class="badge b-done">PO Converted</span></td><td><span class="badge b-wait">Partially Delivered</span></td><td><span class="badge b-prog">In Transit</span></td><td><span class="badge b-empty">Pending</span></td><td><span class="badge b-empty">—</span></td></tr>
+            <tr><td class="docno">PR-WTFD-202603-00004</td><td><span class="badge b-prog">Under Approval</span></td><td><span class="badge b-empty">—</span></td><td><span class="badge b-empty">—</span></td><td><span class="badge b-empty">—</span></td><td><span class="badge b-empty">—</span></td></tr>
+            <tr><td class="docno">PR-WTFD-202603-00005</td><td><span class="badge b-open">Open</span></td><td><span class="badge b-empty">—</span></td><td><span class="badge b-empty">—</span></td><td><span class="badge b-empty">—</span></td><td><span class="badge b-empty">—</span></td></tr>
+            <tr><td class="docno">PR-WTFD-202603-00006</td><td><span class="badge b-cancel">Cancelled</span></td><td><span class="badge b-empty">—</span></td><td><span class="badge b-empty">—</span></td><td><span class="badge b-empty">—</span></td><td><span class="badge b-empty">—</span></td></tr>
+            <tr><td class="docno">PR-WTFD-202603-00007</td><td><span class="badge b-rej">Rejected</span></td><td><span class="badge b-empty">—</span></td><td><span class="badge b-empty">—</span></td><td><span class="badge b-empty">—</span></td><td><span class="badge b-empty">—</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="notice">
+        <span class="k">읽는 법</span>
+        <p>다섯 컬럼이 모두 초록이면 완결(입고·송장 전기 완료)입니다. 빈 칸(—)은 아직 시작하지 않은 단계입니다. 주황은 후속 조치가 필요한 단계(부분 납품, 송장 보류), 빨강·회색은 반려·취소된 건입니다.</p>
+      </div>
+    </div>
+    <div data-review="q12"></div>
+  </section>
+
+  <div id="summaryMount"></div>
+
+  <footer>
+    <span class="code">MERP PROCUREMENT</span>
+    <p>Status Flow Guide · PR → PO → DN → GR → IR · 미확정 항목은 결정 사항으로 간주하지 않습니다.</p>
+  </footer>
+</div>
+
+<script>
+/* Phase 탭 시뮬레이터 — 원본 가이드의 동작을 그대로 유지 */
+(function () {
+  var DOC = { pr:"PR-WTFD-202603-00001", po:"PO-WTFD-202603-00001", dn:"DN-WTFD-202603-00001", gr:"GR-WTFD-202603-00001", ir:"IR-WTFD-202603-00001" };
+  var PEND = ["b-empty", "Pending", null];
+  var PHASES = {
+    pr: {
+      pr:["b-done","PO Converted",DOC.pr,"요청 승인 후 PO로 전환"],
+      po:["b-prog","Open",DOC.po,"PO가 공급사에 발송됨"],
+      dn:PEND.concat("출하 통보 없음"), gr:PEND.concat("입고 대기"), ir:PEND.concat("송장 대기")
+    },
+    po: {
+      pr:["b-done","PO Converted",DOC.pr,"요청이 PO로 전환됨"],
+      po:["b-prog","Confirmed",DOC.po,"공급사가 주문을 확정"],
+      dn:PEND.concat("출하 통보 없음"), gr:PEND.concat("입고 대기"), ir:PEND.concat("송장 대기")
+    },
+    dn: {
+      pr:["b-done","PO Converted",DOC.pr,"요청이 PO로 전환됨"],
+      po:["b-prog","Confirmed",DOC.po,"주문 확정, 납품 대기"],
+      dn:["b-prog","In Transit",DOC.dn,"출하 통보(ASN) 수신"],
+      gr:PEND.concat("입고 대기"), ir:PEND.concat("송장 대기")
+    },
+    gr: {
+      pr:["b-done","PO Converted",DOC.pr,"요청이 PO로 전환됨"],
+      po:["b-done","Fully Delivered",DOC.po,"PO 전량 입고 완료"],
+      dn:["b-done","Delivered",DOC.dn,"납품 완료"],
+      gr:["b-done","Completed",DOC.gr,"입고 전기 완료"],
+      ir:PEND.concat("송장 대기")
+    },
+    ir: {
+      pr:["b-done","PO Converted",DOC.pr,"요청이 PO로 전환됨"],
+      po:["b-done","Fully Delivered",DOC.po,"PO 전량 입고 완료"],
+      dn:["b-done","Delivered",DOC.dn,"납품 완료"],
+      gr:["b-done","Completed",DOC.gr,"입고 전기 완료"],
+      ir:["b-done","Posted",DOC.ir,"3-way 매칭 후 AP 전기"]
+    }
+  };
+  function renderPhase(p) {
+    var st = PHASES[p];
+    ["pr","po","dn","gr","ir"].forEach(function (k) {
+      var s = st[k];
+      document.getElementById("bd_" + k).innerHTML = '<span class="badge ' + s[0] + '">' + s[1] + '</span>';
+      document.getElementById("doc_" + k).firstChild.nodeValue = s[2] ? s[2] : "— 아직 생성되지 않음 —";
+      document.getElementById("sub_" + k).textContent = s[3];
+    });
+  }
+  var sel = document.getElementById("sel_phase");
+  sel.addEventListener("change", function () { renderPhase(sel.value); });
+  renderPhase(sel.value);
+})();
+</script>
+
+<script src="../assets/firebase-config.js"></script>
+<script src="../assets/board-core.js"></script>
+<script>
+window.REVIEW_DOC = {
+  id: "s04-procurement-status-flow",
+  code: "MERP PROCUREMENT",
+  title: "Procurement Status Flow Guide",
+  items: [
+    { id:"q1", sec:"00", label:"상태 모델 단일화 (결재상태 분리 여부)",
+      q:"결재 진행을 업무 상태 안에 넣지 않고 결재상태(MP_APPR_STATUS)와 업무상태를 분리하는 쪽으로 통일하는 데 동의하십니까?",
+      hint:"동의하면 이 가이드의 PR_STATUS는 OP·SM·UA·PO·RJ·CN → PR·PO·CN 으로 줄고, 진행 표시는 결재상태와 조합해 만듭니다. 반대면 반대 방향으로 통일해야 합니다." },
+    { id:"q2", sec:"00", label:"PO 승인 사용 여부",
+      q:"PO에 별도 결재를 두지 않고(이 가이드 기준) 시스템이 자동 진행하는 것이 맞습니까?",
+      hint:"다른 문서에는 'PO Approval in Progress' 상태가 있습니다. 금액·품목 기준으로 PO 결재가 필요한 경우가 있다면 조건을 적어주세요." },
+    { id:"q3", sec:"01", label:"프로세스 흐름과 승인 범위",
+      q:"PR → PO → DN → GR → IR 흐름과 'GR은 자체 상태 없이 앞 문서를 전진시키는 이벤트'라는 원칙에 동의하십니까?",
+      hint:"GR 취소(입고 취소)가 발생하면 PO·DN 상태를 어떻게 되돌릴지도 함께 적어주세요." },
+    { id:"q4", sec:"02", label:"상태 색상 체계 6종",
+      q:"Open · In Progress · Waiting · Completed · Rejected · Cancelled 6가지 색 구분으로 충분합니까?",
+      hint:"취소는 회색+취소선으로 표시합니다. 색약 사용자를 위해 색 외 구분이 더 필요한지도 봐주세요." },
+    { id:"q5", sec:"03", label:"PR_STATUS 코드 6종",
+      q:"OP · SM · UA · PO · RJ · CN 구성과 각 전환 트리거가 실제 업무와 맞습니까?",
+      hint:"부분 발주(PR 일부만 PO 전환) 상태가 필요한지 확인이 필요합니다." },
+    { id:"q6", sec:"03", label:"PO_STATUS 코드 5종",
+      q:"OP · CF · PD · FD · CN 구성과 트리거에 동의하십니까?",
+      hint:"공급사 확정(CF)을 Ariba 연동으로만 받을지, 수기 입력도 허용할지 적어주세요." },
+    { id:"q7", sec:"03", label:"DN_STATUS 코드 2종",
+      q:"In Transit · Delivered 2종만으로 납품 상태를 표현할 수 있습니까?",
+      hint:"부분 납품, 반송, 납품 취소를 표시할 상태가 필요한지 봐주세요." },
+    { id:"q8", sec:"03", label:"IR_STATUS 코드 4종",
+      q:"Open · Matched · Posted · On Hold 구성과 3-way 매칭 기준에 동의하십니까?",
+      hint:"매칭 허용 오차(수량·금액 tolerance) 기준이 있으면 적어주세요." },
+    { id:"q9", sec:"04", label:"미결 ① PR / PO 취소 트리거 제안",
+      q:"8개 구간별 취소 허용·합의·불가 제안과 권한·후속 처리에 동의하십니까?",
+      hint:"특히 부분 입고 PO의 '잔량 종결', 송장 접수 후 '취소 불가(대변전표 처리)' 원칙이 실제 업무와 맞는지 확인이 필요합니다." },
+    { id:"q10", sec:"05", label:"미결 ② 반려 PR 재사용 여부",
+      q:"반려된 PR을 Open으로 되돌려 재사용하는 A안(재사용)에 동의하십니까?",
+      hint:"재사용을 택하면 허용 기간·금액 조건을, 신규 PR을 택하면 원본 PR 참조 방식을 적어주세요." },
+    { id:"q11", sec:"06", label:"Phase 탭 (상세 화면 진행 이력)",
+      q:"PR·PO·DN·GR·IR을 세로로 쌓아 보여주는 Phase 탭 구성에 동의하십니까?",
+      hint:"각 행에 담당자·일자·수량 같은 정보가 더 필요하면 적어주세요." },
+    { id:"q12", sec:"06", label:"PR 목록 5컬럼 배지",
+      q:"PR 한 건을 한 행으로 놓고 상태를 5개 컬럼 배지로 보여주는 목록 구성에 동의하십니까?",
+      hint:"PR 1건에 PO가 여러 건일 때 셀에 무엇을 보여줄지(가장 느린 단계 / 건수 표시)도 적어주세요." }
+  ]
+};
+</script>
+<script src="../assets/review.js"></script>
+</body>
+</html>
