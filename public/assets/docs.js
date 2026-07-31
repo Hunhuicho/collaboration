@@ -15,16 +15,6 @@
 ------------------------------------------------------------------ */
 window.BOARD_DOCS = [
   {
-    id: "s04-procurement-status-flow",
-    code: "MERP PROCUREMENT",
-    title: "Procurement Status Flow Guide",
-    desc: "PR → PO → DN → GR → IR status flow, conflicts between the two design documents, cancellation triggers, rejected-PR reuse, on-screen display",
-    items: 13,
-    date: "2026-07-31",
-    href: "docs/s04-procurement-status-flow.html",
-    tags: [["red", "FIRST UP"], ["blue", "STATUS FLOW"]]
-  },
-  {
     id: "s04-purchase-progress-status",
     code: "MERP S04",
     title: "Purchase Progress Status Design",

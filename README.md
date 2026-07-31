@@ -24,8 +24,7 @@ public/                         ← what Cloudflare serves
 │  ├─ review.js                 reply widgets, summary, all-replies view
 │  └─ firebase-config.js        ★ the only file you have to fill in
 └─ docs/
-   ├─ s04-procurement-status-flow.html      review document #1
-   └─ s04-purchase-progress-status.html     review document #2
+   └─ s04-purchase-progress-status.html     review document
 
 firestore.rules                 security rules
 firebase.json                   for deploying the rules
