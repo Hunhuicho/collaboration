@@ -1,0 +1,16 @@
+{
+  "name": "review-board",
+  "version": "1.0.0",
+  "private": true,
+  "description": "공유 암호로 들어와 문서별 Y/N과 의견을 남기는 업무 검토 보드 (Cloudflare Pages + Firestore)",
+  "scripts": {
+    "dev": "wrangler pages dev public --port 8788",
+    "serve": "python3 -m http.server 8080 --directory public",
+    "deploy": "wrangler pages deploy public --project-name review-board",
+    "rules": "firebase deploy --only firestore:rules",
+    "bundle": "node tools/inline.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

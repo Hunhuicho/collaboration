@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Purchase Progress Status Design — 검토 회신</title>
+<meta name="description" content="MERP S04 구매 진행 상태 설계 검토 · 항목별 Y/N과 의견 회신" />
+<link rel="stylesheet" href="../assets/app.css" />
+</head>
+<body>
+
+<div id="topbarMount"></div>
+
+<div class="wrap">
+
+  <header class="hero">
+    <div class="hero-eyebrow">
+      <span class="code">MERP S04</span>
+      <span class="pill blue">WORKING DRAFT</span>
+      <span class="pill amber">검토 요청</span>
+    </div>
+    <h1>Purchase Progress Status Design</h1>
+    <p class="sub">PR·PO 화면에서 사용자에게 보여줄 <b>단일 진행 상태</b>를 내부 결재상태와 업무상태의 조합으로 정의합니다. 아래 13개 항목에 <b>Y / N</b>과 의견을 남겨 주세요.</p>
+    <div class="hero-meta">
+      <div><span class="k">대상 업무</span><strong>PR · PO · DN · GR · IR</strong></div>
+      <div><span class="k">핵심 산출물</span><strong>FS04_GET_PUR_PROGRESS</strong></div>
+      <div><span class="k">검토 항목</span><strong>13건</strong></div>
+      <div><span class="k">문서 상태</span><strong>확정 전 초안</strong></div>
+    </div>
+  </header>
+
+  <div class="howto">
+    <h2>회신 방법</h2>
+    <ol>
+      <li>아래 <b>검토자</b> 칸에 이름과 소속을 적습니다.</li>
+      <li>각 항목에서 <b>동의(Y) / 수정 필요(N) / 보류</b>를 고르고 의견을 적습니다. <b>N을 고르면 사유는 필수</b>입니다.</li>
+      <li>입력하는 즉시 공유 공간에 저장됩니다. 상단 <b>전체 응답</b>에서 다른 분들의 회신도 볼 수 있습니다.</li>
+    </ol>
+  </div>
+
+  <div id="reviewerMount"></div>
+
+  <!-- ============ 01 ============ -->
+  <section class="section">
+    <div class="sec-head">
+      <div class="sec-num">01</div>
+      <div>
+        <h2>Status Management by Business Process</h2>
+        <p>업무별로 결재상태·업무상태를 어느 레벨에서 관리할지 정리한 표입니다.</p>
+      </div>
+    </div>
+    <div class="card scroll-x">
+      <table class="matrix">
+        <thead>
+          <tr><th>Business</th><th>Approval</th><th>Approval Level</th><th>Task Status Level</th><th>Code Group</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="biz"><b>PR</b><small>Purchase Requisition</small></td><td><span class="pill green">Used</span></td><td>Item</td><td>Item</td><td><code>PR_STATUS</code></td></tr>
+          <tr><td class="biz"><b>PO</b><small>Purchase Order</small></td><td><span class="pill green">Used</span></td><td>Header</td><td>Item</td><td><code>PO_STATUS</code></td></tr>
+          <tr><td class="biz"><b>DN</b><small>Delivery Note</small></td><td><span class="pill">Not Used</span></td><td class="dash">—</td><td>Item</td><td><code>DN_STATUS</code></td></tr>
+          <tr><td class="biz"><b>GR</b><small>Goods Receipt</small></td><td><span class="pill">Not Used</span></td><td class="dash">—</td><td>No Separate Status</td><td class="dash">—</td></tr>
+          <tr><td class="biz"><b>IR</b><small>Invoice Receipt</small></td><td><span class="pill green">Used</span></td><td>Header</td><td>Header</td><td><code>IR_STATUS</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div data-review="q1"></div>
+  </section>
+
+  <!-- ============ 02 ============ -->
+  <section class="section">
+    <div class="sec-head">
+      <div class="sec-num">02</div>
+      <div>
+        <h2>Approval Status</h2>
+        <p>MP_APPR_STATUS는 공통으로 쓰이며 업무상태와 분리해 관리합니다.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="catalog-head">
+        <div>
+          <span class="group-label">TC00_CODE_LIST · MP_APPR_STATUS</span>
+          <h3>Approval Status</h3>
+        </div>
+        <div class="meta-grid">
+          <span>적용 레벨</span><strong>PR Item · PO Header · IR Header</strong>
+          <span>관리 원칙</span><strong>업무상태와 독립 관리</strong>
+        </div>
+      </div>
+      <div class="code-grid">
+        <div class="code-cell"><div class="top"><span class="idx">01</span><span class="pill">Draft</span></div><div class="key">D</div><h4>Draft</h4><p>Saved as Draft</p></div>
+        <div class="code-cell"><div class="top"><span class="idx">02</span><span class="pill amber">Submitted</span></div><div class="key">S</div><h4>Submitted</h4><p>Submitted</p></div>
+        <div class="code-cell"><div class="top"><span class="idx">03</span><span class="pill orange">In Progress</span></div><div class="key">I</div><h4>In Progress</h4><p>Approval Process Started</p></div>
+        <div class="code-cell"><div class="top"><span class="idx">04</span><span class="pill green">Approved</span></div><div class="key">A</div><h4>Approved</h4><p>Approved</p></div>
+        <div class="code-cell"><div class="top"><span class="idx">05</span><span class="pill red">Rejected</span></div><div class="key">R</div><h4>Rejected</h4><p>Rejected</p></div>
+      </div>
+    </div>
+    <div data-review="q2"></div>
+  </section>
+
+  <!-- ============ 03 ============ -->
+  <section class="section">
+    <div class="sec-head">
+      <div class="sec-num">03</div>
+      <div>
+        <h2>Task Status <span class="tagline"><span class="pill blue">PR 탭만 수록</span></span></h2>
+        <p>업무별 자체 상태 코드입니다. CN(취소) 처리 정책은 논의 대상입니다.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="catalog-head">
+        <div>
+          <span class="group-label">TC00_CODE_LIST · PR_STATUS</span>
+          <h3>Purchase Requisition</h3>
+        </div>
+        <div class="meta-grid">
+          <span>Approval</span><strong>Used · Item level</strong>
+          <span>Status Level</span><strong>Item</strong>
+          <span>Source</span><strong>TS04_PR_ITEMS.PR_STATUS</strong>
+        </div>
+      </div>
+      <div class="code-grid">
+        <div class="code-cell"><div class="top"><span class="idx">01</span><span class="pill blue">Open</span></div><div class="key">PR</div><h4>Open</h4><p>Saved as Draft</p></div>
+        <div class="code-cell"><div class="top"><span class="idx">02</span><span class="pill violet">PO Converted</span></div><div class="key">PO</div><h4>PO Converted</h4><p>PO Created from PR</p></div>
+        <div class="code-cell"><div class="top"><span class="idx">03</span><span class="pill red">Cancelled</span></div><div class="key">CN</div><h4>Cancelled</h4><p>승인 이후 후속 업무 사유로 PR을 취소한 경우</p><p class="flagnote">취소 정책 논의 필요</p></div>
+      </div>
+    </div>
+
+    <div data-review="q3"></div>
+
+    <div class="card propose">
+      <div class="prop-head">
+        <span class="pill red">논의 필요</span>
+        <h3>Cancelled (CN) 트리거 — 검토용 제안</h3>
+        <p>현재 문서에는 CN이 "승인 이후 후속 업무 사유로 취소"로만 적혀 있고 <b>발생 시점 · 권한 · 후속 처리</b>가 없습니다. 아래는 확정을 위한 제안이며, 수정할 행이 있으면 회신란에 행 번호와 함께 적어주세요.</p>
+      </div>
+
+      <div class="scroll-x">
+        <table class="trig">
+          <thead>
+            <tr><th>구분</th><th>조건</th><th>제안 트리거 · 처리</th><th>권한</th><th>후속 문서</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="cond">PR<small>결재 전</small></td>
+              <td>Draft / Submitted / In Progress</td>
+              <td class="act">취소가 아니라 <b>상신 회수 후 삭제</b>로 처리. <code>CN</code>을 쓰지 않음</td>
+              <td>요청자</td><td class="dash">—</td>
+            </tr>
+            <tr>
+              <td class="cond">PR<small>승인 후 · PO 없음</small></td>
+              <td><code>PR APPR = A</code>, 연결 PO 없음</td>
+              <td class="act"><b>사유 입력 후 취소 → PR_STATUS = CN</b>. 사용자 상태는 Cancelled</td>
+              <td>요청자 또는 구매팀</td><td class="dash">—</td>
+            </tr>
+            <tr>
+              <td class="cond">PR<small>승인 후 · PO 있음</small></td>
+              <td><code>PR_STATUS = PO</code></td>
+              <td class="act">PR 단독 취소 <b>불가</b>. <b>PO 취소가 선행</b>되어야 하며, PO 취소 시 PR도 CN으로 연동</td>
+              <td>구매팀</td><td>PO 취소 필수</td>
+            </tr>
+            <tr>
+              <td class="cond">PR<small>반려</small></td>
+              <td><code>PR APPR = R</code></td>
+              <td class="act">반려는 <b>결재 상태</b>이며 취소가 아님. CN으로 자동 전환하지 않음</td>
+              <td>결재자</td><td class="dash">—</td>
+            </tr>
+            <tr>
+              <td class="cond">PO<small>발주 직후</small></td>
+              <td><code>PO_STATUS = OP</code>, GR 없음</td>
+              <td class="act"><b>구매팀 취소 → PO_STATUS = CN</b> + 공급사 취소 통보</td>
+              <td>구매팀</td><td>연결 PR → CN 또는 Open 복귀</td>
+            </tr>
+            <tr>
+              <td class="cond">PO<small>공급사 확정 후</small></td>
+              <td><code>PO_STATUS = CF</code>, GR 없음</td>
+              <td class="act">공급사 <b>합의 필요</b>. 취소 요청 → 공급사 수락 후 CN</td>
+              <td>구매팀 + 공급사</td><td>DN 존재 시 DN 선(先) 취소</td>
+            </tr>
+            <tr>
+              <td class="cond">PO<small>부분 입고</small></td>
+              <td><code>PO_STATUS = PD</code></td>
+              <td class="act">전체 취소 <b>불가</b>. <b>잔량 종결(Close short)</b>로 처리하고 상태는 FD 또는 별도 Closed 사용</td>
+              <td>구매팀</td><td>미입고 잔량만 종결</td>
+            </tr>
+            <tr>
+              <td class="cond">PO<small>송장 접수 후</small></td>
+              <td><code>IR_STATUS = OP / MC / PS</code></td>
+              <td class="act">취소 <b>불가</b>. 반품 또는 대변전표(Credit Memo) 프로세스로 처리</td>
+              <td>구매팀 + 회계</td><td>AP 전표 연동</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="defs">
+        <div><b>Cancel (CN)</b><p>승인된 문서를 업무 사유로 무효화. 이력은 남고 후속 진행은 중단</p></div>
+        <div><b>Reject (R)</b><p>결재선에서 반려. 결재 상태이며 업무 상태가 아님</p></div>
+        <div><b>Close</b><p>잔량을 더 받지 않고 종결. 이미 진행된 부분은 유효</p></div>
+        <div><b>Delete</b><p>결재 전 문서를 물리/논리 삭제. 이력 조회 대상 아님</p></div>
+      </div>
+    </div>
+
+    <div data-review="q4"></div>
+  </section>
+
+  <!-- ============ 04 ============ -->
+  <section class="section">
+    <div class="sec-head">
+      <div class="sec-num">04</div>
+      <div>
+        <h2>Business Team Workshop — End-User Status <span class="tagline"><span class="pill blue">PR 호출 기준</span></span></h2>
+        <p>사용자에게 보이는 상태와, 그 상태로 바뀌는 업무 이벤트만 다룹니다. 기술 코드는 의도적으로 감췄습니다.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="notice">
+        <span class="k">DISPLAY LEVEL</span><strong>Item Level</strong>
+        <p>이 섹션의 사용자 상태는 모두 PR·PO <b>아이템 단위</b>로 판정·표시됩니다.</p>
+      </div>
+      <div class="notice">
+        <span class="k">CALL CONTEXT</span><strong>Status shown when a user views a Purchase Requisition</strong>
+      </div>
+      <div class="band">
+        <b>Normal Progress</b>
+        <p>정상 흐름 12단계와 각 단계로 넘어가는 업무 이벤트입니다.</p>
+      </div>
+      <div class="steps">
+        <div class="step slate"><span class="n">STEP 01</span><h4>PR Draft</h4><span class="when">Changes when</span><p>The requester saves the PR without submitting it.</p></div>
+        <div class="step amber"><span class="n">STEP 02</span><h4>PR Approval in Progress</h4><span class="when">Changes when</span><p>The requester submits the PR and the PR approval process begins.</p></div>
+        <div class="step blue"><span class="n">STEP 03</span><h4>Approved / PO Pending</h4><span class="when">Changes when</span><p>Final PR approval is completed, but Purchasing has not created a PO.</p></div>
+        <div class="step amber"><span class="n">STEP 04</span><h4>PO Approval in Progress</h4><span class="when">Changes when</span><p>Purchasing creates a PO and its approval process is underway.</p></div>
+        <div class="step blue"><span class="n">STEP 05</span><h4>Ordered</h4><span class="when">Changes when</span><p>The PO is approved and issued to the supplier.</p></div>
+        <div class="step violet"><span class="n">STEP 06</span><h4>Supplier Confirmed</h4><span class="when">Changes when</span><p>The supplier confirms that the order has been received and accepted.</p></div>
+        <div class="step orange"><span class="n">STEP 07</span><h4>In Transit</h4><span class="when">Changes when</span><p>A shipment notice or delivery note is received for the order.</p></div>
+        <div class="step orange"><span class="n">STEP 08</span><h4>Partially Received</h4><span class="when">Changes when</span><p>Some, but not all, of the ordered quantity is received.</p></div>
+        <div class="step teal"><span class="n">STEP 09</span><h4>Received</h4><span class="when">Changes when</span><p>The full ordered quantity is received.</p></div>
+        <div class="step cyan"><span class="n">STEP 10</span><h4>Invoice Received</h4><span class="when">Changes when</span><p>The supplier invoice is received.</p></div>
+        <div class="step violet"><span class="n">STEP 11</span><h4>Invoice Matched</h4><span class="when">Changes when</span><p>The invoice successfully passes the three-way match.</p></div>
+        <div class="step green"><span class="n">STEP 12</span><h4>Completed</h4><span class="when">Changes when</span><p>The invoice is posted to Accounts Payable.</p></div>
+      </div>
+      <div class="band" style="border-top:1px solid var(--line);">
+        <b>Exception Statuses</b>
+        <p>정상 구매 흐름을 중단시키는 예외 상태입니다.</p>
+      </div>
+      <div class="steps">
+        <div class="step red"><span class="n">EXCEPTION</span><h4>PR Rejected</h4><span class="when">Changes when</span><p>A PR approver sends the purchase requisition back instead of approving it.</p></div>
+        <div class="step red"><span class="n">EXCEPTION</span><h4>PO Rejected</h4><span class="when">Changes when</span><p>A PO approver sends the linked purchase order back instead of approving it.</p></div>
+        <div class="step red"><span class="n">EXCEPTION</span><h4>Invoice On Hold</h4><span class="when">Changes when</span><p>The invoice fails the three-way match and requires review.</p></div>
+        <div class="step red"><span class="n">EXCEPTION</span><h4>Cancelled</h4><span class="when">Changes when</span><p>An approved PR or PO is cancelled due to a later business decision.</p></div>
+      </div>
+    </div>
+    <div data-review="q5"></div>
+    <div data-review="q6"></div>
+  </section>
+
+  <!-- ============ 05 ============ -->
+  <section class="section">
+    <div class="sec-head">
+      <div class="sec-num">05</div>
+      <div>
+        <h2>PR / PO Modification Workshop <span class="tagline"><span class="pill blue">PR 수정 기준</span></span></h2>
+        <p>카드마다 개별로 Y/N과 의견을 받습니다. 수정 시점·재승인·후속 문서 통제를 확정합니다.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="mod-intro">
+        <div>
+          <span class="k">WORKSHOP SCOPE</span>
+          <h4>PR Modification</h4>
+          <p>승인된 PR을 수정하고 그 변경을 연결된 PO까지 반영하는 핵심 규칙을 확정합니다.</p>
+        </div>
+        <div>
+          <span class="k">WORKING ASSUMPTION</span>
+          <p>현재 제안: 공급사가 Delivery Note를 등록하기 전까지 <b>수량(Quantity)과 RDD</b>만 수정 허용.</p>
+        </div>
+      </div>
+      <div class="warn">
+        <span class="k">REVIEW REQUIRED</span>
+        <p>PR 수량 <b>증가</b>는 구현 전에 정책 검토가 필요합니다. 이미 확정된 PO와 PR 재승인 사이에 상태 충돌이 생깁니다. 논의용 대안: 추가 수량은 <b>신규 PR</b>로 생성.</p>
+      </div>
+      <div class="mod-grid">
+        <div class="mod-item">
+          <div class="top"><span class="idx">01</span><span class="pill amber">Reconfirm</span></div>
+          <h4>1. Modification Window</h4>
+          <p>공급사가 Delivery Note를 등록하기 전까지 PR 수정을 허용합니까? PR과 연결 PO를 잠그는 정확한 DN 이벤트를 확정해야 합니다.</p>
+          <div data-review="q7" data-variant="inline"></div>
+        </div>
+        <div class="mod-item">
+          <div class="top"><span class="idx">02</span><span class="pill amber">Reconfirm</span></div>
+          <h4>2. Editable Fields</h4>
+          <p>수정 가능 필드는 수량(Quantity)과 RDD(희망 납기일) 뿐입니까? 승인 후에도 열려 있어야 할 다른 필드가 있는지 확인이 필요합니다.</p>
+          <div data-review="q8" data-variant="inline"></div>
+        </div>
+        <div class="mod-item">
+          <div class="top"><span class="idx">03</span><span class="pill amber">Reconfirm</span></div>
+          <h4>3. Quantity Decrease</h4>
+          <p>수량 감소의 경우, 재승인 없이 PR 수정 → 연결 PO 갱신 → 수정된 PO 재발송까지 시스템이 처리해도 됩니까?</p>
+          <div data-review="q9" data-variant="inline"></div>
+        </div>
+        <div class="mod-item">
+          <div class="top"><span class="idx">04</span><span class="pill blue">Decision</span></div>
+          <h4>4. Quantity Increase</h4>
+          <p>수량 증가는 재승인이 필요하지만, 승인 진행 중에 공급사가 출하하거나 DN을 등록할 수 있습니다. 추가 수량은 <b>신규 PR</b>로 처리해야 할까요?</p>
+          <div data-review="q10" data-variant="inline"></div>
+        </div>
+        <div class="mod-item">
+          <div class="top"><span class="idx">05</span><span class="pill red">Risk</span></div>
+          <h4>5. Status during Reapproval</h4>
+          <p>증가된 PR 수량이 재승인 중일 때 기존 PO는 이미 Supplier Confirmed일 수 있습니다. 사용자에게는 'PR Change Approval in Progress'를 보여주고, 승인 후 수정 PO는 Open으로 되돌려 공급사 재확인을 받는 안입니다.</p>
+          <div data-review="q11" data-variant="inline"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 06 ============ -->
+  <section class="section">
+    <div class="sec-head">
+      <div class="sec-num">06</div>
+      <div>
+        <h2>IT Development Rules <span class="tagline"><span class="pill blue">PR Rule Set</span></span></h2>
+        <p>결재상태 · 업무상태 · 후속 문서를 조합해 사용자 상태 1개를 만드는 규칙입니다.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="scroll-x">
+        <table class="rules">
+          <thead>
+            <tr><th>End-User Status</th><th>Approval Condition</th><th>Task Status Condition</th><th>Downstream Condition</th><th>Rule Type</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>PR Draft</strong></td><td><code>PR APPR = D</code></td><td><code>PR_STATUS = PR</code></td><td class="dash">—</td><td><span class="pill blue">Normal</span></td></tr>
+            <tr><td><strong>PR Approval in Progress</strong></td><td><code>PR APPR = S / I</code></td><td><code>PR_STATUS = PR</code></td><td class="dash">—</td><td><span class="pill blue">Normal</span></td></tr>
+            <tr><td><strong>PR Rejected</strong></td><td><code>PR APPR = R</code></td><td><code>PR_STATUS = PR</code></td><td class="dash">—</td><td><span class="pill red">Exception</span></td></tr>
+            <tr><td><strong>PO Rejected</strong></td><td><code>PR APPR = A; PO APPR = R</code></td><td><code>PR_STATUS = PO</code></td><td>Linked PO exists</td><td><span class="pill red">Exception</span></td></tr>
+            <tr><td><strong>Approved / PO Pending</strong></td><td><code>PR APPR = A</code></td><td><code>PR_STATUS = PR</code></td><td>No linked PO</td><td><span class="pill blue">Normal</span></td></tr>
+            <tr><td><strong>PO Approval in Progress</strong></td><td><code>PR APPR = A; PO APPR = D / S / I</code></td><td><code>PR_STATUS = PO</code></td><td>Linked PO exists</td><td><span class="pill blue">Normal</span></td></tr>
+            <tr><td><strong>Ordered</strong></td><td><code>PO APPR = A</code></td><td><code>PO_STATUS = OP</code></td><td>No active DN</td><td><span class="pill blue">Normal</span></td></tr>
+            <tr><td><strong>Supplier Confirmed</strong></td><td><code>PO APPR = A</code></td><td><code>PO_STATUS = CF</code></td><td>No active DN</td><td><span class="pill blue">Normal</span></td></tr>
+            <tr><td><strong>In Transit</strong></td><td><code>Approved</code></td><td><code>PO_STATUS = OP / CF</code></td><td>DN_STATUS = IT</td><td><span class="pill blue">Normal</span></td></tr>
+            <tr><td><strong>Partially Received</strong></td><td><code>Approved</code></td><td><code>PO_STATUS = PD</code></td><td>Partial GR posted</td><td><span class="pill blue">Normal</span></td></tr>
+            <tr><td><strong>Received</strong></td><td><code>Approved</code></td><td><code>PO_STATUS = FD</code></td><td>Full GR posted; no IR</td><td><span class="pill blue">Normal</span></td></tr>
+            <tr><td><strong>Invoice Received</strong></td><td><code>Approved</code></td><td><code>PO_STATUS = FD</code></td><td>IR_STATUS = OP</td><td><span class="pill blue">Normal</span></td></tr>
+            <tr><td><strong>Invoice On Hold</strong></td><td><code>Approved</code></td><td><code>Any</code></td><td>IR_STATUS = HD</td><td><span class="pill red">Exception</span></td></tr>
+            <tr><td><strong>Invoice Matched</strong></td><td><code>Approved</code></td><td><code>Any</code></td><td>IR_STATUS = MC</td><td><span class="pill blue">Normal</span></td></tr>
+            <tr><td><strong>Completed</strong></td><td><code>Approved</code></td><td><code>Any</code></td><td>IR_STATUS = PS</td><td><span class="pill blue">Normal</span></td></tr>
+            <tr><td><strong>Cancelled</strong></td><td><code>Approval completed</code></td><td><code>PR_STATUS = CN or PO_STATUS = CN</code></td><td>Cancellation policy TBD</td><td><span class="pill red">Exception</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="fn">
+        <span class="k">FUNCTION</span>
+        <code>dbo.FS04_GET_PUR_PROGRESS(@WORK_TYPE, @DOC_NO1, @DOC_NO2)</code>
+        <strong>→ One Status</strong>
+      </div>
+      <div class="calls">
+        <div class="call"><span class="pill blue">PR CALL</span><strong>PR → PO → DN/GR → IR</strong><code>SELECT dbo.FS04_GET_PUR_PROGRESS('PR', PR_NO, PR_SEQ)</code></div>
+        <div class="call"><span class="pill violet">PO CALL</span><strong>PO → DN/GR → IR</strong><code>SELECT dbo.FS04_GET_PUR_PROGRESS('PO', PO_NO, PO_SEQ)</code></div>
+      </div>
+      <div class="chain">
+        <div><small>01</small><b>Approval</b><code>MP_APPR_STATUS</code></div>
+        <div><small>02</small><b>PR</b><code>PR_STATUS</code></div>
+        <div><small>03</small><b>PO</b><code>PO_STATUS</code></div>
+        <div><small>04</small><b>DN / GR</b><code>DN_STATUS + GR</code></div>
+        <div><small>05</small><b>IR</b><code>IR_STATUS</code></div>
+        <div><small>06</small><b>Result</b><code>End User Status</code></div>
+      </div>
+      <div class="prio">
+        <div><span class="k">Priority 1</span><strong>Exception Status</strong><p>Cancelled · Rejected · Invoice On Hold</p></div>
+        <div><span class="k">Priority 2</span><strong>Least-Advanced Item</strong><p>여러 아이템·PO 중 진행이 가장 느린 단계 기준</p></div>
+        <div><span class="k">Result</span><strong>One Status</strong><p>호출 화면에 표시할 사용자 상태 1개 반환</p></div>
+      </div>
+    </div>
+    <div data-review="q12"></div>
+    <div data-review="q13"></div>
+  </section>
+
+  <div id="summaryMount"></div>
+
+  <footer>
+    <span class="code">MERP S04</span>
+    <p>회의용 초안 · 미확정 정책 항목은 결정 사항으로 간주하지 않습니다.</p>
+  </footer>
+</div>
+
+<script src="../assets/firebase-config.js"></script>
+<script src="../assets/board-core.js"></script>
+<script>
+window.REVIEW_DOC = {
+  id: "s04-purchase-progress-status",
+  code: "MERP S04",
+  title: "Purchase Progress Status Design",
+  items: [
+    { id:"q1", sec:"01", label:"업무별 상태 관리 레벨",
+      q:"PR은 아이템 레벨, PO·IR은 헤더 레벨에서 결재를 관리하고 DN·GR은 결재를 쓰지 않습니다. 이 관리 레벨로 확정해도 될까요?",
+      hint:"GR은 별도 상태 없이 PO·DN 상태를 전진시키는 이벤트로만 씁니다." },
+    { id:"q2", sec:"02", label:"결재 상태 코드 (MP_APPR_STATUS)",
+      q:"Draft · Submitted · In Progress · Approved · Rejected 5종으로 결재 상태를 모두 표현할 수 있습니까?",
+      hint:"상신 취소·회수, 전결 등 추가로 필요한 상태가 있으면 적어주세요." },
+    { id:"q3", sec:"03", label:"PR 업무 상태 코드 (PR_STATUS)",
+      q:"PR_STATUS를 Open · PO Converted · Cancelled 3종으로 두는 구성에 동의하십니까?",
+      hint:"부분 발주(PO 일부 생성) 같은 중간 상태가 필요한지도 함께 봐주세요." },
+    { id:"q4", sec:"03", label:"PR / PO 취소(CN) 트리거 제안",
+      q:"위 8개 행의 취소 트리거 · 권한 · 후속 처리 제안에 동의하십니까?",
+      hint:"이견이 있는 행을 지목해 주세요. 특히 부분 입고 PO의 잔량 종결과 송장 접수 후 취소 불가 원칙이 실제 업무와 맞는지 확인이 필요합니다." },
+    { id:"q5", sec:"04", label:"사용자 표시 상태 — 정상 흐름 12단계",
+      q:"PR Draft부터 Completed까지 12단계의 명칭과 전환 이벤트가 실제 업무와 맞습니까?",
+      hint:"빠진 단계, 합쳐야 할 단계, 바꿔야 할 명칭이 있으면 적어주세요." },
+    { id:"q6", sec:"04", label:"사용자 표시 상태 — 예외 4종",
+      q:"PR Rejected · PO Rejected · Invoice On Hold · Cancelled 4종으로 예외 상황을 모두 표현할 수 있습니까?",
+      hint:"반품·클레임 등 별도 표시가 필요한 예외가 있으면 적어주세요." },
+    { id:"q7", sec:"05", label:"수정 가능 시점 (Modification Window)", variant:"inline",
+      q:"공급사가 Delivery Note를 등록하기 전까지만 PR 수정을 허용하는 데 동의하십니까?" },
+    { id:"q8", sec:"05", label:"수정 가능 필드 (Editable Fields)", variant:"inline",
+      q:"수정 가능 필드를 수량과 RDD로 제한하는 데 동의하십니까?" },
+    { id:"q9", sec:"05", label:"수량 감소 처리 (Quantity Decrease)", variant:"inline",
+      q:"수량 감소를 재승인 없이 PO 갱신·재발송까지 자동 처리하는 데 동의하십니까?" },
+    { id:"q10", sec:"05", label:"수량 증가 처리 (Quantity Increase)", variant:"inline",
+      q:"수량 증가를 신규 PR 생성으로 처리하는 데 동의하십니까?" },
+    { id:"q11", sec:"05", label:"재승인 중 상태 표시 (Status during Reapproval)", variant:"inline",
+      q:"재승인 중 표시 정책과 승인 후 PO Open 복귀 안에 동의하십니까?" },
+    { id:"q12", sec:"06", label:"상태 판정 규칙 테이블",
+      q:"16개 사용자 상태의 판정 조건(결재 · 업무상태 · 후속문서)이 정확합니까?",
+      hint:"조건이 겹치거나 빠지는 케이스가 있으면 해당 행을 지목해 주세요." },
+    { id:"q13", sec:"06", label:"상태 결정 우선순위",
+      q:"예외 상태를 먼저 적용하고, 그다음 진행이 가장 느린 아이템 기준으로 상태 1개를 반환하는 규칙에 동의하십니까?",
+      hint:"'가장 느린 아이템' 대신 다른 대표값이 필요하면 적어주세요." }
+  ]
+};
+</script>
+<script src="../assets/review.js"></script>
+</body>
+</html>

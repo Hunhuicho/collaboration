@@ -1,0 +1,52 @@
+rules_version = '2';
+
+// ------------------------------------------------------------------
+// 업무 검토 보드 — Firestore 보안 규칙
+//
+// 접근 모델
+//  · 신원: 익명 인증(Anonymous). 사람을 식별하지 않고 브라우저 단위 uid만 만듭니다.
+//  · 통제: "공유 암호"를 SHA-256 해시한 값이 방 경로(rooms/{room})입니다.
+//    암호를 모르면 경로를 만들 수 없으므로 그 방의 데이터에 닿을 수 없습니다.
+//  · 쓰기: 자기 uid 문서에만 쓸 수 있습니다. 남의 회신은 수정·삭제 불가.
+//  · 읽기: 같은 방(= 같은 암호)의 회신은 모두 읽을 수 있습니다. 서로 의견을
+//    보고 논의하는 것이 목적이기 때문입니다. 대외비 자료는 올리지 마세요.
+// ------------------------------------------------------------------
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    match /rooms/{room} {
+
+      // 방 정보(이름). 최초 입장자가 한 번만 만들고 이후 수정 불가.
+      match /meta/{metaId} {
+        allow get: if signedIn();
+        allow create: if signedIn()
+          && request.resource.data.keys().hasOnly(['label', 'createdAt'])
+          && request.resource.data.label is string
+          && request.resource.data.label.size() > 0
+          && request.resource.data.label.size() <= 60;
+        allow update, delete: if false;
+      }
+
+      // 문서별 회신. 문서 ID = 작성자 uid.
+      match /docs/{docId}/responses/{uid} {
+        allow read: if signedIn();
+
+        allow create, update: if signedIn()
+          && request.auth.uid == uid
+          && request.resource.data.keys().hasOnly(['name', 'team', 'answers', 'overall', 'updatedAt'])
+          && request.resource.data.name is string && request.resource.data.name.size() <= 60
+          && request.resource.data.team is string && request.resource.data.team.size() <= 60
+          && request.resource.data.overall is string && request.resource.data.overall.size() <= 4000
+          && request.resource.data.answers is map
+          && request.resource.data.answers.size() <= 200
+          && request.resource.data.updatedAt is timestamp;
+
+        allow delete: if signedIn() && request.auth.uid == uid;
+      }
+    }
+  }
+}
