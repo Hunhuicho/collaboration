@@ -4,7 +4,7 @@ A static web board for putting a design or an open question in front of colleagu
 **Yes / No plus a comment on every item**. Everyone who enters the same **shared passcode** sees each
 other's replies.
 
-- Hosting: **Cloudflare Pages** (static files, no build step)
+- Hosting: **Cloudflare Workers static assets** (files served as-is, no build step)
 - Storage: **Firebase Firestore**, called over REST — no SDK bundle, no version to pin
 - Identity: **anonymous auth**; access control is the shared passcode
 
@@ -16,7 +16,7 @@ Enter a passcode and shared storage switches on from that moment.
 ## 1. Layout
 
 ```
-public/                         ← what Cloudflare Pages serves
+public/                         ← what Cloudflare serves
 ├─ index.html                   document list + passcode gate
 ├─ assets/
 │  ├─ app.css                   shared styles (light/dark automatic)
@@ -29,7 +29,8 @@ public/                         ← what Cloudflare Pages serves
 
 firestore.rules                 security rules
 firebase.json                   for deploying the rules
-wrangler.toml                   Cloudflare Pages settings
+wrangler.toml                   Cloudflare deploy settings
+public/_headers                 response headers (caching, referrer policy)
 tools/inline.mjs                bundle one page into a single HTML file
 ```
 
@@ -73,25 +74,23 @@ npm run rules
 > `apiKey` and `projectId` are public identifiers that ship to the browser. The rules and the
 > passcode do the actual gatekeeping. Never commit a service-account key.
 
-### 2-2. Cloudflare Pages
+### 2-2. Cloudflare
 
 ```bash
 npm install
 npx wrangler login
-npm run deploy          # deploys public/ to the review-board project
+npm run deploy          # wrangler deploy — uploads public/ as static assets
 ```
 
-The first run offers to create the project. When it finishes you get a
-`https://review-board.pages.dev` address.
+From GitHub instead: Cloudflare dashboard → **Workers & Pages → Create → Connect to Git**,
+pick this repository, production branch `main`. The defaults work as they are —
+build command empty, deploy command `npx wrangler deploy`. `wrangler.toml` points at
+`public/` and there is nothing to compile.
 
-To deploy from GitHub instead, go to the Cloudflare dashboard →
-**Workers & Pages → Create → Pages → Connect to Git**, pick this repository and set:
-
-| Setting | Value |
-| --- | --- |
-| Framework preset | None |
-| Build command | *(leave empty)* |
-| Build output directory | `public` |
+> The config is a **Workers static-assets** one, not a Pages one. A Pages config
+> (`pages_build_output_dir`) makes the pipeline's `npx wrangler deploy` fail. To use
+> Pages instead, swap the `[assets]` block for `pages_build_output_dir = "public"` and
+> set the project's deploy command to `npx wrangler pages deploy public`.
 
 ### 2-3. First entry
 
@@ -109,7 +108,7 @@ To deploy from GitHub instead, go to the Cloudflare dashboard →
 ```bash
 npm run serve      # http://localhost:8080  (python static server)
 # or
-npm run dev        # http://localhost:8788  (wrangler pages dev)
+npm run dev        # http://localhost:8788  (wrangler dev)
 ```
 
 Shared storage needs HTTPS or localhost — that is a WebCrypto requirement.

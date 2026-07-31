@@ -4,9 +4,9 @@
   "private": true,
   "description": "Shared-passcode review board: Yes/No plus comments per item (Cloudflare Pages + Firestore)",
   "scripts": {
-    "dev": "wrangler pages dev public --port 8788",
+    "dev": "wrangler dev --port 8788",
     "serve": "python3 -m http.server 8080 --directory public",
-    "deploy": "wrangler pages deploy public --project-name review-board",
+    "deploy": "wrangler deploy",
     "rules": "firebase deploy --only firestore:rules",
     "bundle": "node tools/inline.mjs"
   },
