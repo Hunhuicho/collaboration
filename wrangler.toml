@@ -1,16 +1,12 @@
-# Static-assets Worker.
+# Cloudflare Pages project.
 #
-# The Git build pipeline runs `npx wrangler deploy`, so the config has to be a
-# Workers one — a Pages config (`pages_build_output_dir`) makes that command
-# warn and fail. Everything in public/ is served as-is; there is no worker
-# script, no build step, and _headers is honoured.
+# Pages serves at <project>.pages.dev — two levels, no account subdomain.
+# A Workers deploy would instead land on <worker>.<account>.workers.dev.
 #
-# To go back to Cloudflare Pages instead, replace the [assets] block with
-#   pages_build_output_dir = "public"
-# and set the project's deploy command to `npx wrangler pages deploy public`.
+# `name` must match the Pages project name in the dashboard, and the project's
+# deploy command must be `npx wrangler pages deploy public` (a plain
+# `wrangler deploy` is the Workers command and fails against this config).
 
-name = "review-board"
+name = "collaboration"
 compatibility_date = "2026-01-01"
-
-[assets]
-directory = "./public"
+pages_build_output_dir = "public"

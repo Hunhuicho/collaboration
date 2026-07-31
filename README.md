@@ -4,7 +4,7 @@ A static web board for putting a design or an open question in front of colleagu
 **Yes / No plus a comment on every item**. Everyone who enters the same **shared passcode** sees each
 other's replies.
 
-- Hosting: **Cloudflare Workers static assets** (files served as-is, no build step)
+- Hosting: **Cloudflare Pages** (files served as-is, no build step)
 - Storage: **Firebase Firestore**, called over REST — no SDK bundle, no version to pin
 - Identity: **anonymous auth**; access control is the shared passcode
 
@@ -79,18 +79,23 @@ npm run rules
 ```bash
 npm install
 npx wrangler login
-npm run deploy          # wrangler deploy — uploads public/ as static assets
+npm run deploy          # wrangler pages deploy public
 ```
 
-From GitHub instead: Cloudflare dashboard → **Workers & Pages → Create → Connect to Git**,
-pick this repository, production branch `main`. The defaults work as they are —
-build command empty, deploy command `npx wrangler deploy`. `wrangler.toml` points at
-`public/` and there is nothing to compile.
+From GitHub instead: Cloudflare dashboard → **Workers & Pages → Create → Pages →
+Connect to Git**, pick this repository, production branch `main`:
 
-> The config is a **Workers static-assets** one, not a Pages one. A Pages config
-> (`pages_build_output_dir`) makes the pipeline's `npx wrangler deploy` fail. To use
-> Pages instead, swap the `[assets]` block for `pages_build_output_dir = "public"` and
-> set the project's deploy command to `npx wrangler pages deploy public`.
+| Setting | Value |
+| --- | --- |
+| Framework preset | None |
+| Build command | *(leave empty)* |
+| Build output directory | `public` |
+| Deploy command (if the project asks for one) | `npx wrangler pages deploy public` |
+
+> It has to be a **Pages** project, not a Worker. Pages serves at
+> `<project>.pages.dev`; a Worker serves at `<worker>.<account-subdomain>.workers.dev`,
+> which drags the account subdomain into every URL. The project name in
+> `wrangler.toml` must match the Pages project name.
 
 ### 2-3. First entry
 
@@ -108,7 +113,7 @@ build command empty, deploy command `npx wrangler deploy`. `wrangler.toml` point
 ```bash
 npm run serve      # http://localhost:8080  (python static server)
 # or
-npm run dev        # http://localhost:8788  (wrangler dev)
+npm run dev        # http://localhost:8788  (wrangler pages dev)
 ```
 
 Shared storage needs HTTPS or localhost — that is a WebCrypto requirement.
