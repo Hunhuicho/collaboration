@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "wrangler pages dev public --port 8788",
     "serve": "python3 -m http.server 8080 --directory public",
-    "deploy": "wrangler pages deploy public --project-name collaboration",
+    "deploy": "wrangler pages deploy public --project-name collaboration-a43",
     "rules": "firebase deploy --only firestore:rules",
     "bundle": "node tools/inline.mjs"
   },

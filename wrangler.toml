@@ -7,6 +7,6 @@
 # deploy command must be `npx wrangler pages deploy public` (a plain
 # `wrangler deploy` is the Workers command and fails against this config).
 
-name = "collaboration"
+name = "collaboration-a43"
 compatibility_date = "2026-01-01"
 pages_build_output_dir = "public"
