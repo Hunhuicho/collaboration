@@ -1,11 +1,12 @@
 /* ==================================================================
-   board-core.js — 공유 암호 게이트 + Firestore(REST) 저장소
+   board-core.js — shared-passcode gate + Firestore storage (REST)
 
-   · Firebase JS SDK를 쓰지 않고 REST API만 사용합니다(번들 없음, 버전 고정 불필요).
-   · 신원은 익명 인증으로 만들고, 접근 통제는 "공유 암호"로 합니다.
-     암호를 SHA-256 해시한 값이 곧 데이터가 저장되는 방 경로(roomKey)입니다.
-     → 암호를 아는 사람만 그 방의 문서·응답을 읽고 쓸 수 있습니다.
-   · 설정이 비어 있으면 로컬 저장 모드로 조용히 내려앉습니다.
+   · No Firebase SDK bundle. Plain REST calls, so there is no version to
+     pin and nothing to build.
+   · Identity comes from anonymous auth; access control comes from the
+     shared passcode. The SHA-256 hash of the passcode IS the room path,
+     so only people who know the passcode can reach that room's data.
+   · With no config filled in, everything falls back to local-only mode.
    ================================================================== */
 (function (global) {
   "use strict";
@@ -16,12 +17,10 @@
     pass: "board.pass",
     room: "board.room",
     label: "board.roomLabel",
-    tok: "board.token",
-    name: "board.name",
-    team: "board.team"
+    tok: "board.token"
   };
 
-  /* ---------------- 작은 유틸 ---------------- */
+  /* ---------------- small helpers ---------------- */
   function esc(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
@@ -62,7 +61,7 @@
     toastTimer = setTimeout(function () { toastEl.classList.remove("on"); }, 2800);
   }
 
-  /* ---------------- 암호 → 방 키 ---------------- */
+  /* ---------------- passcode → room key ---------------- */
   function sha256hex(text) {
     if (!(global.crypto && global.crypto.subtle)) {
       return Promise.reject(new Error("insecure-context"));
@@ -78,7 +77,7 @@
     return sha256hex(String(pass).trim()).then(function (hex) { return "r" + hex.slice(0, 40); });
   }
 
-  /* ---------------- 익명 인증 ---------------- */
+  /* ---------------- anonymous auth ---------------- */
   var token = null; // {idToken, refreshToken, uid, exp}
 
   function loadToken() {
@@ -138,7 +137,7 @@
     });
   }
 
-  /* ---------------- Firestore 값 변환 ---------------- */
+  /* ---------------- Firestore value encoding ---------------- */
   function toValue(v) {
     if (v === null || v === undefined) return { nullValue: null };
     if (typeof v === "string") return { stringValue: v };
@@ -190,7 +189,7 @@
     });
   }
 
-  /* ---------------- 방(room) ---------------- */
+  /* ---------------- room ---------------- */
   var room = { key: null, label: "", pass: "" };
 
   function metaPath(key) { return "/rooms/" + key + "/meta/room"; }
@@ -205,7 +204,7 @@
     }).then(function (d) { return fromFields(d.fields); });
   }
 
-  /* ---------------- 응답 문서 ---------------- */
+  /* ---------------- responses ---------------- */
   function responsesPath(docId) {
     return "/rooms/" + room.key + "/docs/" + encodeURIComponent(docId) + "/responses";
   }
@@ -221,8 +220,6 @@
   }
   function saveMine(docId, data) {
     var payload = {
-      name: String(data.name || "").slice(0, 60),
-      team: String(data.team || "").slice(0, 60),
       answers: data.answers || {},
       overall: String(data.overall || "").slice(0, 4000),
       updatedAt: new Date()
@@ -237,30 +234,31 @@
         return ((d && d.documents) || []).map(function (doc) {
           var o = fromFields(doc.fields);
           o.__id = doc.name.split("/").pop();
+          o.__mine = o.__id === token.uid;
           return o;
         });
       });
     });
   }
 
-  /* ---------------- 게이트 UI ---------------- */
+  /* ---------------- passcode gate ---------------- */
   function gateMarkup(title) {
     return '' +
       '<div class="gate-box">' +
-        '<span class="code">업무 검토 보드</span>' +
-        '<h1>' + esc(title || "공유 암호를 입력하세요") + '</h1>' +
-        '<p>같은 암호를 쓰는 사람끼리 문서와 회신을 공유합니다. 담당자에게 받은 암호를 넣어주세요.</p>' +
+        '<span class="code">Review Board</span>' +
+        '<h1>' + esc(title || "Enter the shared passcode") + '</h1>' +
+        '<p>Everyone using the same passcode sees the same documents and replies. Enter the passcode you were given.</p>' +
         '<div class="gate-msg" id="gateMsg" hidden></div>' +
         '<div class="field">' +
-          '<label for="gatePass">공유 암호</label>' +
-          '<input id="gatePass" type="password" autocomplete="current-password" placeholder="예: merp-s04" />' +
+          '<label for="gatePass">Shared passcode</label>' +
+          '<input id="gatePass" type="password" autocomplete="current-password" placeholder="e.g. merp-s04" />' +
         '</div>' +
         '<div class="field" id="gateLabelWrap" hidden>' +
-          '<label for="gateLabel">새 공간 이름</label>' +
-          '<input id="gateLabel" type="text" placeholder="예: MERP S04 구매 검토" maxlength="60" />' +
+          '<label for="gateLabel">Name this workspace</label>' +
+          '<input id="gateLabel" type="text" placeholder="e.g. MERP S04 Procurement Review" maxlength="60" />' +
         '</div>' +
         '<div class="gate-actions">' +
-          '<button class="btn primary lg" type="button" id="gateGo">들어가기</button>' +
+          '<button class="btn primary lg" type="button" id="gateGo">Enter</button>' +
         '</div>' +
       '</div>';
   }
@@ -288,14 +286,14 @@
 
       function submit() {
         var pass = input.value.trim();
-        if (!pass) { say("암호를 입력해 주세요."); input.focus(); return; }
+        if (!pass) { say("Enter a passcode."); input.focus(); return; }
         go.disabled = true;
-        say("확인 중…", "info");
+        say("Checking…", "info");
 
         roomKeyFor(pass).then(function (key) {
           if (pendingKey && pendingKey === key && !labelWrap.hidden) {
             var label = labelInput.value.trim();
-            if (!label) { say("새 공간 이름을 입력해 주세요."); labelInput.focus(); go.disabled = false; return; }
+            if (!label) { say("Give the workspace a name."); labelInput.focus(); go.disabled = false; return; }
             return createRoom(key, label).then(function (meta) { finish(pass, key, meta.label); });
           }
           return fetchRoom(key).then(function (meta) {
@@ -306,16 +304,16 @@
               pendingKey = key;
               labelWrap.hidden = false;
               labelInput.focus();
-              say("처음 쓰는 암호입니다. 이 암호로 새 공간을 만들려면 이름을 정해주세요. (오타라면 암호를 다시 확인하세요.)", "info");
+              say("This passcode is new. Name the workspace to create it — or check the passcode for a typo.", "info");
               return;
             }
-            if (err.status === 403 || err.status === 401) { say("접근이 거부되었습니다. Firestore 규칙과 익명 로그인 설정을 확인해 주세요."); return; }
-            say("연결에 실패했습니다: " + err.message);
+            if (err.status === 403 || err.status === 401) { say("Access denied. Check the Firestore rules and that anonymous sign-in is enabled."); return; }
+            say("Could not connect: " + err.message);
           });
         }).catch(function (err) {
           go.disabled = false;
-          if (err && err.message === "insecure-context") say("HTTPS 주소에서만 사용할 수 있습니다.");
-          else say("오류가 발생했습니다: " + (err && err.message ? err.message : err));
+          if (err && err.message === "insecure-context") say("This page works only over HTTPS.");
+          else say("Something went wrong: " + (err && err.message ? err.message : err));
         });
       }
 
@@ -333,7 +331,7 @@
     });
   }
 
-  /* 저장된 암호로 조용히 입장 시도 → 실패하면 게이트 표시 */
+  /* Try the stored passcode first; fall back to the gate. */
   function enter() {
     if (!HAS_CFG) return Promise.resolve(null);
     var pass = ls(LS.pass);

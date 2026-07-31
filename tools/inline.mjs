@@ -1,11 +1,11 @@
 /**
- * inline.mjs — 문서 페이지를 단일 HTML 파일로 묶습니다.
+ * inline.mjs — bundle a document page into a single HTML file.
  *
  *   node tools/inline.mjs public/docs/s04-purchase-progress-status.html
  *
- * CSS와 JS를 본문에 넣어 dist/ 에 저장합니다. 메일 첨부나 사내 공유 폴더처럼
- * 서버 없이 파일 하나만 전달해야 할 때 쓰세요.
- * 이렇게 만든 파일은 공유 저장이 꺼진 "로컬 저장 모드"로 동작합니다.
+ * Inlines the CSS and JS and writes the result to dist/. Use it when a file
+ * has to travel on its own — an email attachment, a shared drive.
+ * The bundled copy runs in local-only mode, with no shared storage.
  */
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { dirname, resolve, basename, join } from "node:path";
@@ -20,7 +20,7 @@ async function readAsset(href) {
   return readFile(resolve(baseDir, href), "utf8");
 }
 
-// <link rel="stylesheet" href="..."> → <style>
+// <link rel="stylesheet" href="..."> → inline <style>
 for (const m of [...html.matchAll(/<link[^>]+rel="stylesheet"[^>]+href="([^"]+)"[^>]*>/g)]) {
   const css = await readAsset(m[1]);
   html = html.replace(m[0], `<style>\n${css}\n</style>`);

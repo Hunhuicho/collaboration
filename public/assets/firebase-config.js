@@ -1,15 +1,16 @@
 /* ------------------------------------------------------------------
-   Firebase 연결 설정 — 이 파일의 값만 채우면 공유 저장이 켜집니다.
+   Firebase connection settings — fill these two in and shared storage
+   turns on.
 
-   Firebase 콘솔 → 프로젝트 설정 → 일반 → "내 앱"의 웹 앱 SDK 설정에서
-   apiKey 와 projectId 를 그대로 복사해 넣으세요.
+   Firebase console → Project settings → General → "Your apps" → the web
+   app's SDK snippet. Copy apiKey and projectId across.
 
-   값이 비어 있으면 페이지는 자동으로 "로컬 저장 모드"로 동작합니다.
-   (내 브라우저에만 저장되고, 다른 사람과 공유되지 않습니다.)
+   Left blank, every page falls back to local-only mode: entries stay in
+   that one browser and are never shared.
 
-   이 두 값은 브라우저에 노출되는 공개 식별자입니다. 실제 접근 통제는
-   firestore.rules 와 공유 암호로 이루어집니다. 서비스 계정 키 같은
-   비밀 값은 절대 이 파일에 넣지 마세요.
+   Both values are public identifiers that ship to the browser. Real
+   access control comes from firestore.rules and the shared passcode.
+   Never put a service-account key in this file.
 ------------------------------------------------------------------ */
 window.FIREBASE_CONFIG = {
   apiKey: "",

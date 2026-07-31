@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>업무 검토 보드</title>
-<meta name="description" content="공유 암호로 들어와 문서별 Y/N과 의견을 남기는 업무 검토 보드" />
+<title>Review Board</title>
+<meta name="description" content="Shared-passcode board for design reviews — answer Yes/No per item and leave comments" />
 <link rel="stylesheet" href="./assets/app.css" />
 </head>
 <body>
@@ -12,12 +12,12 @@
 <div class="topbar">
   <div class="topbar-in">
     <div class="tb-id">
-      <b>업무 검토 보드</b>
-      <span class="sub"><span id="roomName">연결 중…</span></span>
+      <b>Review Board</b>
+      <span class="sub"><span id="roomName">Connecting…</span></span>
     </div>
     <div class="tb-actions">
-      <span class="sync off" id="syncBadge"><span class="dot"></span><span id="syncText">로컬 저장</span></span>
-      <button class="btn" type="button" id="btnSwitch">암호 변경</button>
+      <span class="sync off" id="syncBadge"><span class="dot"></span><span id="syncText">Local only</span></span>
+      <button class="btn" type="button" id="btnSwitch">Change passcode</button>
     </div>
   </div>
 </div>
@@ -26,18 +26,18 @@
   <header class="hero">
     <div class="hero-eyebrow">
       <span class="code">REVIEW BOARD</span>
-      <span class="pill blue">공유 암호 전용</span>
+      <span class="pill blue">SHARED PASSCODE</span>
     </div>
-    <h1>업무 검토 · 질의 보드</h1>
-    <p class="sub">설계안이나 업무 조사 내용을 문서로 올리고, 항목마다 <b>Y / N</b>과 의견을 받습니다. 같은 암호를 쓰는 사람끼리 서로의 회신을 바로 볼 수 있습니다.</p>
+    <h1>Design review &amp; open questions</h1>
+    <p class="sub">Post a design or an open question as a document, then collect a <b>Yes / No</b> and a comment on every item. Everyone on the same passcode sees each other's replies straight away.</p>
   </header>
 
   <section class="section">
     <div class="sec-head">
-      <div class="sec-num">문서</div>
+      <div class="sec-num">DOCS</div>
       <div>
-        <h2>검토 문서</h2>
-        <p>문서를 열어 항목별로 회신해 주세요. 입력값은 자동 저장됩니다.</p>
+        <h2>Documents under review</h2>
+        <p>Open a document and answer item by item. Everything saves as you type.</p>
       </div>
     </div>
     <div class="portal-grid" id="docGrid"></div>
@@ -45,32 +45,32 @@
 
   <footer>
     <span class="code">REVIEW BOARD</span>
-    <p>암호를 아는 사람은 이 공간의 모든 문서와 회신을 보고 쓸 수 있습니다. 대외비 자료는 올리지 마세요.</p>
+    <p>Anyone with the passcode can read and write every document and reply in this workspace. Do not post confidential material.</p>
   </footer>
 </div>
 
 <script src="./assets/firebase-config.js"></script>
 <script src="./assets/board-core.js"></script>
 <script>
-/* 검토 문서 목록 — 문서를 추가하면 여기에 한 줄만 더합니다. */
+/* Document registry — add one entry per new review document. */
 window.BOARD_DOCS = [
   {
     id: "s04-procurement-status-flow",
     code: "MERP PROCUREMENT",
     title: "Procurement Status Flow Guide",
-    desc: "PR → PO → DN → GR → IR 상태 흐름, 문서 간 정의 불일치, 취소(CN) 트리거, 반려 PR 재사용, 화면 표시안",
+    desc: "PR → PO → DN → GR → IR status flow, conflicts between the two design documents, cancellation triggers, rejected-PR reuse, on-screen display",
     items: 12,
     href: "./docs/s04-procurement-status-flow.html",
-    tags: [["red", "첫 번째 논의 대상"], ["blue", "STATUS FLOW"]]
+    tags: [["red", "FIRST UP"], ["blue", "STATUS FLOW"]]
   },
   {
     id: "s04-purchase-progress-status",
     code: "MERP S04",
     title: "Purchase Progress Status Design",
-    desc: "PR·PO 화면에 보여줄 단일 진행 상태 정의, 취소(CN) 트리거, 수정 정책, 상태 판정 규칙",
+    desc: "One end-user status for PR and PO screens, cancellation (CN) triggers, modification policy, status resolution rules",
     items: 13,
     href: "./docs/s04-purchase-progress-status.html",
-    tags: [["blue", "WORKING DRAFT"], ["amber", "검토 요청"]]
+    tags: [["blue", "WORKING DRAFT"], ["amber", "REVIEW REQUESTED"]]
   }
 ];
 
@@ -85,7 +85,7 @@ window.BOARD_DOCS = [
       '<div class="top"><span class="code">' + esc(d.code) + '</span>' + tags + '</div>' +
       '<h3>' + esc(d.title) + '</h3>' +
       '<p>' + esc(d.desc) + '</p>' +
-      '<div class="foot"><span>검토 항목 ' + d.items + '건</span><span id="cnt-' + esc(d.id) + '">' + (count == null ? "" : count + "명 회신") + '</span></div>' +
+      '<div class="foot"><span>' + d.items + ' items</span><span>' + (count == null ? "" : count + " replied") + '</span></div>' +
     '</a>';
   }
 
@@ -109,22 +109,22 @@ window.BOARD_DOCS = [
   });
 
   if (!B.hasConfig) {
-    setSync("off", "로컬 저장");
-    document.getElementById("roomName").textContent = "공유 저장 미설정 — 문서는 열람·작성 가능";
+    setSync("off", "Local only");
+    document.getElementById("roomName").textContent = "Shared storage not configured — documents still open";
     document.getElementById("btnSwitch").hidden = true;
   } else {
-    setSync("busy", "연결 중…");
+    setSync("busy", "Connecting…");
     B.enter().then(function (room) {
-      if (!room || !room.key) { setSync("off", "로컬 저장"); return; }
-      setSync("on", "공유 저장 켜짐");
-      document.getElementById("roomName").textContent = room.label ? ("공간: " + room.label) : "공유 공간 연결됨";
+      if (!room || !room.key) { setSync("off", "Local only"); return; }
+      setSync("on", "Shared");
+      document.getElementById("roomName").textContent = room.label ? ("Workspace: " + room.label) : "Connected";
       var counts = {};
       return Promise.all(window.BOARD_DOCS.map(function (d) {
         return B.listAll(d.id).then(function (list) { counts[d.id] = list.length; }, function () {});
       })).then(function () { render(counts); });
     }).catch(function (err) {
-      setSync("err", "연결 실패");
-      document.getElementById("roomName").textContent = "연결 실패 — " + err.message;
+      setSync("err", "Connection failed");
+      document.getElementById("roomName").textContent = "Connection failed — " + err.message;
     });
   }
 })();

@@ -1,56 +1,59 @@
-# 업무 검토 보드
+# Review Board
 
-설계안·업무 조사 내용을 문서로 올리고, **항목마다 Y / N 과 의견**을 받아 한곳에 모으는 정적 웹 보드입니다.
-같은 **공유 암호**를 쓰는 사람끼리 서로의 회신을 바로 볼 수 있습니다.
+A static web board for putting a design or an open question in front of colleagues and collecting a
+**Yes / No plus a comment on every item**. Everyone who enters the same **shared passcode** sees each
+other's replies.
 
-- 호스팅: **Cloudflare Pages** (정적 파일)
-- 저장소: **Firebase Firestore** (REST API 직접 호출 — SDK 번들 없음)
-- 신원: **익명 인증**, 접근 통제는 공유 암호
+- Hosting: **Cloudflare Pages** (static files, no build step)
+- Storage: **Firebase Firestore**, called over REST — no SDK bundle, no version to pin
+- Identity: **anonymous auth**; access control is the shared passcode
 
-암호를 넣지 않아도 문서는 읽고 회신을 작성할 수 있고, 그 경우 입력값은 브라우저에만 저장됩니다.
-암호로 입장하면 그 순간부터 자동으로 공유 저장이 켜집니다.
+Without a passcode the documents still open and you can answer — entries just stay in your browser.
+Enter a passcode and shared storage switches on from that moment.
 
 ---
 
-## 1. 구조
+## 1. Layout
 
 ```
-public/                         ← Cloudflare Pages 배포 대상
-├─ index.html                   문서 목록(포털) + 암호 게이트
+public/                         ← what Cloudflare Pages serves
+├─ index.html                   document list + passcode gate
 ├─ assets/
-│  ├─ app.css                   공통 스타일 (라이트/다크 자동)
-│  ├─ board-core.js             암호 게이트 · 익명 인증 · Firestore REST
-│  ├─ review.js                 회신 위젯 · 요약 · 전체 응답 화면
-│  └─ firebase-config.js        ★ 프로젝트 값 두 개만 채우면 끝
+│  ├─ app.css                   shared styles (light/dark automatic)
+│  ├─ board-core.js             passcode gate, anonymous auth, Firestore REST
+│  ├─ review.js                 reply widgets, summary, all-replies view
+│  └─ firebase-config.js        ★ the only file you have to fill in
 └─ docs/
-   └─ s04-purchase-progress-status.html   검토 문서 #1
+   ├─ s04-procurement-status-flow.html      review document #1
+   └─ s04-purchase-progress-status.html     review document #2
 
-firestore.rules                 보안 규칙
-firebase.json                   규칙 배포용
-wrangler.toml                   Cloudflare Pages 설정
-tools/inline.mjs                단일 HTML 파일로 묶기 (메일 첨부용)
+firestore.rules                 security rules
+firebase.json                   for deploying the rules
+wrangler.toml                   Cloudflare Pages settings
+tools/inline.mjs                bundle one page into a single HTML file
 ```
 
-데이터 경로:
+Data paths:
 
 ```
-rooms/{roomKey}/meta/room                        방 이름
-rooms/{roomKey}/docs/{docId}/responses/{uid}     사람별 회신
+rooms/{roomKey}/meta/room                        workspace label
+rooms/{roomKey}/docs/{docId}/responses/{uid}     one reply per reviewer
 ```
 
-`roomKey`는 공유 암호를 SHA-256 해시한 값입니다. 암호를 모르면 경로 자체를 만들 수 없습니다.
+`roomKey` is the SHA-256 hash of the shared passcode. Without the passcode the path cannot be
+constructed, so the data cannot be reached.
 
 ---
 
-## 2. 세팅 (한 번만)
+## 2. Setup (once)
 
 ### 2-1. Firebase
 
-1. [console.firebase.google.com](https://console.firebase.google.com) 에서 프로젝트 생성
-2. **빌드 → Firestore Database → 데이터베이스 만들기** (프로덕션 모드, 리전은 `asia-northeast3` 권장)
-3. **빌드 → Authentication → 로그인 방법 → 익명** 사용 설정 ← 빠뜨리면 저장이 안 됩니다
-4. **프로젝트 설정 → 일반 → 내 앱 → 웹 앱 추가** 후 `apiKey`, `projectId` 확인
-5. `public/assets/firebase-config.js` 에 두 값을 붙여넣기
+1. Create a project at [console.firebase.google.com](https://console.firebase.google.com)
+2. **Build → Firestore Database → Create database** (production mode; `asia-northeast3` is a good region)
+3. **Build → Authentication → Sign-in method → Anonymous** — enable it. Miss this and nothing saves.
+4. **Project settings → General → Your apps → add a web app**, then note `apiKey` and `projectId`
+5. Paste both into `public/assets/firebase-config.js`
 
 ```js
 window.FIREBASE_CONFIG = {
@@ -59,7 +62,7 @@ window.FIREBASE_CONFIG = {
 };
 ```
 
-6. 보안 규칙 적용 — 콘솔의 **Firestore → 규칙** 탭에 `firestore.rules` 내용을 붙여넣고 게시하거나:
+6. Publish the rules — paste `firestore.rules` into the console's **Firestore → Rules** tab, or:
 
 ```bash
 npx firebase login
@@ -67,112 +70,116 @@ npx firebase use <projectId>
 npm run rules
 ```
 
-> `apiKey`와 `projectId`는 브라우저에 노출되는 공개 식별자입니다. 실제 통제는 규칙과 공유 암호가 합니다.
-> 서비스 계정 키(JSON)는 이 저장소에 절대 넣지 마세요.
+> `apiKey` and `projectId` are public identifiers that ship to the browser. The rules and the
+> passcode do the actual gatekeeping. Never commit a service-account key.
 
 ### 2-2. Cloudflare Pages
 
 ```bash
 npm install
 npx wrangler login
-npm run deploy          # public/ 을 review-board 프로젝트로 배포
+npm run deploy          # deploys public/ to the review-board project
 ```
 
-처음 실행하면 프로젝트 생성 여부를 물어봅니다. 배포가 끝나면
-`https://review-board.pages.dev` 형태의 주소가 나옵니다.
+The first run offers to create the project. When it finishes you get a
+`https://review-board.pages.dev` address.
 
-GitHub 연동으로 배포하려면 Cloudflare 대시보드 → **Workers & Pages → Create → Pages → Connect to Git**
-에서 이 저장소를 고르고 다음처럼 설정합니다.
+To deploy from GitHub instead, go to the Cloudflare dashboard →
+**Workers & Pages → Create → Pages → Connect to Git**, pick this repository and set:
 
-| 항목 | 값 |
+| Setting | Value |
 | --- | --- |
 | Framework preset | None |
-| Build command | *(비움)* |
+| Build command | *(leave empty)* |
 | Build output directory | `public` |
 
-### 2-3. 첫 입장
+### 2-3. First entry
 
-1. 배포된 주소를 열면 암호 입력창이 나옵니다.
-2. 처음 쓰는 암호면 **새 공간 이름**을 물어봅니다. 이름을 정하면 공간이 만들어집니다.
-3. 이후에는 같은 암호를 넣은 사람 모두 같은 공간으로 들어옵니다.
+1. Open the deployed address and you get a passcode prompt.
+2. A passcode nobody has used yet asks you to **name the workspace**, then creates it.
+3. From then on, everyone entering that passcode lands in the same workspace.
 
-> 오타 방지: 존재하지 않는 암호를 넣으면 바로 통과시키지 않고 "새 공간을 만들지" 되묻습니다.
+> Typo protection: an unknown passcode does not silently let you in — it asks whether you meant to
+> create a new workspace.
 
 ---
 
-## 3. 로컬에서 확인
+## 3. Running locally
 
 ```bash
-npm run serve      # http://localhost:8080  (파이썬 정적 서버)
-# 또는
+npm run serve      # http://localhost:8080  (python static server)
+# or
 npm run dev        # http://localhost:8788  (wrangler pages dev)
 ```
 
-공유 저장은 HTTPS 또는 localhost 에서만 동작합니다(WebCrypto 요구사항).
+Shared storage needs HTTPS or localhost — that is a WebCrypto requirement.
 
 ---
 
-## 4. 문서 추가하기
+## 4. Adding a document
 
-1. `public/docs/` 에 새 HTML 파일을 만듭니다. 기존 문서를 복사해 쓰는 게 가장 빠릅니다.
-2. 본문은 자유롭게 쓰고, 회신을 받고 싶은 위치에 자리표시자를 둡니다.
+1. Drop a new HTML file into `public/docs/`. Copying an existing one is the quickest start.
+2. Write the content however you like, and put a placeholder wherever a reply belongs:
 
 ```html
-<div data-review="q1"></div>                          <!-- 큰 회신 박스 -->
-<div data-review="q7" data-variant="inline"></div>     <!-- 카드 안에 들어가는 작은 형태 -->
+<div data-review="q1"></div>                          <!-- full reply box -->
+<div data-review="q7" data-variant="inline"></div>     <!-- compact, sits inside a card -->
 ```
 
-3. 파일 끝에서 문서를 정의합니다.
+3. Define the document at the end of the file:
 
 ```html
 <script src="../assets/firebase-config.js"></script>
 <script src="../assets/board-core.js"></script>
 <script>
 window.REVIEW_DOC = {
-  id: "s05-vendor-master",              // 저장 키 — 한 번 정하면 바꾸지 마세요
+  id: "s05-vendor-master",              // storage key — never change it once in use
   code: "MERP S05",
-  title: "Vendor Master 설계",
+  title: "Vendor Master Design",
   items: [
-    { id:"q1", sec:"01", label:"코드 체계", q:"제안한 코드 체계에 동의하십니까?", hint:"보조 설명" },
-    { id:"q7", sec:"03", label:"중복 검증", q:"중복 검증 규칙에 동의하십니까?", variant:"inline" }
+    { id:"q1", sec:"01", label:"Code scheme", q:"Do you agree with the proposed code scheme?", hint:"Optional helper text" },
+    { id:"q7", sec:"03", label:"Duplicate check", q:"Do you agree with the duplicate rules?", variant:"inline" }
   ]
 };
 </script>
 <script src="../assets/review.js"></script>
 ```
 
-4. `public/index.html` 의 `window.BOARD_DOCS` 배열에 한 줄 추가하면 목록에 나타납니다.
+4. Add one entry to `window.BOARD_DOCS` in `public/index.html` and it shows up in the list.
 
-상단바·검토자 입력칸·요약·전체 응답 화면은 `review.js` 가 자동으로 만듭니다.
-문서 페이지에는 `<div id="topbarMount"></div>`, `<div id="reviewerMount"></div>`,
-`<div id="summaryMount"></div>` 세 개의 자리만 있으면 됩니다.
+The top bar, summary and all-replies view are generated by `review.js`. A document page only needs
+`<div id="topbarMount"></div>` and `<div id="summaryMount"></div>` as anchors.
 
-### 항목(item) 필드
+### Item fields
 
-| 필드 | 설명 |
+| Field | Meaning |
 | --- | --- |
-| `id` | 저장 키. 문서 안에서 유일해야 하며 나중에 바꾸면 기존 회신과 연결이 끊깁니다 |
-| `sec` | 화면의 섹션 번호. 회신 텍스트에 함께 찍힙니다 |
-| `label` | 요약표·취합본에 쓰이는 짧은 이름 |
-| `q` | 질문 문장 |
-| `hint` | (선택) 질문 아래 보조 설명 |
-| `variant` | (선택) `"inline"` 이면 카드 안에 들어가는 작은 형태 |
+| `id` | Storage key. Unique within the document; changing it later orphans existing replies |
+| `sec` | Section number shown on screen; also printed in the copied reply |
+| `label` | Short name used in the summary table and the collated text |
+| `q` | The question |
+| `hint` | Optional helper line under the question |
+| `variant` | Optional; `"inline"` renders the compact form for use inside a card |
 
 ---
 
-## 5. 쓰는 방법 (검토자용)
+## 5. For reviewers
 
-- **동의(Y) / 수정 필요(N) / 보류** 중 하나를 고르고 의견을 적습니다. N은 사유가 필수입니다.
-- 입력하는 즉시 저장됩니다. 상단 배지가 `저장됨` 으로 바뀝니다.
-- **전체 응답** 버튼으로 다른 사람의 회신과 항목별 집계를 봅니다.
-- **회신 복사** 로 메신저·메일에 붙여넣을 텍스트를 얻습니다.
+- Pick **Yes**, **No — needs change**, or **Hold** on each item and add a comment. A reason is
+  required whenever you pick No.
+- Entries save as you type; the badge in the top bar switches to `Saved`.
+- **All replies** shows everyone else's answers plus a per-item tally.
+- **Copy reply** produces plain text ready to paste into chat or email.
 
 ---
 
-## 6. 알아둘 점
+## 6. Worth knowing
 
-- 암호를 아는 사람은 그 공간의 **모든 문서와 회신을 읽고 쓸 수** 있습니다. 열람만 가능한 권한은 없습니다.
-- 익명 인증이라 이름은 본인이 적은 값 그대로입니다. 신원 확인이 필요하면 회사 SSO 연동이 따로 필요합니다.
-- 회신은 브라우저 단위(uid)로 구분됩니다. 다른 기기·시크릿 창에서 열면 새 회신이 됩니다.
-- 파일 하나로 전달해야 할 때는 `node tools/inline.mjs <문서경로>` 로 `dist/` 에 단일 HTML을 만듭니다.
-  이 파일은 공유 저장 없이 로컬 저장 모드로만 동작합니다.
+- Anyone with the passcode can **read and write every document and reply** in that workspace. There
+  is no read-only role.
+- Auth is anonymous, so replies are labelled `Reviewer 1`, `Reviewer 2`, … in the order they first
+  answered, and your own is marked `You`. If you need real names attached, that needs company SSO.
+- A reply belongs to a browser (uid). Opening the board on another device or in a private window
+  creates a separate reply.
+- To hand someone a single file, run `node tools/inline.mjs <path to document>`; it writes a
+  self-contained HTML file to `dist/`. That copy runs in local-only mode.
