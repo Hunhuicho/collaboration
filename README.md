@@ -7,6 +7,7 @@ other's replies.
 - Hosting: **Cloudflare Pages** (files served as-is, no build step)
 - Storage: **Firebase Firestore**, called over REST — no SDK bundle, no version to pin
 - Identity: **anonymous auth**; access control is the shared passcode
+- Gate: a passcode is required before any page renders (`public/assets/access.js`)
 
 Without a passcode the documents still open and you can answer — entries just stay in your browser.
 Enter a passcode and shared storage switches on from that moment.
@@ -31,6 +32,7 @@ firebase.json                   for deploying the rules
 wrangler.toml                   Cloudflare deploy settings
 public/_headers                 response headers (caching, referrer policy)
 tools/inline.mjs                bundle one page into a single HTML file
+tools/passcode.mjs              set the passcode
 ```
 
 Data paths:
@@ -96,7 +98,24 @@ Connect to Git**, pick this repository, production branch `main`:
 > which drags the account subdomain into every URL. The project name in
 > `wrangler.toml` must match the Pages project name.
 
-### 2-3. First entry
+### 2-3. The passcode
+
+Every page stays blank until the passcode is entered. Change it with:
+
+```bash
+node tools/passcode.mjs "new passcode"
+```
+
+Only the SHA-256 hash is committed — the passcode itself is never in the repository,
+so a forgotten passcode is replaced, not recovered. Clearing `passHash` in
+`public/assets/access.js` removes the gate.
+
+> This is a **client-side** check on a static site. It stops the link being casually
+> readable and is the right weight for a meeting link, but someone who has the URL and
+> wants in can read the page source. It is not authentication — keep confidential
+> material off the board.
+
+### 2-4. First entry
 
 1. Open the deployed address and you get a passcode prompt.
 2. A passcode nobody has used yet asks you to **name the workspace**, then creates it.

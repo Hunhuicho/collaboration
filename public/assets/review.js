@@ -532,20 +532,21 @@
     mountTopbar(); mountSummary();
     buildItems(); wire(); repaintAll();
 
-    if (!B.hasConfig) {
-      setSync("off", "Local only");
-      var note = document.getElementById("sendNote");
-      if (note) note.textContent = "Shared storage is not configured, so this stays in your browser. Copy your reply and send it on.";
-      document.getElementById("btnAll").disabled = true;
-      return;
-    }
+    setSync(B.hasConfig ? "busy" : "off", B.hasConfig ? "Connecting…" : "Local only");
 
-    setSync("busy", "Connecting…");
     B.enter().then(function (room) {
+      if (!B.hasConfig) {
+        var note = document.getElementById("sendNote");
+        if (note) note.textContent = "Shared storage is not configured, so this stays in your browser. Copy your reply and send it on.";
+        var rn = document.getElementById("roomName");
+        if (rn && room && room.label) rn.textContent = "· " + room.label;
+        document.getElementById("btnAll").disabled = true;
+        return;
+      }
       if (!room || !room.key) { setSync("off", "Local only"); return; }
       connected = true;
-      var rn = document.getElementById("roomName");
-      if (rn && room.label) rn.textContent = "· " + room.label;
+      var name = document.getElementById("roomName");
+      if (name && room.label) name.textContent = "· " + room.label;
       return B.loadMine(DOC.id).then(function (remote) {
         if (remote && remote.answers) {
           var remoteTime = remote.updatedAt ? new Date(remote.updatedAt).getTime() : 0;

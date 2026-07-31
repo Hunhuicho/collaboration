@@ -13,6 +13,8 @@
 
   var CFG = global.FIREBASE_CONFIG || {};
   var HAS_CFG = !!(CFG.apiKey && CFG.projectId);
+  var ACCESS = global.BOARD_ACCESS || {};
+  var HAS_GATE = !!ACCESS.passHash;
   var LS = {
     pass: "board.pass",
     room: "board.room",
@@ -75,6 +77,19 @@
   }
   function roomKeyFor(pass) {
     return sha256hex(String(pass).trim()).then(function (hex) { return "r" + hex.slice(0, 40); });
+  }
+
+  /* The passcode is checked against a stored hash — never against a stored
+     passcode. Wrong passcode, wrong hash, no entry. */
+  function passMatches(pass) {
+    if (!HAS_GATE) return Promise.resolve(true);
+    return sha256hex(String(pass).trim()).then(function (hex) { return hex === ACCESS.passHash; });
+  }
+
+  /* Page content is hidden by CSS until the gate clears. Every exit path from
+     the gate has to call this or the page stays blank. */
+  function ungate() {
+    document.documentElement.classList.remove("gating");
   }
 
   /* ---------------- anonymous auth ---------------- */
@@ -245,9 +260,11 @@
   function gateMarkup(title) {
     return '' +
       '<div class="gate-box">' +
-        '<span class="code">Review Board</span>' +
+        '<span class="code">' + esc(ACCESS.label || "Review Board") + '</span>' +
         '<h1>' + esc(title || "Enter the shared passcode") + '</h1>' +
-        '<p>Everyone using the same passcode sees the same documents and replies. Enter the passcode you were given.</p>' +
+        '<p>' + (HAS_CFG
+          ? "Everyone using the same passcode sees the same documents and replies. Enter the passcode you were given."
+          : "This board is passcode-protected. Enter the passcode you were given.") + '</p>' +
         '<div class="gate-msg" id="gateMsg" hidden></div>' +
         '<div class="field">' +
           '<label for="gatePass">Shared passcode</label>' +
@@ -290,7 +307,24 @@
         go.disabled = true;
         say("Checking…", "info");
 
-        roomKeyFor(pass).then(function (key) {
+        passMatches(pass).then(function (ok) {
+          if (!ok) {
+            go.disabled = false;
+            say("That passcode is not right.");
+            input.select();
+            return;
+          }
+          if (!HAS_CFG) { finish(pass, null, ACCESS.label); return; }
+          return openRoom(pass);
+        }).catch(function (err) {
+          go.disabled = false;
+          if (err && err.message === "insecure-context") say("This page works only over HTTPS.");
+          else say("Something went wrong: " + (err && err.message ? err.message : err));
+        });
+      }
+
+      function openRoom(pass) {
+        return roomKeyFor(pass).then(function (key) {
           if (pendingKey && pendingKey === key && !labelWrap.hidden) {
             var label = labelInput.value.trim();
             if (!label) { say("Give the workspace a name."); labelInput.focus(); go.disabled = false; return; }
@@ -321,6 +355,7 @@
         room.pass = pass; room.key = key; room.label = label || "";
         ls(LS.pass, pass); ls(LS.room, key); ls(LS.label, room.label);
         el.remove();
+        ungate();
         resolve(room);
       }
 
@@ -333,16 +368,27 @@
 
   /* Try the stored passcode first; fall back to the gate. */
   function enter() {
-    if (!HAS_CFG) return Promise.resolve(null);
+    if (!HAS_GATE && !HAS_CFG) { ungate(); return Promise.resolve(null); }
+
     var pass = ls(LS.pass);
     if (!pass) return openGate();
-    return roomKeyFor(pass).then(function (key) {
-      return fetchRoom(key).then(function (meta) {
-        room.pass = pass; room.key = key; room.label = (meta && meta.label) || ls(LS.label) || "";
+
+    return passMatches(pass).then(function (ok) {
+      if (!ok) { ls(LS.pass, null); return openGate(); }   // passcode changed since last visit
+      if (!HAS_CFG) {
+        room.pass = pass; room.label = ACCESS.label || "";
+        ungate();
         return room;
-      }, function () {
-        ls(LS.pass, null);
-        return openGate();
+      }
+      return roomKeyFor(pass).then(function (key) {
+        return fetchRoom(key).then(function (meta) {
+          room.pass = pass; room.key = key; room.label = (meta && meta.label) || ls(LS.label) || "";
+          ungate();
+          return room;
+        }, function () {
+          ls(LS.pass, null);
+          return openGate();
+        });
       });
     }, function () { return openGate(); });
   }
@@ -354,6 +400,8 @@
 
   global.Board = {
     hasConfig: HAS_CFG,
+    hasGate: HAS_GATE,
+    ungate: ungate,
     room: room,
     enter: enter,
     leave: leave,
