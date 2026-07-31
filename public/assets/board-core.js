@@ -268,7 +268,8 @@
         '<div class="gate-msg" id="gateMsg" hidden></div>' +
         '<div class="field">' +
           '<label for="gatePass">Shared passcode</label>' +
-          '<input id="gatePass" type="password" autocomplete="current-password" placeholder="e.g. merp-s04" />' +
+          // No placeholder example — anything resembling the real passcode is a hint.
+          '<input id="gatePass" type="password" autocomplete="current-password" />' +
         '</div>' +
         '<div class="field" id="gateLabelWrap" hidden>' +
           '<label for="gateLabel">Name this workspace</label>' +
