@@ -1,0 +1,12 @@
+# Cloudflare Pages response headers
+# Asset filenames are not content-hashed, so nothing may be cached for long —
+# a document edit has to reach reviewers on their next visit.
+
+/*
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Cache-Control: public, max-age=0, must-revalidate
+
+/assets/*
+  Cache-Control: public, max-age=300, must-revalidate
