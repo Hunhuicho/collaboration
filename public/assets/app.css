@@ -369,7 +369,7 @@ td.dash{color:var(--muted);}
 .choice[aria-pressed="true"] .mark::after{content:"✓"; color:var(--surface); font-weight:800;}
 .rv-comment{display:flex; flex-direction:column; gap:5px;}
 .rv-comment label{font-size:11px; font-weight:680; letter-spacing:.08em; text-transform:uppercase; color:var(--muted);}
-.rv-comment textarea{font:inherit; font-size:13.5px; line-height:1.55; color:var(--ink); background:var(--surface-2); border:1px solid var(--line-2); border-radius:5px; padding:9px 12px; resize:vertical; min-height:62px; width:100%;}
+.rv-comment textarea{font:inherit; font-size:14.5px; font-weight:520; line-height:1.6; color:var(--ink); background:var(--surface-2); border:1px solid var(--line-2); border-radius:5px; padding:10px 13px; resize:vertical; min-height:66px; width:100%;}
 .rv-comment textarea:focus{outline:2px solid var(--accent-2); border-color:transparent;}
 .review.needs-note .rv-comment textarea{border-color:var(--no);}
 .review.needs-note .rv-comment label::after{content:" · reason required"; color:var(--no); letter-spacing:0; text-transform:none; font-weight:600;}
@@ -381,7 +381,7 @@ td.dash{color:var(--muted);}
 .rv-mini .rv-tag{margin-top:0;}
 .review.inline .choice{font-size:12.5px; padding:5px 11px; gap:6px;}
 .review.inline .choice .mark{width:14px; height:14px; font-size:10px;}
-.review.inline textarea{font:inherit; font-size:13px; line-height:1.5; color:var(--ink); background:var(--surface-2); border:1px solid var(--line-2); border-radius:5px; padding:7px 10px; resize:vertical; min-height:44px; width:100%;}
+.review.inline textarea{font:inherit; font-size:14px; font-weight:520; line-height:1.55; color:var(--ink); background:var(--surface-2); border:1px solid var(--line-2); border-radius:5px; padding:9px 12px; resize:vertical; min-height:52px; width:100%;}
 .review.inline textarea:focus{outline:2px solid var(--accent-2); border-color:transparent;}
 .review.inline.needs-note textarea{border-color:var(--no);}
 
@@ -408,9 +408,20 @@ td.dash{color:var(--muted);}
 .closing-card label{font-size:11px; font-weight:680; letter-spacing:.08em; text-transform:uppercase; color:var(--muted);}
 .closing-card textarea{
   font:inherit; font-size:14px; line-height:1.6; color:var(--ink); background:var(--surface-2);
-  border:1px solid var(--line-2); border-radius:5px; padding:11px 13px; resize:vertical; min-height:110px; width:100%;
+  border:1px solid var(--line-2); border-radius:5px; padding:12px 14px; resize:vertical; min-height:110px; width:100%;
+  font-weight:520;
 }
 .closing-card textarea:focus{outline:2px solid var(--accent-2); border-color:transparent;}
+
+/* A comment someone has written is content, not chrome: lift it off the page
+   once there is something in it. */
+.rv-comment textarea:not(:placeholder-shown),
+.review.inline textarea:not(:placeholder-shown),
+.closing-card textarea:not(:placeholder-shown){
+  background:var(--surface); border-color:var(--line-3);
+  box-shadow:inset 3px 0 0 var(--accent-2);
+}
+textarea::placeholder{font-weight:400;}
 
 /* ---------- summary ---------- */
 .summary{margin-top:44px; scroll-margin-top:80px;}
@@ -423,7 +434,7 @@ td.dash{color:var(--muted);}
 .sumtbl th{background:var(--surface-3); text-align:left; font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); font-weight:680; padding:9px 13px;}
 .sumtbl td{padding:9px 13px; border-top:1px solid var(--line); vertical-align:top;}
 .sumtbl td.a{white-space:nowrap; width:1%;}
-.sumtbl td.c{color:var(--ink-2);}
+.sumtbl td.c{color:var(--ink); font-size:13.5px; line-height:1.55;}
 .sumtbl td.c.empty{color:var(--muted); font-style:italic;}
 .sumtbl .qn{font-family:var(--mono); color:var(--muted); font-size:12px;}
 .a-y{color:var(--yes); font-weight:680;} .a-n{color:var(--no); font-weight:680;}
@@ -452,7 +463,7 @@ td.dash{color:var(--muted);}
 .pline{display:grid; grid-template-columns:52px 1fr; gap:10px; padding:7px 18px; font-size:13px; align-items:start;}
 .pline .q{font-family:var(--mono); font-size:11.5px; color:var(--muted); padding-top:2px;}
 .pline .v{display:flex; flex-direction:column; gap:2px;}
-.pline .c{color:var(--ink-2); font-size:12.5px;}
+.pline .c{color:var(--ink); font-size:13.5px; line-height:1.55;}
 .empty-note{padding:22px; text-align:center; color:var(--muted); font-size:13.5px;}
 
 /* ---------- passcode gate ---------- */
