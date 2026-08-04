@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PO Confirmation — Split Schedules — Review</title>
+<meta name="description" content="May a supplier confirm one PO line across several schedules? · answer Yes/No per item and leave comments" />
+<link rel="stylesheet" href="../assets/app.css" />
+<script>document.documentElement.classList.add("gating");</script>
+<style>
+/* Components specific to this document */
+.case{padding:20px; background:var(--surface); display:flex; flex-direction:column; gap:14px;}
+.case-row{display:flex; align-items:stretch; gap:14px; flex-wrap:wrap;}
+.po-card{
+  flex:0 0 auto; min-width:230px; background:var(--surface-2);
+  border:1px solid var(--line); border-left:3px solid var(--accent); border-radius:6px; padding:14px 16px;
+  display:flex; flex-direction:column; gap:5px;
+}
+.po-card .k{font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:680;}
+.po-card .qty{font-size:22px; font-weight:730; letter-spacing:-.02em; font-variant-numeric:tabular-nums;}
+.po-card .meta{font-size:12.5px; color:var(--ink-2);}
+.po-card .meta b{font-family:var(--mono); font-weight:660;}
+.po-card.split{border-left-color:var(--hold); background:var(--hold-bg);}
+.case-arrow{display:flex; align-items:center; font-size:20px; color:var(--line-3); font-weight:700;}
+.case-stack{display:flex; flex-direction:column; gap:10px; flex:1 1 260px; min-width:230px;}
+.case-q{
+  padding:14px 18px; background:var(--no-bg); border:1px solid var(--line); border-radius:6px;
+  font-size:13.5px; color:var(--ink-2);
+}
+.case-q b{color:var(--ink);}
+
+.opts{width:100%; border-collapse:collapse; font-size:13.5px; min-width:760px;}
+.opts th{background:var(--surface-3); text-align:left; font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); font-weight:680; padding:10px 13px;}
+.opts td{padding:12px 13px; border-top:1px solid var(--line); vertical-align:top;}
+.opts td.opt{font-weight:700; white-space:nowrap;}
+.opts td.opt small{display:block; font-weight:500; color:var(--muted); margin-top:3px; white-space:normal; max-width:150px;}
+.opts td.body{background:var(--surface-2);}
+.opts ul{margin:6px 0 0; padding-left:17px; display:flex; flex-direction:column; gap:3px; color:var(--muted); font-size:12.5px;}
+
+.impact{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:1px; background:var(--line); border-top:1px solid var(--line);}
+.impact div{background:var(--surface); padding:14px 17px; display:flex; flex-direction:column; gap:5px;}
+.impact .k{font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); font-weight:680;}
+.impact b{font-size:13.5px; font-weight:690;}
+.impact p{font-size:12.5px; color:var(--ink-2);}
+
+.fyi{background:var(--p-blue-bg); border:1px solid var(--line); border-radius:6px; padding:15px 19px; margin-top:14px; display:flex; flex-direction:column; gap:7px;}
+.fyi .k{font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--p-blue); font-weight:750;}
+.fyi p{font-size:13px; color:var(--ink-2);}
+.fyi b{color:var(--ink);}
+</style>
+</head>
+<body>
+
+<div id="topbarMount"></div>
+
+<div class="shell">
+<aside id="navMount"></aside>
+
+<div class="wrap">
+
+  <header class="hero">
+    <div class="hero-eyebrow">
+      <span class="code">MERP S04</span>
+      <span class="pill amber">REVIEW REQUESTED</span>
+      <span class="pill red">POLICY DECISION</span>
+    </div>
+    <h1>PO Confirmation — Split Schedules</h1>
+    <p class="sub">A PO goes out for 100 with one requested delivery date. The supplier confirms it as <b>50 + 50 on two different dates</b>. Should that be allowed at all — or should the split be agreed first and issued as two POs? Please answer <b>Yes / No</b> on the 7 items below and add a comment.</p>
+    <div class="hero-meta">
+      <div><span class="k">Trigger</span><strong>PO Confirmation from supplier</strong></div>
+      <div><span class="k">Affects</span><strong>PO · DN · GR · IR matching</strong></div>
+      <div><span class="k">Review items</span><strong>7</strong></div>
+      <div><span class="k">Working proposal</span><strong>Supplier may not split</strong></div>
+    </div>
+  </header>
+
+  <div class="howto">
+    <h2>How to reply</h2>
+    <ol>
+      <li>On each item pick <b>Yes</b>, <b>No — needs change</b>, or <b>Hold</b>, then add a comment. <b>A reason is required whenever you pick No.</b></li>
+      <li>Two items ask for your view in words instead of Yes/No — they have no obviously right answer.</li>
+      <li>Everything saves as you type. <b>Copy reply</b> gives you a plain-text version to paste into chat or email.</li>
+    </ol>
+  </div>
+
+  <!-- ============ 01 ============ -->
+  <section class="section">
+    <div class="sec-head">
+      <div class="sec-num">01</div>
+      <div>
+        <h2>The case</h2>
+        <p>One order line, one requested date — and a confirmation that comes back in two pieces.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="case">
+        <div class="case-row">
+          <div class="po-card">
+            <span class="k">PO issued</span>
+            <span class="qty">100 EA</span>
+            <span class="meta">Item <b>00010</b></span>
+            <span class="meta">RDD <b>2026-03-10</b></span>
+            <span class="meta">Status <b>Open</b></span>
+          </div>
+          <div class="case-arrow">→</div>
+          <div class="case-stack">
+            <div class="po-card split">
+              <span class="k">Supplier confirmation · schedule 1</span>
+              <span class="qty">50 EA</span>
+              <span class="meta">Confirmed date <b>2026-03-10</b></span>
+            </div>
+            <div class="po-card split">
+              <span class="k">Supplier confirmation · schedule 2</span>
+              <span class="qty">50 EA</span>
+              <span class="meta">Confirmed date <b>2026-03-24</b></span>
+            </div>
+          </div>
+        </div>
+        <div class="case-q">
+          The requested date was set for <b>the whole 100</b>. In this flow the supplier decides on its own to
+          break the quantity apart and move half of it two weeks out. The requester agreed to one delivery,
+          and now there are two — with no one on our side having approved the change.
+        </div>
+      </div>
+    </div>
+    <div data-review="q1"></div>
+  </section>
+
+  <!-- ============ 02 ============ -->
+  <section class="section">
+    <div class="sec-head">
+      <div class="sec-num">02</div>
+      <div>
+        <h2>Three ways this could work</h2>
+        <p>Option B is the working proposal. A and C are here so the trade-off is visible, not to pad the list.</p>
+      </div>
+    </div>
+    <div class="card scroll-x">
+      <table class="opts">
+        <thead>
+          <tr><th>Option</th><th>How it works</th><th>Why it might be right</th><th>What it costs us</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="opt">A. Supplier splits<small>schedule lines on the confirmation</small></td>
+            <td class="body">The supplier confirms 50 / 50 on two dates. The PO carries two schedule lines and both deliveries run against the same PO.</td>
+            <td>Reflects what the supplier can actually do. No rework, no new PO numbers. This is how most supplier networks behave by default.</td>
+            <td>The supplier changes a date the requester agreed to, with no approval step on our side. Confirmed status stops meaning "confirmed as ordered".</td>
+          </tr>
+          <tr>
+            <td class="opt">B. Reject and re-issue<small>working proposal</small></td>
+            <td class="body">The supplier can only confirm the line as ordered, or reject it. On a rejection Purchasing agrees a plan with the supplier and issues <b>two POs</b> — 50 and 50, each with its own date.
+              <ul><li>Original PO is cancelled or superseded</li><li>Each new PO confirms on its own</li></ul></td>
+            <td>Every delivery date on the system was agreed by Purchasing. One PO always means one quantity on one date, which keeps GR and invoice matching simple.</td>
+            <td>Rework on every date slip — a new PO, a new approval, new numbers. Slower, and the audit trail spreads across documents.</td>
+          </tr>
+          <tr>
+            <td class="opt">C. Split needs our approval<small>middle ground</small></td>
+            <td class="body">The supplier may propose a split. It does not take effect until a buyer accepts it; until then the PO stays Open and the proposal sits as a pending change.</td>
+            <td>Keeps the supplier's real capability visible without letting them change the order unilaterally.</td>
+            <td>Needs a pending-change state, a buyer queue and a rule for what happens if nobody acts on it.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="fyi">
+      <span class="k">Worth knowing before deciding</span>
+      <p>Splitting a confirmation across schedule lines is <b>standard behaviour</b> in supplier networks and ERP order acknowledgements — a supplier confirming part of a quantity on a later date is an ordinary message, not an error. Choosing option B means we deliberately refuse a message the interface can send us, so we need to decide what the system does when one arrives anyway.</p>
+      <p><b>To verify with the interface team:</b> whether an incoming confirmation can be rejected at the message level, or whether it always lands and we handle it afterwards.</p>
+    </div>
+    <div data-review="q2"></div>
+    <div data-review="q3"></div>
+  </section>
+
+  <!-- ============ 03 ============ -->
+  <section class="section">
+    <div class="sec-head">
+      <div class="sec-num">03</div>
+      <div>
+        <h2>What changes downstream</h2>
+        <p>Whichever option is chosen, these four things have to follow it.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="impact">
+        <div>
+          <span class="k">PO status</span>
+          <b>What does Confirmed mean?</b>
+          <p>If a split is allowed, a PO can be half-confirmed. Either we add a <i>Partially Confirmed</i> status, or Confirmed stops guaranteeing the ordered date.</p>
+        </div>
+        <div>
+          <span class="k">Delivery &amp; receipt</span>
+          <b>Which schedule did this GR fill?</b>
+          <p>Two schedules against one line means every DN and GR has to say which schedule it belongs to, or the open quantity per date cannot be tracked.</p>
+        </div>
+        <div>
+          <span class="k">Invoice matching</span>
+          <b>Three-way match unit</b>
+          <p>Matching runs per PO line today. Split schedules mean matching a partial invoice against a partial receipt against a partial schedule.</p>
+        </div>
+        <div>
+          <span class="k">What the requester sees</span>
+          <b>One status per item</b>
+          <p>A single end-user status per item still has to be produced. With two schedules at different stages, the rule is the least-advanced one — a requester waiting on the second half sees the whole line as pending.</p>
+        </div>
+      </div>
+    </div>
+    <div data-review="q4"></div>
+  </section>
+
+  <!-- ============ 04 ============ -->
+  <section class="section">
+    <div class="sec-head">
+      <div class="sec-num">04</div>
+      <div>
+        <h2>Edge cases we still have to answer</h2>
+        <p>These have no obvious right answer, so they take a comment rather than a Yes/No.</p>
+      </div>
+    </div>
+
+    <div class="card ask">
+      <div class="ask-head">
+        <span class="pill red">OPEN QUESTION</span>
+        <h3>A split confirmation arrives anyway — what should the system do?</h3>
+      </div>
+      <div class="ask-body">
+        <p>If the supplier sends a 50 / 50 confirmation even though the rule says they may not, the message still reaches us. The options are not equally safe:</p>
+        <ul>
+          <li>Reject it automatically and leave the PO Open — the supplier may not notice</li>
+          <li>Hold it for a buyer to look at, and keep the PO Open meanwhile</li>
+          <li>Accept it and flag the PO for follow-up</li>
+        </ul>
+      </div>
+    </div>
+    <div data-review="q5"></div>
+
+    <div class="card ask" style="margin-top:14px;">
+      <div class="ask-head">
+        <span class="pill red">OPEN QUESTION</span>
+        <h3>Goods are already on the way for part of the quantity</h3>
+      </div>
+      <div class="ask-body">
+        <p>The supplier ships 50 first and registers a delivery note before any of this is settled. Rejecting the PO at that point is no longer clean — something has already physically moved.</p>
+        <ul>
+          <li>Does an existing delivery note lock the PO against being rejected or split?</li>
+          <li>If the PO must still be split, what happens to the shipment already in transit?</li>
+        </ul>
+      </div>
+    </div>
+    <div data-review="q6"></div>
+    <div data-review="q7"></div>
+  </section>
+
+  <div id="summaryMount"></div>
+
+  <footer>
+    <span class="code">MERP S04</span>
+    <p>Meeting draft · open policy items are not treated as final decisions.</p>
+  </footer>
+</div>
+</div>
+
+<script src="../assets/access.js"></script>
+<script src="../assets/firebase-config.js"></script>
+<script src="../assets/board-core.js"></script>
+<script src="../assets/docs.js"></script>
+<script src="../assets/nav.js"></script>
+<script>
+window.REVIEW_DOC = {
+  id: "s04-po-confirmation-split",
+  code: "MERP S04",
+  title: "PO Confirmation — Split Schedules",
+  items: [
+    { id:"q1", sec:"01", label:"May a supplier split a confirmation?",
+      q:"Proposal: a supplier may not split one PO line into several schedules when confirming. They confirm the ordered quantity on the ordered date, or they reject. Do you agree?",
+      hint:"The requested date was agreed for the whole quantity, so changing it is a decision for Purchasing and the requester — not for the supplier alone." },
+    { id:"q2", sec:"02", label:"Reject and re-issue as two POs",
+      q:"When the supplier cannot deliver everything on the requested date, should they reject the PO so Purchasing can agree a plan and issue two separate POs?",
+      hint:"Say what should happen to the original PO — cancelled outright, or kept and superseded by the new ones." },
+    { id:"q3", sec:"02", label:"Date change without a split",
+      q:"If the supplier can deliver the full 100 but two weeks late, should that be a confirmation with a new date rather than a rejection?",
+      hint:"If yes, name the limit — how far can a confirmed date move before Purchasing has to be involved?" },
+    { id:"q4", sec:"03", label:"Partially Confirmed status",
+      q:"With splitting disallowed, a PO is either confirmed or not — so no 'Partially Confirmed' status is needed. Do you agree?",
+      hint:"Answer No if you expect part-confirmations to reach us in practice and want them visible on screen." },
+    { id:"q5", sec:"04", label:"Handling a split confirmation that arrives anyway", variant:"note",
+      q:"A split confirmation reaches us despite the rule. What should the system do with it?",
+      hint:"Auto-reject, hold for a buyer, or accept and flag — and who gets told." },
+    { id:"q6", sec:"04", label:"Part of the quantity is already shipped", variant:"note",
+      q:"The supplier has already shipped 50 and registered a delivery note. Can the PO still be rejected or split, and what happens to the shipment in transit?",
+      hint:"Say whether an existing delivery note should lock the PO against rejection." },
+    { id:"q7", sec:"04", label:"Who may split a requirement into several POs",
+      q:"Should splitting a requirement into multiple POs be Purchasing's decision alone, with the requester's PR left as a single document?",
+      hint:"Say whether the requester has to be told, and whether the PR should show that it is being served by more than one PO." }
+  ]
+};
+</script>
+<script src="../assets/review.js"></script>
+</body>
+</html>

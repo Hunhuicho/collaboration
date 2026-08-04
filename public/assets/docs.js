@@ -15,6 +15,16 @@
 ------------------------------------------------------------------ */
 window.BOARD_DOCS = [
   {
+    id: "s04-po-confirmation-split",
+    code: "MERP S04",
+    title: "PO Confirmation — Split Schedules",
+    desc: "May a supplier confirm one PO line as 50 + 50 on two dates, or should the split be agreed first and issued as two POs?",
+    items: 7,
+    date: "2026-08-04",
+    href: "docs/s04-po-confirmation-split.html",
+    tags: [["red", "POLICY DECISION"], ["amber", "REVIEW REQUESTED"]]
+  },
+  {
     id: "s04-purchase-progress-status",
     code: "MERP S04",
     title: "Purchase Progress Status Design",
