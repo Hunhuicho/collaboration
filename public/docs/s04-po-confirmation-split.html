@@ -43,6 +43,25 @@
 .impact b{font-size:13.5px; font-weight:690;}
 .impact p{font-size:12.5px; color:var(--ink-2);}
 
+.lvl-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:1px; background:var(--line);}
+.lvl{background:var(--surface); padding:18px 20px; display:flex; flex-direction:column; gap:11px;}
+.lvl .k{font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; font-weight:720;}
+.lvl.keep .k{color:var(--yes);}
+.lvl.cost .k{color:var(--no);}
+.lvl p{font-size:12.5px; color:var(--ink-2);}
+.tree{display:flex; flex-direction:column; gap:7px;}
+.node{
+  font-size:12.5px; font-weight:640; padding:7px 11px; border-radius:5px;
+  border:1px solid var(--line-2); background:var(--surface-2); display:block;
+}
+.node .n{font-family:var(--mono); font-weight:700; font-variant-numeric:tabular-nums;}
+.node.po{border-left:3px solid var(--accent);}
+.node.sch{border-left:3px solid var(--hold); background:var(--hold-bg); color:var(--hold);}
+.node.dn{border-left:3px solid var(--p-teal); font-weight:600;}
+.kids{display:flex; flex-direction:column; gap:7px; margin-left:20px; padding-left:14px; border-left:1px dashed var(--line-2);}
+.depth{font-size:11px; color:var(--muted); font-variant-numeric:tabular-nums; margin-top:2px;}
+.depth b{color:var(--ink);}
+
 .fyi{background:var(--p-blue-bg); border:1px solid var(--line); border-radius:6px; padding:15px 19px; margin-top:14px; display:flex; flex-direction:column; gap:7px;}
 .fyi .k{font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--p-blue); font-weight:750;}
 .fyi p{font-size:13px; color:var(--ink-2);}
@@ -65,11 +84,11 @@
       <span class="pill red">POLICY DECISION</span>
     </div>
     <h1>PO Confirmation — Split Schedules</h1>
-    <p class="sub">A PO goes out for 100 with one requested delivery date. The supplier confirms it as <b>50 + 50 on two different dates</b>. Should that be allowed at all — or should the split be agreed first and issued as two POs? Please answer <b>Yes / No</b> on the 7 items below and add a comment.</p>
+    <p class="sub">A PO goes out for 100 with one requested delivery date. The supplier confirms it as <b>50 + 50 on two different dates</b>. Should that be allowed at all — or should the split be agreed first and issued as two POs? Please answer <b>Yes / No</b> on the 8 items below and add a comment.</p>
     <div class="hero-meta">
       <div><span class="k">Trigger</span><strong>PO Confirmation from supplier</strong></div>
       <div><span class="k">Affects</span><strong>PO · DN · GR · IR matching</strong></div>
-      <div><span class="k">Review items</span><strong>7</strong></div>
+      <div><span class="k">Review items</span><strong>8</strong></div>
       <div><span class="k">Working proposal</span><strong>Supplier may not split</strong></div>
     </div>
   </header>
@@ -131,6 +150,63 @@
     <div class="sec-head">
       <div class="sec-num">02</div>
       <div>
+        <h2>Partial delivery already covers this</h2>
+        <p>A supplier who can only ship half now can already do exactly that — at delivery, not at confirmation.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="notice">
+        <span class="k">THE ARGUMENT</span><strong>Nothing is lost by refusing the split</strong>
+        <p>Purchasing and the supplier agree the plan between themselves. The supplier confirms 100, then ships 50 and registers a delivery note, and 50 more later. The PO goes <b>Partially Delivered</b>, then <b>Fully Delivered</b>. The goods, the dates and the paperwork all end up the same — without a second splitting mechanism in the system.</p>
+      </div>
+
+      <div class="lvl-grid">
+        <div class="lvl keep">
+          <span class="k">Split at delivery only — one level</span>
+          <div class="tree">
+            <div class="node po">PO line · <span class="n">100</span> · RDD 2026-03-10</div>
+            <div class="kids">
+              <span class="node dn">ASN · <span class="n">50</span> · ships 03-10</span>
+              <span class="node dn">ASN · <span class="n">50</span> · ships 03-24</span>
+            </div>
+          </div>
+          <p class="depth">Delivery documents hang straight off the line. A GR belongs to a PO line, an invoice matches a PO line. <b>Nothing new to build.</b></p>
+        </div>
+
+        <div class="lvl cost">
+          <span class="k">Split at confirmation too — two levels</span>
+          <div class="tree">
+            <div class="node po">PO line · <span class="n">100</span> · RDD 2026-03-10</div>
+            <div class="kids">
+              <div class="node sch">Schedule 1 · <span class="n">50</span> · 03-10</div>
+              <div class="kids">
+                <span class="node dn">ASN · <span class="n">25</span></span>
+                <span class="node dn">ASN · <span class="n">25</span></span>
+              </div>
+              <div class="node sch">Schedule 2 · <span class="n">50</span> · 03-24</div>
+              <div class="kids">
+                <span class="node dn">ASN · <span class="n">50</span></span>
+              </div>
+            </div>
+          </div>
+          <p class="depth">A confirmation schedule can itself be split further by delivery. Every DN, GR and invoice line now has to name <b>which schedule</b> it belongs to, and open quantity has to be tracked per schedule rather than per line.</p>
+        </div>
+      </div>
+
+      <div class="fyi">
+        <span class="k">The one thing that is actually lost</span>
+        <p>Without a split confirmation, the second half has <b>no date in the system</b> until the supplier registers its delivery note. The requester sees 100 promised for 03-10 and only learns half is late when it fails to arrive. With schedules, the later date is visible the moment the supplier confirms.</p>
+        <p><b>So the question is worth being blunt about:</b> is that forward visibility worth a second splitting level across PO, delivery, receipt and invoice — or is a phone call and an agreed plan enough?</p>
+      </div>
+    </div>
+    <div data-review="q2"></div>
+  </section>
+
+  <!-- ============ 03 ============ -->
+  <section class="section">
+    <div class="sec-head">
+      <div class="sec-num">03</div>
+      <div>
         <h2>Three ways this could work</h2>
         <p>Option B is the working proposal. A and C are here so the trade-off is visible, not to pad the list.</p>
       </div>
@@ -169,14 +245,14 @@
       <p>Splitting a confirmation across schedule lines is <b>standard behaviour</b> in supplier networks and ERP order acknowledgements — a supplier confirming part of a quantity on a later date is an ordinary message, not an error. Choosing option B means we deliberately refuse a message the interface can send us, so we need to decide what the system does when one arrives anyway.</p>
       <p><b>To verify with the interface team:</b> whether an incoming confirmation can be rejected at the message level, or whether it always lands and we handle it afterwards.</p>
     </div>
-    <div data-review="q2"></div>
     <div data-review="q3"></div>
+    <div data-review="q4"></div>
   </section>
 
   <!-- ============ 03 ============ -->
   <section class="section">
     <div class="sec-head">
-      <div class="sec-num">03</div>
+      <div class="sec-num">04</div>
       <div>
         <h2>What changes downstream</h2>
         <p>Whichever option is chosen, these four things have to follow it.</p>
@@ -206,13 +282,13 @@
         </div>
       </div>
     </div>
-    <div data-review="q4"></div>
+    <div data-review="q5"></div>
   </section>
 
   <!-- ============ 04 ============ -->
   <section class="section">
     <div class="sec-head">
-      <div class="sec-num">04</div>
+      <div class="sec-num">05</div>
       <div>
         <h2>Edge cases we still have to answer</h2>
         <p>These have no obvious right answer, so they take a comment rather than a Yes/No.</p>
@@ -233,7 +309,7 @@
         </ul>
       </div>
     </div>
-    <div data-review="q5"></div>
+    <div data-review="q6"></div>
 
     <div class="card ask" style="margin-top:14px;">
       <div class="ask-head">
@@ -248,8 +324,8 @@
         </ul>
       </div>
     </div>
-    <div data-review="q6"></div>
     <div data-review="q7"></div>
+    <div data-review="q8"></div>
   </section>
 
   <div id="summaryMount"></div>
@@ -275,22 +351,25 @@ window.REVIEW_DOC = {
     { id:"q1", sec:"01", label:"May a supplier split a confirmation?",
       q:"Proposal: a supplier may not split one PO line into several schedules when confirming. They confirm the ordered quantity on the ordered date, or they reject. Do you agree?",
       hint:"The requested date was agreed for the whole quantity, so changing it is a decision for Purchasing and the requester — not for the supplier alone." },
-    { id:"q2", sec:"02", label:"Reject and re-issue as two POs",
+    { id:"q2", sec:"02", label:"Partial delivery already covers it",
+      q:"Partial delivery at the ASN stage already lets a supplier ship 50 now and 50 later, once the plan is agreed. Do you agree that confirmation-level splitting adds a second splitting level for no business gain?",
+      hint:"Answer No if forward visibility matters — with schedules, the later date is in the system the moment the supplier confirms, instead of only when the shipment is registered." },
+    { id:"q3", sec:"03", label:"Reject and re-issue as two POs",
       q:"When the supplier cannot deliver everything on the requested date, should they reject the PO so Purchasing can agree a plan and issue two separate POs?",
       hint:"Say what should happen to the original PO — cancelled outright, or kept and superseded by the new ones." },
-    { id:"q3", sec:"02", label:"Date change without a split",
+    { id:"q4", sec:"03", label:"Date change without a split",
       q:"If the supplier can deliver the full 100 but two weeks late, should that be a confirmation with a new date rather than a rejection?",
       hint:"If yes, name the limit — how far can a confirmed date move before Purchasing has to be involved?" },
-    { id:"q4", sec:"03", label:"Partially Confirmed status",
+    { id:"q5", sec:"04", label:"Partially Confirmed status",
       q:"With splitting disallowed, a PO is either confirmed or not — so no 'Partially Confirmed' status is needed. Do you agree?",
       hint:"Answer No if you expect part-confirmations to reach us in practice and want them visible on screen." },
-    { id:"q5", sec:"04", label:"Handling a split confirmation that arrives anyway", variant:"note",
+    { id:"q6", sec:"05", label:"Handling a split confirmation that arrives anyway", variant:"note",
       q:"A split confirmation reaches us despite the rule. What should the system do with it?",
       hint:"Auto-reject, hold for a buyer, or accept and flag — and who gets told." },
-    { id:"q6", sec:"04", label:"Part of the quantity is already shipped", variant:"note",
+    { id:"q7", sec:"05", label:"Part of the quantity is already shipped", variant:"note",
       q:"The supplier has already shipped 50 and registered a delivery note. Can the PO still be rejected or split, and what happens to the shipment in transit?",
       hint:"Say whether an existing delivery note should lock the PO against rejection." },
-    { id:"q7", sec:"04", label:"Who may split a requirement into several POs",
+    { id:"q8", sec:"05", label:"Who may split a requirement into several POs",
       q:"Should splitting a requirement into multiple POs be Purchasing's decision alone, with the requester's PR left as a single document?",
       hint:"Say whether the requester has to be told, and whether the PR should show that it is being served by more than one PO." }
   ]
