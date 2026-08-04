@@ -387,7 +387,6 @@ td.dash{color:var(--muted);}
 
 /* comment-only review block */
 .review.note .rv-head{border-bottom-color:var(--line-2);}
-.rv-comment .opt{font-size:10px; font-weight:640; letter-spacing:.04em; text-transform:none; color:var(--accent); background:var(--accent-soft); padding:2px 7px; border-radius:3px; margin-left:7px;}
 .a-note{color:var(--accent); font-weight:680;}
 
 /* open question block (no proposal table, comment only) */

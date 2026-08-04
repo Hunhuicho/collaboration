@@ -132,7 +132,7 @@
           '</div>' +
           '<div class="rv-body">' +
             '<div class="rv-comment">' +
-              '<label for="c-' + item.id + '">Your view <span class="opt">comment only — no yes/no</span></label>' +
+              '<label for="c-' + item.id + '">Your view</label>' +
               '<textarea id="c-' + item.id + '" rows="3" placeholder="Write what you think it should be"></textarea>' +
             '</div>' +
           '</div>'
