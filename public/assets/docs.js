@@ -18,8 +18,8 @@ window.BOARD_DOCS = [
     id: "s04-po-confirmation-split",
     code: "MERP S04",
     title: "PO Confirmation — What Ariba Allows",
-    desc: "What can a supplier change or split when confirming a PO in Ariba, does it apply immediately, and should MERP follow it or hold a stricter rule",
-    items: 16,
+    desc: "What can a supplier change or split when confirming a PO in Ariba, and does it apply immediately — six questions to put to the platform",
+    items: 7,
     date: "2026-08-04",
     href: "docs/s04-po-confirmation-split.html",
     tags: [["red", "INVESTIGATION FIRST"], ["amber", "REVIEW REQUESTED"]]

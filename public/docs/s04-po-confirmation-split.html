@@ -41,9 +41,6 @@
 .ask-item .review.inline{border-top:0; padding-top:6px;}
 .ask-item.follow{background:var(--surface-2);}
 .ask-item.follow .num{background:var(--surface-3); color:var(--muted);}
-.later{display:flex; gap:12px; align-items:center; flex-wrap:wrap; padding:11px 18px; background:var(--surface-3); border-radius:6px; margin-bottom:14px;}
-.later .k{font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); font-weight:750;}
-.later p{font-size:12.5px; color:var(--ink-2);}
 
 .resp{width:100%; border-collapse:collapse; font-size:13.5px; min-width:720px;}
 .resp th{background:var(--surface-3); text-align:left; font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); font-weight:680; padding:10px 13px;}
@@ -52,34 +49,8 @@
 .resp td.body{background:var(--surface-2); color:var(--ink-2);}
 .resp code{font-family:var(--mono); font-size:11.5px; background:var(--surface-3); padding:2px 6px; border-radius:3px; color:var(--ink-2); white-space:nowrap;}
 
-.opts{width:100%; border-collapse:collapse; font-size:13.5px; min-width:760px;}
-.opts th{background:var(--surface-3); text-align:left; font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); font-weight:680; padding:10px 13px;}
-.opts td{padding:12px 13px; border-top:1px solid var(--line); vertical-align:top;}
-.opts td.opt{font-weight:700; white-space:nowrap;}
-.opts td.opt small{display:block; font-weight:500; color:var(--muted); margin-top:3px; white-space:normal; max-width:150px;}
-.opts td.body{background:var(--surface-2);}
-.opts ul{margin:6px 0 0; padding-left:17px; display:flex; flex-direction:column; gap:3px; color:var(--muted); font-size:12.5px;}
 
-.impact{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:1px; background:var(--line); border-top:1px solid var(--line);}
-.impact div{background:var(--surface); padding:14px 17px; display:flex; flex-direction:column; gap:5px;}
-.impact .k{font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); font-weight:680;}
-.impact b{font-size:13.5px; font-weight:690;}
-.impact p{font-size:12.5px; color:var(--ink-2);}
 
-.lvl-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:1px; background:var(--line);}
-.lvl{background:var(--surface); padding:18px 20px; display:flex; flex-direction:column; gap:11px;}
-.lvl .k{font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; font-weight:720;}
-.lvl.keep .k{color:var(--yes);}
-.lvl.cost .k{color:var(--no);}
-.tree{display:flex; flex-direction:column; gap:7px;}
-.node{font-size:12.5px; font-weight:640; padding:7px 11px; border-radius:5px; border:1px solid var(--line-2); background:var(--surface-2); display:block;}
-.node .n{font-family:var(--mono); font-weight:700; font-variant-numeric:tabular-nums;}
-.node.po{border-left:3px solid var(--accent);}
-.node.sch{border-left:3px solid var(--hold); background:var(--hold-bg); color:var(--hold);}
-.node.dn{border-left:3px solid var(--p-teal); font-weight:600;}
-.kids{display:flex; flex-direction:column; gap:7px; margin-left:20px; padding-left:14px; border-left:1px dashed var(--line-2);}
-.depth{font-size:11px; color:var(--muted); margin-top:2px;}
-.depth b{color:var(--ink);}
 
 .fyi{background:var(--p-blue-bg); border:1px solid var(--line); border-radius:6px; padding:15px 19px; margin-top:14px; display:flex; flex-direction:column; gap:7px;}
 .fyi .k{font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--p-blue); font-weight:750;}
@@ -111,11 +82,11 @@
       <span class="pill amber">REVIEW REQUESTED</span>
     </div>
     <h1>PO Confirmation — What Ariba Allows</h1>
-    <p class="sub">Before we settle any rule of our own we need to know what a supplier can actually do when confirming a PO in Ariba: <b>what may they change, what may they split, and does it take effect immediately or does Purchasing have to act?</b> Please answer <b>Yes / No</b> on the 16 items below and add a comment.</p>
+    <p class="sub">Before we settle any rule of our own we need to know what a supplier can actually do when confirming a PO in Ariba: <b>what may they change, what may they split, and does it take effect immediately or does Purchasing have to act?</b> Please answer <b>Yes / No</b> on the 7 items below and add a comment.</p>
     <div class="hero-meta">
       <div><span class="k">Priority</span><strong>Find out what Ariba allows</strong></div>
       <div><span class="k">Then decide</span><strong>Mirror it, or improve on it</strong></div>
-      <div><span class="k">Review items</span><strong>16</strong></div>
+      <div><span class="k">Review items</span><strong>7</strong></div>
       <div><span class="k">If adopted</span><strong>New EDI development in MERP</strong></div>
     </div>
   </header>
@@ -264,191 +235,6 @@
     <div data-review="q7"></div>
   </section>
 
-  <!-- ============ 03 ============ -->
-  <section class="section">
-    <div class="sec-head">
-      <div class="sec-num">03</div>
-      <div>
-        <h2>Our starting position</h2>
-        <p>What we would like the rule to be — to be revisited once Ariba has answered.</p>
-      </div>
-    </div>
-
-    <div class="later">
-      <span class="k">Provisional</span>
-      <p>Answer these on what you think is <b>right for the business</b>. If Ariba turns out not to support it either way, we adjust.</p>
-    </div>
-
-    <div class="card">
-      <div class="notice">
-        <span class="k">THE ARGUMENT</span><strong>Nothing is lost by refusing the split</strong>
-        <p>Purchasing and the supplier agree the plan between themselves. The supplier confirms all 100, ships 50 with a delivery note, and ships the other 50 later. The PO moves to <b>Partially Delivered</b>, then <b>Fully Delivered</b>. Same goods, same dates, same paperwork — and no second way of splitting to build and maintain.</p>
-      </div>
-
-      <div class="lvl-grid">
-        <div class="lvl keep">
-          <span class="k">Split at delivery only — one level</span>
-          <div class="tree">
-            <div class="node po">PO line · <span class="n">100</span> · RDD 2026-03-10</div>
-            <div class="kids">
-              <span class="node dn">ASN · <span class="n">50</span> · ships 03-10</span>
-              <span class="node dn">ASN · <span class="n">50</span> · ships 03-24</span>
-            </div>
-          </div>
-          <p class="depth">Deliveries attach straight to the PO line. Receipts and invoices match against that line, exactly as they do today. <b>Nothing new to build.</b></p>
-        </div>
-
-        <div class="lvl cost">
-          <span class="k">Split at confirmation too — two levels</span>
-          <div class="tree">
-            <div class="node po">PO line · <span class="n">100</span> · RDD 2026-03-10</div>
-            <div class="kids">
-              <div class="node sch">Schedule 1 · <span class="n">50</span> · confirmed 03-10</div>
-              <div class="kids">
-                <span class="node dn">ASN · <span class="n">25</span> · ships 03-10</span>
-                <span class="node dn">ASN · <span class="n">25</span> · ships 03-13</span>
-              </div>
-              <div class="node sch">Schedule 2 · <span class="n">50</span> · confirmed 03-24</div>
-              <div class="kids">
-                <span class="node dn">ASN · <span class="n">50</span> · ships 03-24</span>
-              </div>
-            </div>
-          </div>
-          <p class="depth">Each schedule can be split again by delivery. Every delivery, receipt and invoice line then has to say <b>which schedule</b> it belongs to, and the outstanding quantity is counted per schedule instead of per line.</p>
-        </div>
-      </div>
-
-      <div class="fyi">
-        <span class="k">The one thing that is actually lost</span>
-        <p>If the supplier cannot split the confirmation, the date for the second 50 is <b>nowhere in the system</b> until they ship it. The requester still sees all 100 due on 03-10, and finds out only when half of it fails to arrive. A split confirmation would have shown 03-24 from the start.</p>
-        <p><b>So the trade-off is simple:</b> knowing the later date sooner, against building a second splitting level into PO, delivery, receipt and invoice. Is agreeing the plan with the supplier by phone enough?</p>
-      </div>
-    </div>
-    <div data-review="q8"></div>
-    <div data-review="q9"></div>
-  </section>
-
-  <!-- ============ 04 ============ -->
-  <section class="section">
-    <div class="sec-head">
-      <div class="sec-num">04</div>
-      <div>
-        <h2>If the split is not allowed</h2>
-        <p>What the supplier does instead when the date cannot be met, and what it costs.</p>
-      </div>
-    </div>
-    <div class="card scroll-x">
-      <table class="opts">
-        <thead>
-          <tr><th>Option</th><th>How it works</th><th>Why it might be right</th><th>What it costs us</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="opt">A. Supplier splits<small>schedule lines on the confirmation</small></td>
-            <td class="body">The supplier confirms 50 / 50 on two dates. The PO carries two schedule lines and both deliveries run against the same PO.</td>
-            <td>Reflects what the supplier can actually do. No rework, no new PO numbers.</td>
-            <td>The supplier changes a date the requester agreed to, with no approval step on our side. Confirmed stops meaning "confirmed as ordered".</td>
-          </tr>
-          <tr>
-            <td class="opt">B. Reject and re-issue<small>starting position</small></td>
-            <td class="body">The supplier can only confirm the line as ordered, or reject it. On a rejection Purchasing agrees a plan and issues <b>two POs</b> — 50 and 50, each with its own date.
-              <ul><li>Original PO is cancelled or superseded</li><li>Each new PO confirms on its own</li></ul></td>
-            <td>Every delivery date in the system was agreed by Purchasing. One PO means one quantity on one date, which keeps receipt and invoice matching simple.</td>
-            <td>Rework on every date slip — a new PO, a new approval, new numbers. Slower, and the trail spreads across documents.</td>
-          </tr>
-          <tr>
-            <td class="opt">C. Change needs our approval<small>middle ground</small></td>
-            <td class="body">The supplier proposes the change — quantity, date or split. It does not take effect until a buyer approves it; until then the PO stays Open.</td>
-            <td>Keeps the supplier's real capability visible without letting them change the order on their own.</td>
-            <td>Needs a pending-change state, a buyer queue, and a rule for what happens if nobody acts on it. Only possible if Ariba can hold a response pending — questions 3 and 5.</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <div data-review="q10"></div>
-    <div data-review="q11"></div>
-  </section>
-
-  <!-- ============ 05 ============ -->
-  <section class="section">
-    <div class="sec-head">
-      <div class="sec-num">05</div>
-      <div>
-        <h2>What changes downstream</h2>
-        <p>If splitting is accepted in any form, these four things have to follow it.</p>
-      </div>
-    </div>
-    <div class="card">
-      <div class="impact">
-        <div>
-          <span class="k">PO status</span>
-          <b>What does Confirmed mean?</b>
-          <p>If a split is allowed, a PO can be half-confirmed. Either we add a <i>Partially Confirmed</i> status, or Confirmed stops guaranteeing the ordered date.</p>
-        </div>
-        <div>
-          <span class="k">Delivery &amp; receipt</span>
-          <b>Which schedule did this GR fill?</b>
-          <p>Two schedules against one line means every delivery note and receipt has to say which schedule it belongs to, or the open quantity per date cannot be tracked.</p>
-        </div>
-        <div>
-          <span class="k">Invoice matching</span>
-          <b>Three-way match unit</b>
-          <p>Matching runs per PO line today. Split schedules mean matching a partial invoice against a partial receipt against a partial schedule.</p>
-        </div>
-        <div>
-          <span class="k">What the requester sees</span>
-          <b>One status per item</b>
-          <p>A single end-user status per item still has to be produced. With two schedules at different stages, the rule is the least-advanced one — a requester waiting on the second half sees the whole line as pending.</p>
-        </div>
-      </div>
-    </div>
-    <div data-review="q12"></div>
-  </section>
-
-  <!-- ============ 06 ============ -->
-  <section class="section">
-    <div class="sec-head">
-      <div class="sec-num">06</div>
-      <div>
-        <h2>Edge cases we still have to answer</h2>
-        <p>These have no obvious right answer, so they take a comment rather than a Yes/No.</p>
-      </div>
-    </div>
-
-    <div class="card ask">
-      <div class="ask-head">
-        <span class="pill red">OPEN QUESTION</span>
-        <h3>A split confirmation arrives anyway — what should the system do?</h3>
-      </div>
-      <div class="ask-body">
-        <p>If the supplier sends a 50 / 50 confirmation even though our rule says they may not, the message still reaches us. The options are not equally safe:</p>
-        <ul>
-          <li>Reject it automatically and leave the PO Open — the supplier may not notice</li>
-          <li>Hold it for a buyer to look at, and keep the PO Open meanwhile</li>
-          <li>Accept it and flag the PO for follow-up</li>
-        </ul>
-      </div>
-    </div>
-    <div data-review="q13"></div>
-
-    <div class="card ask" style="margin-top:14px;">
-      <div class="ask-head">
-        <span class="pill red">OPEN QUESTION</span>
-        <h3>Goods are already on the way for part of the quantity</h3>
-      </div>
-      <div class="ask-body">
-        <p>The supplier ships 50 first and registers a delivery note before any of this is settled. Rejecting the PO at that point is no longer clean — something has already physically moved.</p>
-        <ul>
-          <li>Does an existing delivery note lock the PO against being rejected or split?</li>
-          <li>If the PO must still be split, what happens to the shipment already in transit?</li>
-        </ul>
-      </div>
-    </div>
-    <div data-review="q14"></div>
-    <div data-review="q15"></div>
-    <div data-review="q16"></div>
-  </section>
-
   <div id="summaryMount"></div>
 
   <footer>
@@ -488,38 +274,7 @@ window.REVIEW_DOC = {
 
     { id:"q7", sec:"02", label:"Follow Ariba, or hold our own rule",
       q:"Once we know what Ariba allows, should MERP simply do the same — and differ only where there is a clear business reason?",
-      hint:"Answer No if you would rather set our own rule first and make the platform fit it. Say which side wins when the two disagree." },
-
-    { id:"q8", sec:"03", label:"May a supplier split a confirmation?",
-      q:"Starting position: a supplier may not split one PO line into several schedules when confirming. They confirm the ordered quantity on the ordered date, or they reject. Do you agree?",
-      hint:"The requested date was agreed for the whole quantity, so changing it is a decision for Purchasing and the requester — not for the supplier alone." },
-    { id:"q9", sec:"03", label:"Split at delivery only",
-      q:"A supplier can already ship 50 now and 50 later by sending two delivery notes — no split confirmation needed. Should we keep splitting to the delivery stage only?",
-      hint:"Answer No if you need to know the later date sooner. A split confirmation shows 03-24 as soon as the supplier confirms; with delivery notes alone, that date appears only when they ship." },
-
-    { id:"q10", sec:"04", label:"Reject and re-issue as two POs",
-      q:"When the supplier cannot deliver everything on the requested date, should they reject the PO so Purchasing can agree a plan and issue two separate POs?",
-      hint:"Say what should happen to the original PO — cancelled outright, or kept and superseded by the new ones." },
-    { id:"q11", sec:"04", label:"Changes need our approval",
-      q:"If a supplier may propose a change at all — quantity, date or split — should it stay pending until a buyer approves it, with the PO left Open meanwhile?",
-      hint:"Only workable if Ariba can hold a response pending. Say what should happen if nobody acts on it, and how long it may wait." },
-
-    { id:"q12", sec:"05", label:"Partially Confirmed status",
-      q:"If splitting is never accepted, a PO is either confirmed or not — so no 'Partially Confirmed' status is needed. Do you agree?",
-      hint:"Answer No if you expect part-confirmations to reach us in practice and want them visible on screen." },
-
-    { id:"q13", sec:"06", label:"Handling a split confirmation that arrives anyway", variant:"note",
-      q:"A split confirmation reaches us despite the rule. What should the system do with it?",
-      hint:"Auto-reject, hold for a buyer, or accept and flag — and who gets told." },
-    { id:"q14", sec:"06", label:"Part of the quantity is already shipped", variant:"note",
-      q:"The supplier has already shipped 50 and registered a delivery note. Can the PO still be rejected or split, and what happens to the shipment in transit?",
-      hint:"Say whether an existing delivery note should lock the PO against rejection." },
-    { id:"q15", sec:"06", label:"Who may split a requirement into several POs",
-      q:"Should splitting a requirement into multiple POs be Purchasing's decision alone, with the requester's PR left as a single document?",
-      hint:"Say whether the requester has to be told, and whether the PR should show that it is being served by more than one PO." },
-    { id:"q16", sec:"06", label:"Anything else to settle before build", variant:"note",
-      q:"What else has to be answered before this can be built?",
-      hint:"Cases we have not covered, people who need to be in the conversation, or work that has to happen in a particular order." }
+      hint:"Answer No if you would rather set our own rule first and make the platform fit it. Say which side wins when the two disagree." }
   ]
 };
 </script>
