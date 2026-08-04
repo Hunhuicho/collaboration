@@ -19,7 +19,7 @@ window.BOARD_DOCS = [
     code: "MERP S04",
     title: "PO Confirmation — Split Schedules",
     desc: "Can Ariba split a PO confirmation at all? Then: confirm / reject / conditional acceptance, and what MERP has to receive over EDI",
-    items: 13,
+    items: 12,
     date: "2026-08-04",
     href: "docs/s04-po-confirmation-split.html",
     tags: [["red", "BLOCKED ON ARIBA"], ["amber", "REVIEW REQUESTED"]]
