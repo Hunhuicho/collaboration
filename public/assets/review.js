@@ -23,6 +23,18 @@
   var LSKEY = "board.doc." + DOC.id;
   var ANSWER_LABEL = { Y: "Agree", N: "Needs change", H: "Hold" };
   var ANSWER_CLASS = { Y: "a-y", N: "a-n", H: "a-h" };
+  var DEFAULT_CHOICES = [["Y", "Yes"], ["N", "No — needs change"], ["H", "Hold"]];
+
+  /* An item may carry its own choice labels — an investigation question is not
+     answered with "agree". An empty list means comment only. */
+  function choicesOf(item) {
+    return item && item.choices ? item.choices : DEFAULT_CHOICES;
+  }
+  function ansLabel(item, v) {
+    var list = choicesOf(item);
+    for (var i = 0; i < list.length; i++) if (list[i][0] === v) return list[i][1];
+    return ANSWER_LABEL[v] || v;
+  }
 
   var esc = B.esc, toast = B.toast;
   var state = loadLocal();
@@ -139,7 +151,9 @@
         : inline
         ? '<div class="rv-mini">' +
             '<span class="rv-tag">Q' + n + '</span>' +
-            '<div class="choices" role="group" aria-label="' + esc(item.label) + ' reply">' + choiceBtns() + '</div>' +
+            (choicesOf(item).length
+              ? '<div class="choices" role="group" aria-label="' + esc(item.label) + ' reply">' + choiceBtns(item) + '</div>'
+              : '') +
           '</div>' +
           '<textarea id="c-' + item.id + '" rows="2" aria-label="' + esc(item.label) + ' comment" placeholder="Add a comment"></textarea>'
         : '<div class="rv-head">' +
@@ -147,7 +161,7 @@
             '<div><div class="rv-q">' + esc(item.q) + (item.hint ? '<em>' + esc(item.hint) + '</em>' : '') + '</div></div>' +
           '</div>' +
           '<div class="rv-body">' +
-            '<div class="choices" role="group" aria-label="' + esc(item.label) + ' reply">' + choiceBtns() + '</div>' +
+            '<div class="choices" role="group" aria-label="' + esc(item.label) + ' reply">' + choiceBtns(item) + '</div>' +
             '<div class="rv-comment">' +
               '<label for="c-' + item.id + '">Comment</label>' +
               '<textarea id="c-' + item.id + '" rows="2" placeholder="Add a comment"></textarea>' +
@@ -168,10 +182,12 @@
       });
     });
   }
-  function choiceBtns() {
-    return '<button type="button" class="choice yes" data-v="Y" aria-pressed="false"><span class="mark"></span>Yes</button>' +
-           '<button type="button" class="choice no" data-v="N" aria-pressed="false"><span class="mark"></span>No — needs change</button>' +
-           '<button type="button" class="choice hold" data-v="H" aria-pressed="false"><span class="mark"></span>Hold</button>';
+  var CHOICE_CLASS = { Y: "yes", N: "no", H: "hold" };
+  function choiceBtns(item) {
+    return choicesOf(item).map(function (c) {
+      return '<button type="button" class="choice ' + (CHOICE_CLASS[c[0]] || "") + '" data-v="' + c[0] +
+             '" aria-pressed="false"><span class="mark"></span>' + esc(c[1]) + '</button>';
+    }).join("");
   }
 
   function setAnswer(id, v, c) {
@@ -188,7 +204,7 @@
     for (var i = 0; i < ITEMS.length; i++) if (ITEMS[i].id === id) return ITEMS[i];
     return null;
   }
-  function isNote(it) { return it && it.variant === "note"; }
+  function isNote(it) { return !!it && (it.variant === "note" || (!!it.choices && it.choices.length === 0)); }
   function answered(it, src) {
     var a = (src || state.answers)[it.id] || {};
     return isNote(it) ? !!(a.c || "").trim() : !!a.v;
@@ -287,7 +303,7 @@
         var a = state.answers[it.id] || {}, cm = (a.c || "").trim();
         var reply = isNote(it)
           ? '<span class="' + (cm ? "a-note" : "a-x") + '">' + (cm ? "Comment" : "—") + '</span>'
-          : '<span class="' + (a.v ? ANSWER_CLASS[a.v] : "a-x") + '">' + (a.v ? ANSWER_LABEL[a.v] : "—") + '</span>';
+          : '<span class="' + (a.v ? ANSWER_CLASS[a.v] : "a-x") + '">' + (a.v ? esc(ansLabel(it, a.v)) : "—") + '</span>';
         return '<tr>' +
           '<td><span class="qn">Q' + (i + 1) + '</span> ' + esc(it.label) + '</td>' +
           '<td class="a">' + reply + '</td>' +
@@ -313,7 +329,7 @@
       var cm = (a.c || "").trim();
       var head = isNote(it)
         ? (cm ? "comment" : "no answer")
-        : (a.v ? ANSWER_LABEL[a.v] + " (" + a.v + ")" : "no answer");
+        : (a.v ? ansLabel(it, a.v) + " (" + a.v + ")" : "no answer");
       L.push("Q" + (i + 1) + ". [" + it.sec + "] " + it.label + " — " + head);
       L.push("    Comment: " + (cm ? cm.replace(/\n/g, "\n             ") : "-"));
     });
@@ -418,7 +434,7 @@
         if (!a.v && !cm) return "";
         var reply = isNote(it)
           ? '<span class="a-note">Comment</span>'
-          : '<span class="' + (a.v ? ANSWER_CLASS[a.v] : "a-x") + '">' + (a.v ? ANSWER_LABEL[a.v] : "—") + '</span>';
+          : '<span class="' + (a.v ? ANSWER_CLASS[a.v] : "a-x") + '">' + (a.v ? esc(ansLabel(it, a.v)) : "—") + '</span>';
         return '<div class="pline">' +
           '<span class="q">Q' + (i + 1) + '</span>' +
           '<span class="v">' + reply +
