@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>PO Confirmation — Split Schedules — Review</title>
-<meta name="description" content="Can Ariba split a PO confirmation, and what should MERP do with it? · answer Yes/No per item and leave comments" />
+<title>PO Confirmation — What Ariba Allows — Review</title>
+<meta name="description" content="What can a supplier change or split when confirming a PO in Ariba, and what should MERP do with it" />
 <link rel="stylesheet" href="../assets/app.css" />
 <script>document.documentElement.classList.add("gating");</script>
 <style>
@@ -36,6 +36,11 @@
 .ask-item h4{font-size:14px; font-weight:690; margin-bottom:3px;}
 .ask-item p{font-size:12.5px; color:var(--ink-2);}
 .ask-item .why{display:block; font-size:11.5px; color:var(--muted); margin-top:4px;}
+.ask-item.follow{background:var(--surface-2);}
+.ask-item.follow .num{background:var(--surface-3); color:var(--muted);}
+.later{display:flex; gap:12px; align-items:center; flex-wrap:wrap; padding:11px 18px; background:var(--surface-3); border-radius:6px; margin-bottom:14px;}
+.later .k{font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); font-weight:750;}
+.later p{font-size:12.5px; color:var(--ink-2);}
 
 .resp{width:100%; border-collapse:collapse; font-size:13.5px; min-width:720px;}
 .resp th{background:var(--surface-3); text-align:left; font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); font-weight:680; padding:10px 13px;}
@@ -99,15 +104,15 @@
   <header class="hero">
     <div class="hero-eyebrow">
       <span class="code">MERP S04</span>
+      <span class="pill red">INVESTIGATION FIRST</span>
       <span class="pill amber">REVIEW REQUESTED</span>
-      <span class="pill red">BLOCKED ON ARIBA</span>
     </div>
-    <h1>PO Confirmation — Split Schedules</h1>
-    <p class="sub">A PO goes out for 100 on one date. The supplier confirms it as <b>50 + 50 on two dates</b>. Before we design anything, one question decides the rest: <b>can Ariba do this at all?</b> Please answer <b>Yes / No</b> on the 12 items below and add a comment.</p>
+    <h1>PO Confirmation — What Ariba Allows</h1>
+    <p class="sub">Before we settle any rule of our own we need to know what a supplier can actually do when confirming a PO in Ariba: <b>what may they change, what may they split, and does it take effect immediately or does Purchasing have to act?</b> Please answer <b>Yes / No</b> on the 11 items below and add a comment.</p>
     <div class="hero-meta">
-      <div><span class="k">First step</span><strong>Ask Ariba what is possible</strong></div>
-      <div><span class="k">Target model</span><strong>Confirm · Reject · Conditional</strong></div>
-      <div><span class="k">Review items</span><strong>12</strong></div>
+      <div><span class="k">Priority</span><strong>Find out what Ariba allows</strong></div>
+      <div><span class="k">Then decide</span><strong>Mirror it, or improve on it</strong></div>
+      <div><span class="k">Review items</span><strong>11</strong></div>
       <div><span class="k">If adopted</span><strong>New EDI development in MERP</strong></div>
     </div>
   </header>
@@ -116,8 +121,7 @@
     <h2>How to reply</h2>
     <ol>
       <li>On each item pick <b>Yes</b>, <b>No — needs change</b>, or <b>Hold</b>, then add a comment. <b>A reason is required whenever you pick No.</b></li>
-      <li>Four items ask for your view in words instead of Yes/No — they have no obviously right answer.</li>
-      <li>Everything saves as you type. <b>Copy reply</b> gives you a plain-text version to paste into chat or email.</li>
+            <li>Everything saves as you type. <b>Copy reply</b> gives you a plain-text version to paste into chat or email.</li>
     </ol>
   </div>
 
@@ -168,14 +172,14 @@
     <div class="sec-head">
       <div class="sec-num">02</div>
       <div>
-        <h2>Ask Ariba first <span class="tagline"><span class="pill red">BLOCKING</span></span></h2>
-        <p>Every decision below depends on what the platform can actually send us. This is the first action, not a design question.</p>
+        <h2>What to ask Ariba <span class="tagline"><span class="pill red">DO THIS FIRST</span></span></h2>
+        <p>Six questions in this order. Each one only matters if the one before it came back yes.</p>
       </div>
     </div>
 
     <div class="gatebar">
       <span class="k">Why this comes first</span>
-      <p>If Ariba <b>cannot</b> split a confirmation, most of this document is moot. If it <b>can</b>, we have to decide whether to accept the message — and MERP has to be built to receive it.</p>
+      <p>We should not design a rule against behaviour we have not seen. <b>Find out what the platform allows, watch it happen, then decide what MERP does.</b></p>
     </div>
 
     <div class="card">
@@ -183,43 +187,67 @@
         <div class="ask-item">
           <span class="num">1</span>
           <div>
-            <h4>Does PO confirmation support splitting one line into several schedules?</h4>
-            <p>One line of 100 confirmed as 50 on one date and 50 on another — different quantities, different dates, same PO line. A plain yes or no.</p>
-            <span class="why">Everything else waits on this answer.</span>
+            <h4>Can a supplier change the PO at all when confirming?</h4>
+            <p>Or is the confirmation only accept-as-issued and reject? A plain yes or no.</p>
+            <span class="why">If nothing can be changed, questions 2 and 3 fall away.</span>
           </div>
         </div>
         <div class="ask-item">
           <span class="num">2</span>
           <div>
-            <h4>If yes — show us, on our own test account</h4>
-            <p>A live walk-through of the 100 → 50 / 50 case, from the supplier screen through to what lands on our side.</p>
-            <span class="why">A demo settles in ten minutes what a specification argues about for weeks.</span>
+            <h4>If it can be changed — exactly which fields?</h4>
+            <p>Quantity, delivery date, price, item, anything else. We want the actual list, not "the usual ones".</p>
+            <span class="why">Decides what MERP has to be able to receive, and what we have to guard against.</span>
           </div>
         </div>
         <div class="ask-item">
           <span class="num">3</span>
           <div>
-            <h4>What exactly reaches MERP?</h4>
-            <p>The message type and the fields that carry schedule quantity and schedule date, with a real sample of the payload from the demo above.</p>
-            <span class="why">We cannot size the EDI work without seeing the message.</span>
+            <h4>After a change, is the PO confirmed straight away?</h4>
+            <p>Or does Purchasing have to do something first — accept, approve, re-issue? If there is a step, what is it and where does the buyer see it?</p>
+            <span class="why">This is the difference between the supplier changing our order and the supplier proposing a change.</span>
           </div>
         </div>
         <div class="ask-item">
           <span class="num">4</span>
           <div>
-            <h4>Is a conditional acceptance possible, distinct from confirm and reject?</h4>
-            <p>The supplier accepts the line but with a changed quantity or a changed date — and it arrives as its own response type, not as a plain confirmation.</p>
-            <span class="why">This is the model we want (section 03). If the platform cannot express it, the model has to change.</span>
+            <h4>Can the supplier split a line into several schedules?</h4>
+            <p>One line of 100 confirmed as 50 on one date and 50 on another — different quantities, different dates, same PO line.</p>
+            <span class="why">The case in section 01.</span>
+          </div>
+        </div>
+        <div class="ask-item">
+          <span class="num">5</span>
+          <div>
+            <h4>After a split, is the PO confirmed straight away?</h4>
+            <p>The same question as 3, for the split case. Does it apply on its own, or does Purchasing confirm it again?</p>
+            <span class="why">A split that applies silently is a different problem from one we can hold.</span>
+          </div>
+        </div>
+        <div class="ask-item">
+          <span class="num">6</span>
+          <div>
+            <h4>Show us — and show us what reaches MERP</h4>
+            <p>A live walk-through of the 100 → 50 / 50 case on our own test account, plus the message that lands on our side and the fields carrying schedule quantity and date.</p>
+            <span class="why">A demo settles in ten minutes what a specification argues about for weeks, and we cannot size the EDI work without seeing the payload.</span>
+          </div>
+        </div>
+        <div class="ask-item follow">
+          <span class="num">→</span>
+          <div>
+            <h4>Then we decide: follow it, or improve on it</h4>
+            <p>With those answers in hand — does MERP simply do what Ariba does, or do we hold a stricter rule of our own? The rest of this document is our starting position for that conversation.</p>
           </div>
         </div>
       </div>
 
       <div class="fyi">
         <span class="k">What a "yes" costs us</span>
-        <p>If Ariba supports it and we adopt it, <b>MERP has to receive and store schedule-level data over EDI</b> — schedule quantity and date per PO line, not just a confirmation flag. That is new development on our side, and it reaches the PO tables, the receipt matching and the screens. It is not a configuration switch.</p>
+        <p>If Ariba allows the split and we accept it, <b>MERP has to receive and store schedule-level data over EDI</b> — schedule quantity and date per PO line, not just a confirmation flag. That reaches the PO tables, the receipt matching and the screens. It is development, not a configuration switch.</p>
       </div>
     </div>
     <div data-review="q1"></div>
+    <div data-review="q2"></div>
   </section>
 
   <!-- ============ 03 ============ -->
@@ -227,51 +255,16 @@
     <div class="sec-head">
       <div class="sec-num">03</div>
       <div>
-        <h2>Target model — three supplier responses</h2>
-        <p>How KCC handles it today. The third one is the interesting case: an acceptance that does not take effect until we approve it.</p>
+        <h2>Our starting position</h2>
+        <p>What we would like the rule to be — to be revisited once Ariba has answered.</p>
       </div>
     </div>
-    <div class="card scroll-x">
-      <table class="resp">
-        <thead>
-          <tr><th>Supplier response</th><th>What the supplier does</th><th>What happens in ERP</th><th>PO status</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="r">Confirm</td>
-            <td class="body">Accepts the line exactly as ordered — same quantity, same date.</td>
-            <td>Nothing to decide. The confirmation is applied.</td>
-            <td><code>Confirmed</code></td>
-          </tr>
-          <tr>
-            <td class="r">Reject</td>
-            <td class="body">Declines the line. Cannot supply it as ordered.</td>
-            <td>Purchasing re-plans with the supplier and issues new POs if needed.</td>
-            <td><code>Open</code> or rejected</td>
-          </tr>
-          <tr>
-            <td class="r">Conditional acceptance<small></small></td>
-            <td class="body">Accepts, but with a <b>changed quantity or delivery date</b>.</td>
-            <td><b>Must be approved in ERP.</b> Until a buyer approves it, the change has no effect.</td>
-            <td><code>Open</code> until approved,<br />then <code>Confirmed</code></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <div data-review="q2"></div>
-    <div data-review="q3"></div>
-    <div data-review="q4"></div>
-  </section>
 
-  <!-- ============ 04 ============ -->
-  <section class="section">
-    <div class="sec-head">
-      <div class="sec-num">04</div>
-      <div>
-        <h2>Our position — and what it saves</h2>
-        <p>A supplier who can only ship half now can already do that today, by sending two delivery notes.</p>
-      </div>
+    <div class="later">
+      <span class="k">Provisional</span>
+      <p>Answer these on what you think is <b>right for the business</b>. If Ariba turns out not to support it either way, we adjust.</p>
     </div>
+
     <div class="card">
       <div class="notice">
         <span class="k">THE ARGUMENT</span><strong>Nothing is lost by refusing the split</strong>
@@ -317,16 +310,16 @@
         <p><b>So the trade-off is simple:</b> knowing the later date sooner, against building a second splitting level into PO, delivery, receipt and invoice. Is agreeing the plan with the supplier by phone enough?</p>
       </div>
     </div>
-    <div data-review="q5"></div>
-    <div data-review="q6"></div>
+    <div data-review="q3"></div>
+    <div data-review="q4"></div>
   </section>
 
-  <!-- ============ 05 ============ -->
+  <!-- ============ 04 ============ -->
   <section class="section">
     <div class="sec-head">
-      <div class="sec-num">05</div>
+      <div class="sec-num">04</div>
       <div>
-        <h2>If we do not allow the split</h2>
+        <h2>If the split is not allowed</h2>
         <p>What the supplier does instead when the date cannot be met, and what it costs.</p>
       </div>
     </div>
@@ -343,29 +336,29 @@
             <td>The supplier changes a date the requester agreed to, with no approval step on our side. Confirmed stops meaning "confirmed as ordered".</td>
           </tr>
           <tr>
-            <td class="opt">B. Reject and re-issue<small>working proposal</small></td>
+            <td class="opt">B. Reject and re-issue<small>starting position</small></td>
             <td class="body">The supplier can only confirm the line as ordered, or reject it. On a rejection Purchasing agrees a plan and issues <b>two POs</b> — 50 and 50, each with its own date.
               <ul><li>Original PO is cancelled or superseded</li><li>Each new PO confirms on its own</li></ul></td>
             <td>Every delivery date in the system was agreed by Purchasing. One PO means one quantity on one date, which keeps receipt and invoice matching simple.</td>
             <td>Rework on every date slip — a new PO, a new approval, new numbers. Slower, and the trail spreads across documents.</td>
           </tr>
           <tr>
-            <td class="opt">C. Conditional acceptance<small>the KCC model</small></td>
-            <td class="body">The supplier proposes the change. It does not take effect until a buyer approves it in ERP; until then the PO stays Open.</td>
+            <td class="opt">C. Change needs our approval<small>middle ground</small></td>
+            <td class="body">The supplier proposes the change — quantity, date or split. It does not take effect until a buyer approves it; until then the PO stays Open.</td>
             <td>Keeps the supplier's real capability visible without letting them change the order on their own.</td>
-            <td>Needs a pending-change state, a buyer queue, and a rule for what happens if nobody acts on it. Depends entirely on Ariba supporting the response type.</td>
+            <td>Needs a pending-change state, a buyer queue, and a rule for what happens if nobody acts on it. Only possible if Ariba can hold a response pending — questions 3 and 5.</td>
           </tr>
         </tbody>
       </table>
     </div>
-    <div data-review="q7"></div>
-    <div data-review="q8"></div>
+    <div data-review="q5"></div>
+    <div data-review="q6"></div>
   </section>
 
-  <!-- ============ 06 ============ -->
+  <!-- ============ 05 ============ -->
   <section class="section">
     <div class="sec-head">
-      <div class="sec-num">06</div>
+      <div class="sec-num">05</div>
       <div>
         <h2>What changes downstream</h2>
         <p>If splitting is accepted in any form, these four things have to follow it.</p>
@@ -395,13 +388,13 @@
         </div>
       </div>
     </div>
-    <div data-review="q9"></div>
+    <div data-review="q7"></div>
   </section>
 
-  <!-- ============ 07 ============ -->
+  <!-- ============ 06 ============ -->
   <section class="section">
     <div class="sec-head">
-      <div class="sec-num">07</div>
+      <div class="sec-num">06</div>
       <div>
         <h2>Edge cases we still have to answer</h2>
         <p>These have no obvious right answer, so they take a comment rather than a Yes/No.</p>
@@ -422,7 +415,7 @@
         </ul>
       </div>
     </div>
-    <div data-review="q10"></div>
+    <div data-review="q8"></div>
 
     <div class="card ask" style="margin-top:14px;">
       <div class="ask-head">
@@ -437,8 +430,9 @@
         </ul>
       </div>
     </div>
+    <div data-review="q9"></div>
+    <div data-review="q10"></div>
     <div data-review="q11"></div>
-    <div data-review="q12"></div>
   </section>
 
   <div id="summaryMount"></div>
@@ -459,49 +453,45 @@
 window.REVIEW_DOC = {
   id: "s04-po-confirmation-split",
   code: "MERP S04",
-  title: "PO Confirmation — Split Schedules",
+  title: "PO Confirmation — What Ariba Allows",
   items: [
     { id:"q1", sec:"02", label:"The questions we put to Ariba", variant:"note",
-      q:"Look over the four questions above as a set. Anything to add, change or drop — and who should put them to Ariba?",
-      hint:"Everything else in this document waits on their answer, so this list has to be right before it goes out. A demo on our own test account is part of the ask." },
+      q:"Look over the six questions above as a set. Anything to add, change or drop — and who should put them to Ariba?",
+      hint:"The order matters: can anything be changed at all, what exactly, does it apply immediately, can it be split, does the split apply immediately, and show us with a real message." },
+    { id:"q2", sec:"02", label:"Follow Ariba, or hold our own rule",
+      q:"Once we know what Ariba allows, should MERP simply do the same — and differ only where there is a clear business reason?",
+      hint:"Answer No if you would rather set our own rule first and make the platform fit it. Say which side wins when the two disagree." },
 
-    { id:"q2", sec:"03", label:"Three supplier responses",
-      q:"Should a supplier be able to respond in three ways — confirm, reject, or conditional acceptance with a changed quantity or date?",
-      hint:"This is how KCC works today. Say whether it fits our process, and whether all three are needed." },
-    { id:"q3", sec:"03", label:"Conditional acceptance needs ERP approval",
-      q:"Should a conditional acceptance have no effect until it is approved in ERP, leaving the PO Open until then?",
-      hint:"Say what the supplier should be told while it is pending, and what happens if nobody approves it." },
-    { id:"q4", sec:"03", label:"What a supplier may change", variant:"note",
-      q:"On a conditional acceptance, what may the supplier change — and who approves it on our side?",
-      hint:"Quantity and delivery date only, or price too? Buyer alone, or the original approval chain if the value moves?" },
-
-    { id:"q5", sec:"04", label:"May a supplier split a confirmation?",
-      q:"Proposal: a supplier may not split one PO line into several schedules when confirming. They confirm the ordered quantity on the ordered date, or they reject. Do you agree?",
+    { id:"q3", sec:"03", label:"May a supplier split a confirmation?",
+      q:"Starting position: a supplier may not split one PO line into several schedules when confirming. They confirm the ordered quantity on the ordered date, or they reject. Do you agree?",
       hint:"The requested date was agreed for the whole quantity, so changing it is a decision for Purchasing and the requester — not for the supplier alone." },
-    { id:"q6", sec:"04", label:"Split at delivery only",
+    { id:"q4", sec:"03", label:"Split at delivery only",
       q:"A supplier can already ship 50 now and 50 later by sending two delivery notes — no split confirmation needed. Should we keep splitting to the delivery stage only?",
       hint:"Answer No if you need to know the later date sooner. A split confirmation shows 03-24 as soon as the supplier confirms; with delivery notes alone, that date appears only when they ship." },
 
-    { id:"q7", sec:"05", label:"Reject and re-issue as two POs",
+    { id:"q5", sec:"04", label:"Reject and re-issue as two POs",
       q:"When the supplier cannot deliver everything on the requested date, should they reject the PO so Purchasing can agree a plan and issue two separate POs?",
       hint:"Say what should happen to the original PO — cancelled outright, or kept and superseded by the new ones." },
-    { id:"q8", sec:"05", label:"Date change without a split",
-      q:"If the supplier can deliver the full 100 but two weeks late, should that be a conditional acceptance with a new date rather than a rejection?",
-      hint:"If yes, name the limit — how far can a date move before Purchasing has to be involved?" },
+    { id:"q6", sec:"04", label:"Changes need our approval",
+      q:"If a supplier may propose a change at all — quantity, date or split — should it stay pending until a buyer approves it, with the PO left Open meanwhile?",
+      hint:"Only workable if Ariba can hold a response pending. Say what should happen if nobody acts on it, and how long it may wait." },
 
-    { id:"q9", sec:"06", label:"Partially Confirmed status",
+    { id:"q7", sec:"05", label:"Partially Confirmed status",
       q:"If splitting is never accepted, a PO is either confirmed or not — so no 'Partially Confirmed' status is needed. Do you agree?",
       hint:"Answer No if you expect part-confirmations to reach us in practice and want them visible on screen." },
 
-    { id:"q10", sec:"07", label:"Handling a split confirmation that arrives anyway", variant:"note",
+    { id:"q8", sec:"06", label:"Handling a split confirmation that arrives anyway", variant:"note",
       q:"A split confirmation reaches us despite the rule. What should the system do with it?",
       hint:"Auto-reject, hold for a buyer, or accept and flag — and who gets told." },
-    { id:"q11", sec:"07", label:"Part of the quantity is already shipped", variant:"note",
+    { id:"q9", sec:"06", label:"Part of the quantity is already shipped", variant:"note",
       q:"The supplier has already shipped 50 and registered a delivery note. Can the PO still be rejected or split, and what happens to the shipment in transit?",
       hint:"Say whether an existing delivery note should lock the PO against rejection." },
-    { id:"q12", sec:"07", label:"Who may split a requirement into several POs",
+    { id:"q10", sec:"06", label:"Who may split a requirement into several POs",
       q:"Should splitting a requirement into multiple POs be Purchasing's decision alone, with the requester's PR left as a single document?",
-      hint:"Say whether the requester has to be told, and whether the PR should show that it is being served by more than one PO." }
+      hint:"Say whether the requester has to be told, and whether the PR should show that it is being served by more than one PO." },
+    { id:"q11", sec:"06", label:"Anything else to settle before build", variant:"note",
+      q:"What else has to be answered before this can be built?",
+      hint:"Cases we have not covered, people who need to be in the conversation, or work that has to happen in a particular order." }
   ]
 };
 </script>

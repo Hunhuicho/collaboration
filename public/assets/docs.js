@@ -17,12 +17,12 @@ window.BOARD_DOCS = [
   {
     id: "s04-po-confirmation-split",
     code: "MERP S04",
-    title: "PO Confirmation — Split Schedules",
-    desc: "Can Ariba split a PO confirmation at all? Then: confirm / reject / conditional acceptance, and what MERP has to receive over EDI",
-    items: 12,
+    title: "PO Confirmation — What Ariba Allows",
+    desc: "What can a supplier change or split when confirming a PO in Ariba, does it apply immediately, and should MERP follow it or hold a stricter rule",
+    items: 11,
     date: "2026-08-04",
     href: "docs/s04-po-confirmation-split.html",
-    tags: [["red", "BLOCKED ON ARIBA"], ["amber", "REVIEW REQUESTED"]]
+    tags: [["red", "INVESTIGATION FIRST"], ["amber", "REVIEW REQUESTED"]]
   },
   {
     id: "s04-purchase-progress-status",
