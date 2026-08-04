@@ -151,13 +151,13 @@
       <div class="sec-num">02</div>
       <div>
         <h2>Partial delivery already covers this</h2>
-        <p>A supplier who can only ship half now can already do exactly that — at delivery, not at confirmation.</p>
+        <p>A supplier who can only ship half now can already do that today — by sending two delivery notes.</p>
       </div>
     </div>
     <div class="card">
       <div class="notice">
         <span class="k">THE ARGUMENT</span><strong>Nothing is lost by refusing the split</strong>
-        <p>Purchasing and the supplier agree the plan between themselves. The supplier confirms 100, then ships 50 and registers a delivery note, and 50 more later. The PO goes <b>Partially Delivered</b>, then <b>Fully Delivered</b>. The goods, the dates and the paperwork all end up the same — without a second splitting mechanism in the system.</p>
+        <p>Purchasing and the supplier agree the plan between themselves. The supplier confirms all 100, ships 50 with a delivery note, and ships the other 50 later. The PO moves to <b>Partially Delivered</b>, then <b>Fully Delivered</b>. Same goods, same dates, same paperwork — and no second way of splitting to build and maintain.</p>
       </div>
 
       <div class="lvl-grid">
@@ -170,7 +170,7 @@
               <span class="node dn">ASN · <span class="n">50</span> · ships 03-24</span>
             </div>
           </div>
-          <p class="depth">Delivery documents hang straight off the line. A GR belongs to a PO line, an invoice matches a PO line. <b>Nothing new to build.</b></p>
+          <p class="depth">Deliveries attach straight to the PO line. Receipts and invoices match against that line, exactly as they do today. <b>Nothing new to build.</b></p>
         </div>
 
         <div class="lvl cost">
@@ -189,14 +189,14 @@
               </div>
             </div>
           </div>
-          <p class="depth">A confirmation schedule can itself be split further by delivery. Every DN, GR and invoice line now has to name <b>which schedule</b> it belongs to, and open quantity has to be tracked per schedule rather than per line.</p>
+          <p class="depth">Each schedule can be split again by delivery. Every delivery, receipt and invoice line then has to say <b>which schedule</b> it belongs to, and the outstanding quantity is counted per schedule instead of per line.</p>
         </div>
       </div>
 
       <div class="fyi">
         <span class="k">The one thing that is actually lost</span>
-        <p>Without a split confirmation, the second half has <b>no date in the system</b> until the supplier registers its delivery note. The requester sees 100 promised for 03-10 and only learns half is late when it fails to arrive. With schedules, the later date is visible the moment the supplier confirms.</p>
-        <p><b>So the question is worth being blunt about:</b> is that forward visibility worth a second splitting level across PO, delivery, receipt and invoice — or is a phone call and an agreed plan enough?</p>
+        <p>If the supplier cannot split the confirmation, the date for the second 50 is <b>nowhere in the system</b> until they ship it. The requester still sees all 100 due on 03-10, and finds out only when half of it fails to arrive. A split confirmation would have shown 03-24 from the start.</p>
+        <p><b>So the trade-off is simple:</b> knowing the later date sooner, against building a second splitting level into PO, delivery, receipt and invoice. Is agreeing the plan with the supplier by phone enough?</p>
       </div>
     </div>
     <div data-review="q2"></div>
@@ -351,9 +351,9 @@ window.REVIEW_DOC = {
     { id:"q1", sec:"01", label:"May a supplier split a confirmation?",
       q:"Proposal: a supplier may not split one PO line into several schedules when confirming. They confirm the ordered quantity on the ordered date, or they reject. Do you agree?",
       hint:"The requested date was agreed for the whole quantity, so changing it is a decision for Purchasing and the requester — not for the supplier alone." },
-    { id:"q2", sec:"02", label:"Partial delivery already covers it",
-      q:"Partial delivery at the ASN stage already lets a supplier ship 50 now and 50 later, once the plan is agreed. Do you agree that confirmation-level splitting adds a second splitting level for no business gain?",
-      hint:"Answer No if forward visibility matters — with schedules, the later date is in the system the moment the supplier confirms, instead of only when the shipment is registered." },
+    { id:"q2", sec:"02", label:"Split at delivery only",
+      q:"A supplier can already ship 50 now and 50 later by sending two delivery notes — no split confirmation needed. Should we keep splitting to the delivery stage only?",
+      hint:"Answer No if you need to know the later date sooner. A split confirmation shows 03-24 as soon as the supplier confirms; with delivery notes alone, that date appears only when they ship." },
     { id:"q3", sec:"03", label:"Reject and re-issue as two POs",
       q:"When the supplier cannot deliver everything on the requested date, should they reject the PO so Purchasing can agree a plan and issue two separate POs?",
       hint:"Say what should happen to the original PO — cancelled outright, or kept and superseded by the new ones." },
