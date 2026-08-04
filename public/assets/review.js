@@ -73,7 +73,6 @@
             '<span class="sync off" id="syncBadge"><span class="dot"></span><span id="syncText">Local only</span></span>' +
             '<button class="btn ghost" type="button" id="btnJump">Next unanswered</button>' +
             '<button class="btn" type="button" id="btnAll">All replies</button>' +
-            '<button class="btn primary" type="button" id="btnCopy">Copy reply</button>' +
           '</div>' +
         '</div>' +
       '</div>';
@@ -84,9 +83,18 @@
     var host = document.getElementById("summaryMount");
     if (!host) return;
     host.outerHTML =
+      '<section class="section closing" id="closing">' +
+        '<div class="sec-head"><div class="sec-num">FINAL</div><div>' +
+          '<h2>Final conclusion</h2><p>Where you land overall, once you have been through the items above.</p>' +
+        '</div></div>' +
+        '<div class="card closing-card">' +
+          '<label for="rvOverall">Your conclusion</label>' +
+          '<textarea id="rvOverall" rows="5" placeholder="What you conclude, what you would decide, and anything to take to the meeting."></textarea>' +
+        '</div>' +
+      '</section>' +
       '<section class="section summary" id="summary">' +
         '<div class="sec-head"><div class="sec-num">REPLY</div><div>' +
-          '<h2>My reply</h2><p>This is exactly what gets saved and copied. Check it before you send.</p>' +
+          '<h2>My reply</h2><p>Everything you have entered on this page, in one place.</p>' +
         '</div></div>' +
         '<div class="tally">' +
           '<div><span class="k">Agree</span><span class="v yes" id="tYes">0</span></div>' +
@@ -98,14 +106,9 @@
           '<thead><tr><th>Item</th><th>Reply</th><th>Comment</th></tr></thead>' +
           '<tbody id="sumBody"></tbody>' +
         '</table></div>' +
-        '<div class="field" style="margin-top:16px;">' +
-          '<label for="rvOverall">Overall comments · topics to raise (optional)</label>' +
-          '<textarea id="rvOverall" rows="4" placeholder="Anything about the document as a whole, or a topic to take to the meeting."></textarea>' +
-        '</div>' +
         '<div class="send">' +
           '<p id="sendNote">Replies save to the shared workspace automatically.</p>' +
           '<button class="btn" type="button" id="btnReset">Clear</button>' +
-          '<button class="btn primary" type="button" id="btnCopy2">Copy reply</button>' +
         '</div>' +
       '</section>' +
       '<section class="section allview" id="allview" hidden>' +
@@ -115,7 +118,6 @@
         '<div class="allbar">' +
           '<p id="allCount">Loading…</p>' +
           '<button class="btn" type="button" id="btnRefresh">Refresh</button>' +
-          '<button class="btn" type="button" id="btnCopyAll">Copy all replies</button>' +
         '</div>' +
         '<div class="card scroll-x"><table class="agg">' +
           '<thead><tr><th>Item</th><th>Agree</th><th>Change</th><th>Hold</th><th>Split</th></tr></thead>' +
@@ -313,71 +315,6 @@
     }
   }
 
-  /* ---------------- plain-text reply ---------------- */
-  function buildText(src) {
-    var s = src || state;
-    var c = counts(s.answers || {});
-    var L = [];
-    L.push("[" + DOC.title + "] Review reply");
-    L.push("Date: " + B.today());
-    L.push("Answered: " + (ITEMS.length - c.none) + "/" + ITEMS.length +
-      "  (agree " + c.Y + " · needs change " + c.N + " · hold " + c.H +
-      (c.note ? " · comment " + c.note : "") + " · no answer " + c.none + ")");
-    L.push("");
-    ITEMS.forEach(function (it, i) {
-      var a = (s.answers || {})[it.id] || {};
-      var cm = (a.c || "").trim();
-      var head = isNote(it)
-        ? (cm ? "comment" : "no answer")
-        : (a.v ? ansLabel(it, a.v) + " (" + a.v + ")" : "no answer");
-      L.push("Q" + (i + 1) + ". [" + it.sec + "] " + it.label + " — " + head);
-      L.push("    Comment: " + (cm ? cm.replace(/\n/g, "\n             ") : "-"));
-    });
-    if ((s.overall || "").trim()) {
-      L.push("");
-      L.push("Overall comments:");
-      L.push(s.overall.trim());
-    }
-    return L.join("\n");
-  }
-
-  function copyToClipboard(txt) {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      return navigator.clipboard.writeText(txt).then(function () { return true; }, function () { return legacyCopy(txt); });
-    }
-    return Promise.resolve(legacyCopy(txt));
-  }
-  function legacyCopy(txt) {
-    try {
-      var ta = document.createElement("textarea");
-      ta.value = txt; ta.setAttribute("readonly", "");
-      ta.style.position = "fixed"; ta.style.top = "-1000px";
-      document.body.appendChild(ta); ta.select();
-      var ok = document.execCommand("copy");
-      document.body.removeChild(ta);
-      return ok;
-    } catch (e) { return false; }
-  }
-
-  function copyMine() {
-    var missing = null;
-    for (var i = 0; i < ITEMS.length; i++) {
-      var a = state.answers[ITEMS[i].id] || {};
-      if (a.v === "N" && !(a.c || "").trim()) { missing = ITEMS[i]; break; }
-    }
-    copyToClipboard(buildText()).then(function (ok) {
-      if (!ok) { toast("Copy failed. Select the summary table and copy it manually."); return; }
-      var c = counts();
-      if (c.none > 0) toast("Copied — " + c.none + " item(s) still unanswered.");
-      else if (missing) toast("Copied. Adding a reason to the 'No' items would help.");
-      else toast("Reply copied.");
-    });
-    if (missing) {
-      var host = document.getElementById("rv-" + missing.id);
-      if (host) host.classList.add("needs-note");
-    }
-  }
-
   /* ---------------- all replies ---------------- */
   var lastAll = [];
 
@@ -449,7 +386,7 @@
           '<span class="when">' + esc(B.stamp(r.updatedAt)) + '</span>' +
         '</div>' +
         '<div class="person-body">' + (lines || '<div class="pline"><span class="q">—</span><span class="v">No answers</span></div>') +
-          (ov ? '<div class="pline"><span class="q">Overall</span><span class="v"><span class="c">' + esc(ov) + '</span></span></div>' : "") +
+          (ov ? '<div class="pline"><span class="q">Final</span><span class="v"><span class="c">' + esc(ov) + '</span></span></div>' : "") +
         '</div>' +
       '</div>';
     }).join("");
@@ -464,50 +401,12 @@
     });
   }
 
-  function copyAll() {
-    if (!lastAll.length) { toast("Nothing to copy yet."); return; }
-    var L = ["[" + DOC.title + "] All replies (" + lastAll.length + " reviewers) · " + B.today(), ""];
-    ITEMS.forEach(function (it, i) {
-      var y = [], n = [], h = [], notes = [];
-      lastAll.forEach(function (r, idx) {
-        var a = (r.answers || {})[it.id] || {};
-        var cm = (a.c || "").trim();
-        var entry = "      - " + reviewerName(r, idx) + (cm ? ": " + cm.replace(/\n/g, " ") : "");
-        if (isNote(it)) { if (cm) notes.push(entry); return; }
-        if (a.v === "Y") y.push(entry); else if (a.v === "N") n.push(entry); else if (a.v === "H") h.push(entry);
-      });
-      if (isNote(it)) {
-        L.push("Q" + (i + 1) + ". [" + it.sec + "] " + it.label + "  (" + notes.length + " comment" + (notes.length === 1 ? "" : "s") + ")");
-        L = L.concat(notes.length ? notes : ["      - none"]);
-        L.push("");
-        return;
-      }
-      L.push("Q" + (i + 1) + ". [" + it.sec + "] " + it.label +
-        "  (agree " + y.length + " · change " + n.length + " · hold " + h.length + ")");
-      if (y.length) { L.push("   Agree"); L = L.concat(y); }
-      if (n.length) { L.push("   Needs change"); L = L.concat(n); }
-      if (h.length) { L.push("   Hold"); L = L.concat(h); }
-      L.push("");
-    });
-    var ovs = lastAll.filter(function (r) { return (r.overall || "").trim(); });
-    if (ovs.length) {
-      L.push("Overall comments");
-      ovs.forEach(function (r, idx) { L.push("   - " + reviewerName(r, idx) + ": " + r.overall.trim().replace(/\n/g, " ")); });
-    }
-    copyToClipboard(L.join("\n")).then(function (ok) {
-      toast(ok ? "All replies copied." : "Copy failed.");
-    });
-  }
-
   /* ---------------- wiring ---------------- */
   function wire() {
     var o = document.getElementById("rvOverall");
     o.value = state.overall;
     o.addEventListener("input", function () { state.overall = o.value; touch(); });
 
-    document.getElementById("btnCopy").addEventListener("click", copyMine);
-    document.getElementById("btnCopy2").addEventListener("click", copyMine);
-    document.getElementById("btnCopyAll").addEventListener("click", copyAll);
     document.getElementById("btnRefresh").addEventListener("click", loadAll);
 
     document.getElementById("btnAll").addEventListener("click", function () {
@@ -553,7 +452,7 @@
     B.enter().then(function (room) {
       if (!B.hasConfig) {
         var note = document.getElementById("sendNote");
-        if (note) note.textContent = "Shared storage is not configured, so this stays in your browser. Copy your reply and send it on.";
+        if (note) note.textContent = "Shared storage is not configured, so this stays in your browser.";
         var rn = document.getElementById("roomName");
         if (rn && room && room.label) rn.textContent = "· " + room.label;
         document.getElementById("btnAll").disabled = true;
