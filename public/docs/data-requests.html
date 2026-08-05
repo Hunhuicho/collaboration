@@ -25,6 +25,14 @@
 .req-head .why{font-size:13px; color:var(--ink-2);}
 .req-tags{display:flex; gap:7px; flex-wrap:wrap; margin-top:8px;}
 
+.req-must{
+  display:flex; gap:14px; align-items:center; flex-wrap:wrap;
+  padding:12px 20px; background:var(--hold-bg); border-bottom:1px solid var(--line);
+}
+.req-must .k{font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--hold); font-weight:800; white-space:nowrap;}
+.req-must p{font-size:13.5px; color:var(--ink-2);}
+.req-must b{color:var(--ink);}
+
 .req-body{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1px; background:var(--line);}
 .req-cell{background:var(--surface); padding:16px 20px; display:flex; flex-direction:column; gap:6px;}
 .req-cell .k{font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); font-weight:700;}
@@ -37,7 +45,7 @@
   display:inline-flex; align-items:center; gap:8px; align-self:flex-start;
   font-size:13px; font-weight:640; text-decoration:none; color:var(--accent-2);
   background:var(--accent-soft); border:1px solid var(--line); border-radius:5px; padding:8px 13px;
-  word-break:break-all;
+  overflow-wrap:anywhere;
 }
 .filelink:hover{border-color:var(--accent);}
 .filelink .ic{font-size:14px;}
@@ -71,11 +79,11 @@
       <span class="pill amber">DATA NEEDED</span>
     </div>
     <h1>Urgent Data Requests</h1>
-    <p class="sub">Data we are waiting on to keep the build moving, <b>most urgent first</b>. Each request says exactly what is needed and where the working file is. Mark the status and leave a note — who is on it, when it lands, and anything that would hold it up.</p>
+    <p class="sub">Data we are waiting on, <b>most urgent first</b>. Set the status and leave a note — who is on it and when it lands.</p>
     <div class="hero-meta">
       <div><span class="k">Open requests</span><strong>1</strong></div>
       <div><span class="k">Order</span><strong>By urgency, most urgent first</strong></div>
-      <div><span class="k">What we need from you</span><strong>Status · owner · date</strong></div>
+      <div><span class="k">Reply with</span><strong>Status · owner · date</strong></div>
       <div><span class="k">Updated</span><strong>2026-08-04</strong></div>
     </div>
   </header>
@@ -83,9 +91,8 @@
   <div class="howto">
     <h2>How to reply</h2>
     <ol>
-      <li>On each request set the status — <b>Provided</b>, <b>In progress</b>, or <b>Blocked</b>.</li>
-      <li>In the note, say <b>who owns it</b> and <b>when it will land</b>. If it is blocked, say what is blocking it.</li>
-      <li>Everything saves as you type — there is nothing to submit.</li>
+      <li>Set the status: <b>Provided</b>, <b>In progress</b>, or <b>Blocked</b>.</li>
+      <li>In the note, give the <b>owner</b> and the <b>date</b>. If blocked, say what is blocking it.</li>
     </ol>
   </div>
 
@@ -95,7 +102,6 @@
       <div class="sec-num">01</div>
       <div>
         <h2>Material Group — L1 / L2 for indirect items</h2>
-        <p>Indirect item codes have to be tied to the material group hierarchy before the group logic can be built.</p>
       </div>
     </div>
 
@@ -103,33 +109,21 @@
       <div class="req-head">
         <span class="req-rank">1</span>
         <div>
-          <h3>Item code ↔ Material Group L2 mapping</h3>
-          <p class="why">Every indirect item code mapped to its Material Group L2, so L1 follows from the hierarchy. Without it the group logic cannot be finished or tested.</p>
+          <h3>Material code ↔ L2 code</h3>
+          <p class="why">Fill in the L2 for each indirect material. L1 follows from the hierarchy. <b>PR testing cannot start until this lands.</b></p>
           <div class="req-tags">
             <span class="pill red">URGENT</span>
             <span class="pill blue">MASTER DATA</span>
-            <span class="pill">INDIRECT ITEMS</span>
           </div>
         </div>
       </div>
 
+      <div class="req-must">
+        <span class="k">Codes, not names</span>
+        <p>Enter the <b>material code</b> and the <b>L2 code</b>. Names or descriptions cannot be loaded into the database.</p>
+      </div>
+
       <div class="req-body">
-        <div class="req-cell">
-          <span class="k">What we need</span>
-          <ul>
-            <li><b>Item code</b> — every indirect item in scope</li>
-            <li><b>Material Group L2</b> for each of those codes</li>
-            <li>L1 derived from L2 through the hierarchy, so it does not need to be supplied separately — <b>unless</b> an item's L1 does not follow from its L2</li>
-          </ul>
-        </div>
-        <div class="req-cell">
-          <span class="k">Worth confirming as you fill it</span>
-          <ul>
-            <li>Items with <b>no L2</b> yet — listed, not left blank</li>
-            <li>Whether one item code can carry <b>more than one</b> L2</li>
-            <li>Whether the list covers <b>all</b> indirect items or a subset</li>
-          </ul>
-        </div>
         <div class="req-cell">
           <span class="k">Working file</span>
           <a class="filelink" href="https://momentive.sharepoint.com/:x:/r/sites/ITDigitalExcellence/Shared%20Documents/Program%20Management/PMO/Functional%20Workstreams/Supply%20Chain/Procurement/1000%20Blue%20Print/1400%20Master%20data/1410%20Material%20Grp/2026-06-29%20Material%20Grop%20Logic_sent%20KCC.xlsx?d=wa8b3e6696cdf42a9a6b9d93368ac7fff&amp;csf=1&amp;web=1&amp;e=7eCcfc" target="_blank" rel="noopener">
@@ -138,7 +132,11 @@
               <small>SharePoint · 1410 Material Grp</small>
             </span>
           </a>
-          <p>Fill it in the same file so there is one version, and say here when it is ready.</p>
+        </div>
+        <div class="req-cell">
+          <span class="k">Sheet</span>
+          <p><code>Mapping Material &amp; L2</code></p>
+          <p>Fill it in this sheet, in the same file.</p>
         </div>
       </div>
 
@@ -150,7 +148,7 @@
 
     <div class="more">
       <span class="k">More coming</span>
-      <p>Further requests are added to this page in priority order. The number on each card is its rank, not the order it arrived.</p>
+      <p>Further requests are added below in priority order.</p>
     </div>
   </section>
 
@@ -174,9 +172,9 @@ window.REVIEW_DOC = {
   code: "MERP S04",
   title: "Urgent Data Requests",
   items: [
-    { id:"q1", sec:"01", label:"Item code ↔ Material Group L2 mapping", variant:"inline",
+    { id:"q1", sec:"01", label:"Material code ↔ L2 code mapping", variant:"inline",
       choices: [["Y","Provided"],["H","In progress"],["N","Blocked"]],
-      q:"Item code to Material Group L2 mapping for indirect items" }
+      q:"Material code to L2 code mapping for indirect items" }
   ]
 };
 </script>
