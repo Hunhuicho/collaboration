@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Urgent Data Requests — Review</title>
+<meta name="description" content="Data we need in order to keep moving, most urgent first — status and notes per request" />
+<link rel="stylesheet" href="../assets/app.css" />
+<script>document.documentElement.classList.add("gating");</script>
+<style>
+/* Components specific to this document */
+.req{display:flex; flex-direction:column;}
+.req-head{
+  display:grid; grid-template-columns:44px 1fr; gap:16px; align-items:start;
+  padding:18px 20px 16px; background:var(--surface-2); border-bottom:1px solid var(--line);
+}
+.req-rank{
+  font-family:var(--mono); font-size:15px; font-weight:750; color:#fff; background:var(--accent);
+  border-radius:5px; padding:7px 0; text-align:center; letter-spacing:-.01em;
+}
+@media (prefers-color-scheme:dark){.req-rank{background:var(--accent-soft); color:var(--accent-2);}}
+:root[data-theme="dark"] .req-rank{background:var(--accent-soft); color:var(--accent-2);}
+:root[data-theme="light"] .req-rank{background:var(--accent); color:#fff;}
+.req-head h3{font-size:17px; font-weight:720; letter-spacing:-.012em; margin-bottom:4px;}
+.req-head .why{font-size:13px; color:var(--ink-2);}
+.req-tags{display:flex; gap:7px; flex-wrap:wrap; margin-top:8px;}
+
+.req-body{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1px; background:var(--line);}
+.req-cell{background:var(--surface); padding:16px 20px; display:flex; flex-direction:column; gap:6px;}
+.req-cell .k{font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); font-weight:700;}
+.req-cell p{font-size:13.5px; color:var(--ink-2);}
+.req-cell b{color:var(--ink);}
+.req-cell ul{margin:2px 0 0; padding-left:18px; font-size:13.5px; color:var(--ink-2); display:flex; flex-direction:column; gap:4px;}
+.req-cell code{font-family:var(--mono); font-size:12.5px; background:var(--surface-3); padding:2px 7px; border-radius:3px; color:var(--ink);}
+
+.filelink{
+  display:inline-flex; align-items:center; gap:8px; align-self:flex-start;
+  font-size:13px; font-weight:640; text-decoration:none; color:var(--accent-2);
+  background:var(--accent-soft); border:1px solid var(--line); border-radius:5px; padding:8px 13px;
+  word-break:break-all;
+}
+.filelink:hover{border-color:var(--accent);}
+.filelink .ic{font-size:14px;}
+.filelink small{display:block; font-weight:500; color:var(--muted); font-size:11px; margin-top:2px;}
+
+.req-ans{padding:15px 20px 18px; background:var(--surface); border-top:1px solid var(--line);}
+.req-ans .k{font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--accent); font-weight:750;}
+.req-ans .review.inline{border-top:0; padding-top:8px;}
+
+.more{
+  display:flex; gap:12px; align-items:center; flex-wrap:wrap;
+  padding:14px 20px; background:var(--surface-3); border-radius:6px; margin-top:16px;
+}
+.more .k{font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); font-weight:750;}
+.more p{font-size:13px; color:var(--ink-2);}
+</style>
+</head>
+<body>
+
+<div id="topbarMount"></div>
+
+<div class="shell">
+<aside id="navMount"></aside>
+
+<div class="wrap">
+
+  <header class="hero">
+    <div class="hero-eyebrow">
+      <span class="code">MERP S04</span>
+      <span class="pill red">URGENT</span>
+      <span class="pill amber">DATA NEEDED</span>
+    </div>
+    <h1>Urgent Data Requests</h1>
+    <p class="sub">Data we are waiting on to keep the build moving, <b>most urgent first</b>. Each request says exactly what is needed and where the working file is. Mark the status and leave a note — who is on it, when it lands, and anything that would hold it up.</p>
+    <div class="hero-meta">
+      <div><span class="k">Open requests</span><strong>1</strong></div>
+      <div><span class="k">Order</span><strong>By urgency, most urgent first</strong></div>
+      <div><span class="k">What we need from you</span><strong>Status · owner · date</strong></div>
+      <div><span class="k">Updated</span><strong>2026-08-04</strong></div>
+    </div>
+  </header>
+
+  <div class="howto">
+    <h2>How to reply</h2>
+    <ol>
+      <li>On each request set the status — <b>Provided</b>, <b>In progress</b>, or <b>Blocked</b>.</li>
+      <li>In the note, say <b>who owns it</b> and <b>when it will land</b>. If it is blocked, say what is blocking it.</li>
+      <li>Everything saves as you type — there is nothing to submit.</li>
+    </ol>
+  </div>
+
+  <!-- ============ 01 ============ -->
+  <section class="section">
+    <div class="sec-head">
+      <div class="sec-num">01</div>
+      <div>
+        <h2>Material Group — L1 / L2 for indirect items</h2>
+        <p>Indirect item codes have to be tied to the material group hierarchy before the group logic can be built.</p>
+      </div>
+    </div>
+
+    <div class="card req">
+      <div class="req-head">
+        <span class="req-rank">1</span>
+        <div>
+          <h3>Item code ↔ Material Group L2 mapping</h3>
+          <p class="why">Every indirect item code mapped to its Material Group L2, so L1 follows from the hierarchy. Without it the group logic cannot be finished or tested.</p>
+          <div class="req-tags">
+            <span class="pill red">URGENT</span>
+            <span class="pill blue">MASTER DATA</span>
+            <span class="pill">INDIRECT ITEMS</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="req-body">
+        <div class="req-cell">
+          <span class="k">What we need</span>
+          <ul>
+            <li><b>Item code</b> — every indirect item in scope</li>
+            <li><b>Material Group L2</b> for each of those codes</li>
+            <li>L1 derived from L2 through the hierarchy, so it does not need to be supplied separately — <b>unless</b> an item's L1 does not follow from its L2</li>
+          </ul>
+        </div>
+        <div class="req-cell">
+          <span class="k">Worth confirming as you fill it</span>
+          <ul>
+            <li>Items with <b>no L2</b> yet — listed, not left blank</li>
+            <li>Whether one item code can carry <b>more than one</b> L2</li>
+            <li>Whether the list covers <b>all</b> indirect items or a subset</li>
+          </ul>
+        </div>
+        <div class="req-cell">
+          <span class="k">Working file</span>
+          <a class="filelink" href="https://momentive.sharepoint.com/:x:/r/sites/ITDigitalExcellence/Shared%20Documents/Program%20Management/PMO/Functional%20Workstreams/Supply%20Chain/Procurement/1000%20Blue%20Print/1400%20Master%20data/1410%20Material%20Grp/2026-06-29%20Material%20Grop%20Logic_sent%20KCC.xlsx?d=wa8b3e6696cdf42a9a6b9d93368ac7fff&amp;csf=1&amp;web=1&amp;e=7eCcfc" target="_blank" rel="noopener">
+            <span class="ic">↗</span>
+            <span>2026-06-29 Material Group Logic — sent KCC.xlsx
+              <small>SharePoint · 1410 Material Grp</small>
+            </span>
+          </a>
+          <p>Fill it in the same file so there is one version, and say here when it is ready.</p>
+        </div>
+      </div>
+
+      <div class="req-ans">
+        <span class="k">Status &amp; note</span>
+        <div data-review="q1" data-variant="inline"></div>
+      </div>
+    </div>
+
+    <div class="more">
+      <span class="k">More coming</span>
+      <p>Further requests are added to this page in priority order. The number on each card is its rank, not the order it arrived.</p>
+    </div>
+  </section>
+
+  <div id="summaryMount"></div>
+
+  <footer>
+    <span class="code">MERP S04</span>
+    <p>Data request tracker · updated as requests are raised and closed.</p>
+  </footer>
+</div>
+</div>
+
+<script src="../assets/access.js"></script>
+<script src="../assets/firebase-config.js"></script>
+<script src="../assets/board-core.js"></script>
+<script src="../assets/docs.js"></script>
+<script src="../assets/nav.js"></script>
+<script>
+window.REVIEW_DOC = {
+  id: "data-requests-urgent",
+  code: "MERP S04",
+  title: "Urgent Data Requests",
+  items: [
+    { id:"q1", sec:"01", label:"Item code ↔ Material Group L2 mapping", variant:"inline",
+      choices: [["Y","Provided"],["H","In progress"],["N","Blocked"]],
+      q:"Item code to Material Group L2 mapping for indirect items" }
+  ]
+};
+</script>
+<script src="../assets/review.js"></script>
+</body>
+</html>
