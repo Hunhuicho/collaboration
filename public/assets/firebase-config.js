@@ -13,6 +13,6 @@
    Never put a service-account key in this file.
 ------------------------------------------------------------------ */
 window.FIREBASE_CONFIG = {
-  apiKey: "",
-  projectId: ""
+  apiKey: "AIzaSyBuoyy3_bQTAljw59_Bub2jbLY3AlDczok",
+  projectId: "collaboration-ae736"
 };
