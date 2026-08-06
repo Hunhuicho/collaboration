@@ -34,37 +34,39 @@ service cloud.firestore {
       }
 
       // The shared document for one investigation. Everyone edits this.
-      // Writes carry an updateMask, so two people working on different items
-      // at once do not overwrite each other.
+      //
+      // Writes carry an updateMask naming only the items that changed, so two
+      // people working on different items at once do not overwrite each other.
+      // A masked write that touches no conclusion leaves 'overall' out
+      // altogether, so each field is checked only when it is actually there —
+      // hasOnly() still keeps anything unexpected out.
       match /docs/{docId} {
         allow read: if signedIn();
 
         allow create, update: if signedIn()
           && request.resource.data.keys().hasOnly(['answers', 'overall', 'updatedAt'])
-          && request.resource.data.answers is map
-          && request.resource.data.answers.size() <= 200
-          && request.resource.data.overall is string
-          && request.resource.data.overall.size() <= 4000
-          && request.resource.data.updatedAt is timestamp;
+          && request.resource.data.updatedAt is timestamp
+          && (
+               !('answers' in request.resource.data)
+               || (request.resource.data.answers is map
+                   && request.resource.data.answers.size() <= 200)
+             )
+          && (
+               !('overall' in request.resource.data)
+               || (request.resource.data.overall is string
+                   && request.resource.data.overall.size() <= 4000)
+             );
 
         allow delete: if false;
       }
 
-      // Superseded by the shared document above. Kept readable so entries
-      // written under the old per-person model can be folded in once.
+      // The old per-person replies. Readable, so entries written before the
+      // switch to a shared document can be folded in once; not writable, so a
+      // stale page still open somewhere fails loudly instead of quietly
+      // filing entries where nobody will ever see them.
       match /docs/{docId}/responses/{uid} {
         allow read: if signedIn();
-
-        allow create, update: if signedIn()
-          && request.auth.uid == uid
-          && request.resource.data.keys().hasOnly(['answers', 'overall', 'updatedAt'])
-          && request.resource.data.answers is map
-          && request.resource.data.answers.size() <= 200
-          && request.resource.data.overall is string
-          && request.resource.data.overall.size() <= 4000
-          && request.resource.data.updatedAt is timestamp;
-
-        allow delete: if signedIn() && request.auth.uid == uid;
+        allow write: if false;
       }
     }
   }
