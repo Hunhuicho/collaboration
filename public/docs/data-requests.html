@@ -81,7 +81,7 @@
     <h1>Urgent Data Requests</h1>
     <p class="sub">Data we are waiting on, most urgent first.</p>
     <div class="hero-meta">
-      <div><span class="k">Open requests</span><strong>2</strong></div>
+      <div><span class="k">Open requests</span><strong>3</strong></div>
       <div><span class="k">Reply with</span><strong>Status · owner · date</strong></div>
       <div><span class="k">Updated</span><strong>2026-08-04</strong></div>
     </div>
@@ -193,6 +193,60 @@
     </div>
   </section>
 
+
+  <!-- ============ 03 ============ -->
+  <section class="section">
+    <div class="sec-head">
+      <div class="sec-num">03</div>
+      <div>
+        <h2>Purchasing group</h2>
+      </div>
+    </div>
+
+    <div class="card req">
+      <div class="req-head">
+        <span class="req-rank">3</span>
+        <div>
+          <h3>Define the 3-digit and 5-digit purchasing groups</h3>
+          <p class="why">Define both levels, and match each one to the data it hangs off.</p>
+          <div class="req-tags">
+            <span class="pill amber">DEFINE</span>
+            <span class="pill blue">MASTER DATA</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="req-must">
+        <span class="k">What matches what</span>
+        <p><b>3-digit</b> matches <b>Material Group L2</b> · <b>5-digit</b> matches <b>Chemical Name</b>.</p>
+      </div>
+
+      <div class="req-body">
+        <div class="req-cell">
+          <span class="k">Working file</span>
+          <a class="filelink" href="https://momentive.sharepoint.com/:x:/r/sites/ITDigitalExcellence/Shared%20Documents/Program%20Management/PMO/Functional%20Workstreams/Supply%20Chain/Procurement/1000%20Blue%20Print/1400%20Master%20data/1420%20Purchasing%20Group/Purchasing%20group%20for%20MERP.xlsx?d=w0e138475f430409eabe9ebb72e84bc78&amp;csf=1&amp;web=1&amp;e=8ECoiw" target="_blank" rel="noopener">
+            <span class="ic">↗</span>
+            <span>Purchasing group for MERP.xlsx
+              <small>SharePoint · 1420 Purchasing Group</small>
+            </span>
+          </a>
+        </div>
+        <div class="req-cell">
+          <span class="k">What we need</span>
+          <ul>
+            <li>3-digit purchasing group — code, name, and its Material Group L2</li>
+            <li>5-digit purchasing group — code, name, and its Chemical Name</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="req-ans">
+        <span class="k">Status &amp; note</span>
+        <div data-review="q3" data-variant="inline"></div>
+      </div>
+    </div>
+  </section>
+
   <div class="more">
     <span class="k">More coming</span>
     <p>Further requests are added below in priority order.</p>
@@ -223,7 +277,10 @@ window.REVIEW_DOC = {
       q:"Material code to L2 code mapping for indirect items" },
     { id:"q2", sec:"02", label:"Chemical name, group and material mapping check", variant:"inline",
       choices: [["Y","Checked, looks right"],["H","In progress"],["N","Issues found"]],
-      q:"Chemical name, chemical group and the mapping to material data" }
+      q:"Chemical name, chemical group and the mapping to material data" },
+    { id:"q3", sec:"03", label:"Purchasing group — 3-digit and 5-digit definition", variant:"inline",
+      choices: [["Y","Provided"],["H","In progress"],["N","Blocked"]],
+      q:"3-digit and 5-digit purchasing groups, matched to Material Group L2 and Chemical Name" }
   ]
 };
 </script>

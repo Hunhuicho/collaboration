@@ -15,6 +15,16 @@
 ------------------------------------------------------------------ */
 window.BOARD_DOCS = [
   {
+    id: "data-requests-urgent",
+    code: "MERP S04",
+    title: "Urgent Data Requests",
+    desc: "Master data we are waiting on, most urgent first — material group L2, chemical name and group, purchasing group",
+    items: 3,
+    date: "2026-08-04",
+    href: "docs/data-requests.html",
+    tags: [["red", "URGENT"], ["amber", "DATA NEEDED"]]
+  },
+  {
     id: "s04-po-confirmation-split",
     code: "MERP S04",
     title: "PO Confirmation — What Ariba Allows",
