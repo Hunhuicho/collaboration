@@ -81,7 +81,7 @@
     <h1>Urgent Data Requests</h1>
     <p class="sub">Data we are waiting on, most urgent first.</p>
     <div class="hero-meta">
-      <div><span class="k">Open requests</span><strong>1</strong></div>
+      <div><span class="k">Open requests</span><strong>2</strong></div>
       <div><span class="k">Reply with</span><strong>Status · owner · date</strong></div>
       <div><span class="k">Updated</span><strong>2026-08-04</strong></div>
     </div>
@@ -137,11 +137,66 @@
       </div>
     </div>
 
-    <div class="more">
-      <span class="k">More coming</span>
-      <p>Further requests are added below in priority order.</p>
+  </section>
+
+  <!-- ============ 02 ============ -->
+  <section class="section">
+    <div class="sec-head">
+      <div class="sec-num">02</div>
+      <div>
+        <h2>Chemical name &amp; group</h2>
+      </div>
+    </div>
+
+    <div class="card req">
+      <div class="req-head">
+        <span class="req-rank">2</span>
+        <div>
+          <h3>Check the chemical data and its mapping to material</h3>
+          <p class="why">Some chemical names look wrong or duplicated. Please check the file.</p>
+          <div class="req-tags">
+            <span class="pill amber">CHECK</span>
+            <span class="pill blue">MASTER DATA</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="req-must">
+        <span class="k">Loaded as confirmed</span>
+        <p>Whatever the file says once you have checked it is <b>what goes into MERP</b>.</p>
+      </div>
+
+      <div class="req-body">
+        <div class="req-cell">
+          <span class="k">Working file</span>
+          <a class="filelink" href="https://momentive.sharepoint.com/:x:/r/sites/ITDigitalExcellence/Shared%20Documents/Program%20Management/PMO/Functional%20Workstreams/Supply%20Chain/Procurement/1000%20Blue%20Print/1400%20Master%20data/1440%20Chemical%20Group%20%26%20Name/Chemical%20Grp%20%26%20Name.xlsx?d=w0748be045bf4428b8a300b693942908f&amp;csf=1&amp;web=1&amp;e=qRUFAH" target="_blank" rel="noopener">
+            <span class="ic">↗</span>
+            <span>Chemical Grp &amp; Name.xlsx
+              <small>SharePoint · 1440 Chemical Group &amp; Name</small>
+            </span>
+          </a>
+        </div>
+        <div class="req-cell">
+          <span class="k">What to check</span>
+          <ul>
+            <li>Chemical name — wrong or duplicated entries</li>
+            <li>Chemical group</li>
+            <li>Mapping to material data</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="req-ans">
+        <span class="k">Status &amp; note</span>
+        <div data-review="q2" data-variant="inline"></div>
+      </div>
     </div>
   </section>
+
+  <div class="more">
+    <span class="k">More coming</span>
+    <p>Further requests are added below in priority order.</p>
+  </div>
 
   <div id="summaryMount"></div>
 
@@ -165,7 +220,10 @@ window.REVIEW_DOC = {
   items: [
     { id:"q1", sec:"01", label:"Material code ↔ L2 code mapping", variant:"inline",
       choices: [["Y","Provided"],["H","In progress"],["N","Blocked"]],
-      q:"Material code to L2 code mapping for indirect items" }
+      q:"Material code to L2 code mapping for indirect items" },
+    { id:"q2", sec:"02", label:"Chemical name, group and material mapping check", variant:"inline",
+      choices: [["Y","Checked, looks right"],["H","In progress"],["N","Issues found"]],
+      q:"Chemical name, chemical group and the mapping to material data" }
   ]
 };
 </script>
