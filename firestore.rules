@@ -8,11 +8,10 @@ rules_version = '2';
 //  · Control: the SHA-256 hash of the shared passcode IS the room path
 //    (rooms/{room}). Without the passcode you cannot construct the path,
 //    so you cannot reach that room's data.
-//  · Write: only to your own uid document. Nobody can edit another
-//    reviewer's reply.
-//  · Read: everyone in the room (same passcode) can read every reply —
-//    seeing each other's comments is the point. Do not put confidential
-//    material here.
+//  · Data: one shared document per investigation. Everyone on the
+//    passcode reads and writes the same document — whoever fills a field
+//    in, everyone sees it. There is no per-person copy and no read-only
+//    role. Do not put confidential material here.
 // ------------------------------------------------------------------
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -34,7 +33,25 @@ service cloud.firestore {
         allow update, delete: if false;
       }
 
-      // One reply per reviewer per document. Document ID = author uid.
+      // The shared document for one investigation. Everyone edits this.
+      // Writes carry an updateMask, so two people working on different items
+      // at once do not overwrite each other.
+      match /docs/{docId} {
+        allow read: if signedIn();
+
+        allow create, update: if signedIn()
+          && request.resource.data.keys().hasOnly(['answers', 'overall', 'updatedAt'])
+          && request.resource.data.answers is map
+          && request.resource.data.answers.size() <= 200
+          && request.resource.data.overall is string
+          && request.resource.data.overall.size() <= 4000
+          && request.resource.data.updatedAt is timestamp;
+
+        allow delete: if false;
+      }
+
+      // Superseded by the shared document above. Kept readable so entries
+      // written under the old per-person model can be folded in once.
       match /docs/{docId}/responses/{uid} {
         allow read: if signedIn();
 

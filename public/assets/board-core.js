@@ -219,29 +219,69 @@
     }).then(function (d) { return fromFields(d.fields); });
   }
 
-  /* ---------------- responses ---------------- */
-  function responsesPath(docId) {
-    return "/rooms/" + room.key + "/docs/" + encodeURIComponent(docId) + "/responses";
-  }
-  function myResponsePath(docId) {
-    return responsesPath(docId) + "/" + token.uid;
+  /* ---------------- the shared document ----------------
+     One document per investigation, shared by everyone on the passcode.
+     Whoever fills something in, everyone sees it — there is no per-person
+     copy. Writes carry an updateMask so two people working on different
+     items at the same time do not overwrite one another. */
+  function sharedPath(docId) {
+    return "/rooms/" + room.key + "/docs/" + encodeURIComponent(docId);
   }
 
-  function loadMine(docId) {
+  /* A Firestore field path segment. Item ids are plain (q1, q12), but a
+     segment with anything else in it has to be quoted. */
+  function seg(name) {
+    return /^[A-Za-z_][A-Za-z0-9_]*$/.test(name)
+      ? name
+      : "`" + String(name).replace(/[`\\]/g, "\\$&") + "`";
+  }
+
+  function loadShared(docId) {
     return auth().then(function () {
-      return req(myResponsePath(docId)).then(function (d) { return fromFields(d.fields); },
+      return req(sharedPath(docId)).then(function (d) { return fromFields(d.fields); },
         function (err) { if (err.status === 404) return null; throw err; });
     });
   }
-  function saveMine(docId, data) {
-    var payload = {
-      answers: data.answers || {},
-      overall: String(data.overall || "").slice(0, 4000),
-      updatedAt: new Date()
-    };
+
+  /* Writes only what changed.
+       ids       item ids to write; an id absent from data.answers is cleared
+       overall   true to write the final conclusion as well
+     Fields named in the mask but missing from the body are deleted, which is
+     how clearing an item works. Fields outside the mask are left untouched,
+     so nobody's concurrent edit to another item is lost. */
+  function saveShared(docId, data, ids, overall) {
+    var answers = data.answers || {};
+    var paths = ["updatedAt"];
+    var body = { updatedAt: new Date() };
+
+    if (ids && ids.length) {
+      var keep = {};
+      ids.forEach(function (id) {
+        paths.push("answers." + seg(id));
+        if (answers[id]) keep[id] = answers[id];
+      });
+      body.answers = keep;
+    }
+    if (overall) {
+      paths.push("overall");
+      body.overall = String(data.overall || "").slice(0, 4000);
+    }
+
+    var qs = paths.map(function (p) {
+      return "updateMask.fieldPaths=" + encodeURIComponent(p);
+    }).join("&");
+
     return auth().then(function () {
-      return req(myResponsePath(docId), { method: "PATCH", body: { fields: toFields(payload) } });
+      return req(sharedPath(docId) + "?" + qs, { method: "PATCH", body: { fields: toFields(body) } });
     });
+  }
+
+  /* ---------------- per-person replies (legacy) ----------------
+     Superseded by the shared document above. Still read once, so entries
+     made under the old model are folded into the shared document instead of
+     being stranded. */
+  function responsesPath(docId) {
+    return "/rooms/" + room.key + "/docs/" + encodeURIComponent(docId) + "/responses";
   }
   function listAll(docId) {
     return auth().then(function () {
@@ -407,8 +447,8 @@
     enter: enter,
     leave: leave,
     openGate: openGate,
-    loadMine: loadMine,
-    saveMine: saveMine,
+    loadShared: loadShared,
+    saveShared: saveShared,
     listAll: listAll,
     uid: function () { return token && token.uid; },
     esc: esc,

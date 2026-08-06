@@ -39,7 +39,12 @@
   var esc = B.esc, toast = B.toast;
   var state = loadLocal();
   var connected = false;
-  var saveTimer = null, remoteTimer = null;
+  var saveTimer = null, remoteTimer = null, pollTimer = null;
+
+  /* Items changed since the last successful push. Only these get written, so
+     someone else editing a different item at the same time is not clobbered. */
+  var dirty = {}, dirtyOverall = false, pushing = false;
+  function markDirty(id) { dirty[id] = true; }
 
   /* ---------------- local storage ---------------- */
   function blank() { return { overall: "", answers: {}, updatedAt: 0 }; }
@@ -72,7 +77,6 @@
           '<div class="tb-actions">' +
             '<span class="sync off" id="syncBadge"><span class="dot"></span><span id="syncText">Local only</span></span>' +
             '<button class="btn ghost" type="button" id="btnJump">Next unanswered</button>' +
-            '<button class="btn" type="button" id="btnAll">All replies</button>' +
           '</div>' +
         '</div>' +
       '</div>';
@@ -85,16 +89,16 @@
     host.outerHTML =
       '<section class="section closing" id="closing">' +
         '<div class="sec-head"><div class="sec-num">FINAL</div><div>' +
-          '<h2>Final conclusion</h2><p>Where you land overall, once you have been through the items above.</p>' +
+          '<h2>Final conclusion</h2><p>Where we land overall, once the items above have been worked through.</p>' +
         '</div></div>' +
         '<div class="card closing-card">' +
-          '<label for="rvOverall">Your conclusion</label>' +
-          '<textarea id="rvOverall" rows="5" placeholder="What you conclude, what you would decide, and anything to take to the meeting."></textarea>' +
+          '<label for="rvOverall">Conclusion</label>' +
+          '<textarea id="rvOverall" rows="5" placeholder="What we conclude, what we would decide, and anything to take to the meeting."></textarea>' +
         '</div>' +
       '</section>' +
       '<section class="section summary" id="summary">' +
-        '<div class="sec-head"><div class="sec-num">REPLY</div><div>' +
-          '<h2>My reply</h2><p>Everything you have entered on this page, in one place.</p>' +
+        '<div class="sec-head"><div class="sec-num">SUMMARY</div><div>' +
+          '<h2>Summary</h2><p>Everything entered on this page, in one place.</p>' +
         '</div></div>' +
         '<div class="tally">' +
           '<div><span class="k">Agree</span><span class="v yes" id="tYes">0</span></div>' +
@@ -107,23 +111,9 @@
           '<tbody id="sumBody"></tbody>' +
         '</table></div>' +
         '<div class="send">' +
-          '<p id="sendNote">Replies save to the shared workspace automatically.</p>' +
+          '<p id="sendNote">Everyone on this passcode fills in the same page. Entries save automatically and appear for everyone.</p>' +
           '<button class="btn" type="button" id="btnReset">Clear</button>' +
         '</div>' +
-      '</section>' +
-      '<section class="section allview" id="allview" hidden>' +
-        '<div class="sec-head"><div class="sec-num">ALL</div><div>' +
-          '<h2>All replies</h2><p>Everyone on this passcode, gathered per item.</p>' +
-        '</div></div>' +
-        '<div class="allbar">' +
-          '<p id="allCount">Loading…</p>' +
-          '<button class="btn" type="button" id="btnRefresh">Refresh</button>' +
-        '</div>' +
-        '<div class="card scroll-x"><table class="agg">' +
-          '<thead><tr><th>Item</th><th>Agree</th><th>Change</th><th>Hold</th><th>Split</th></tr></thead>' +
-          '<tbody id="aggBody"></tbody>' +
-        '</table></div>' +
-        '<div class="card" style="margin-top:14px;" id="peopleCard"><div class="empty-note">No replies yet.</div></div>' +
       '</section>';
   }
 
@@ -197,6 +187,7 @@
     if (v !== undefined) a.v = v;
     if (c !== undefined) a.c = c;
     if (!a.v && !(a.c || "").trim()) delete state.answers[id];
+    markDirty(id);
     touch();
     paint(id);
     refresh();
@@ -229,12 +220,13 @@
       var host = document.getElementById("rv-" + it.id);
       if (host) {
         var ta = host.querySelector("textarea");
-        if (ta) ta.value = (state.answers[it.id] || {}).c || "";
+        /* Never rewrite the box being typed in — it would move the cursor. */
+        if (ta && ta !== document.activeElement) ta.value = (state.answers[it.id] || {}).c || "";
         paint(it.id);
       }
     });
     var o = document.getElementById("rvOverall");
-    if (o) o.value = state.overall;
+    if (o && o !== document.activeElement) o.value = state.overall;
     refresh();
   }
 
@@ -262,10 +254,21 @@
   }
 
   function pushRemote() {
-    if (!connected) return;
-    B.saveMine(DOC.id, state).then(function () {
+    if (!connected || pushing) return;
+    var ids = Object.keys(dirty), ov = dirtyOverall;
+    if (!ids.length && !ov) return;
+
+    pushing = true;
+    dirty = {}; dirtyOverall = false;
+
+    B.saveShared(DOC.id, state, ids, ov).then(function () {
+      pushing = false;
+      lastRemote = null;                      // our own write; do not treat it as someone else's
       setSync("on", "Saved · " + B.stamp(new Date().toISOString()).slice(11));
     }, function (err) {
+      pushing = false;
+      ids.forEach(function (id) { dirty[id] = true; });   // put it back so the next attempt retries
+      if (ov) dirtyOverall = true;
       setSync("err", "Save failed");
       console.warn("[board] save failed", err);
     });
@@ -315,89 +318,148 @@
     }
   }
 
-  /* ---------------- all replies ---------------- */
-  var lastAll = [];
+  /* ---------------- live sync with the shared document ----------------
+     Everyone on the passcode edits the same document. We poll for other
+     people's changes and fold them in without disturbing whatever the person
+     at this keyboard is currently typing. */
+  var lastRemote = null;
 
-  function reviewerName(r, idx) {
-    return r.__mine ? "You" : "Reviewer " + (idx + 1);
+  function remoteSig(r) {
+    return JSON.stringify({ a: r.answers || {}, o: r.overall || "" });
   }
 
-  function renderAll(list) {
-    lastAll = (list || []).slice().sort(function (a, b) {
-      return String(a.updatedAt || "").localeCompare(String(b.updatedAt || ""));
+  function normAnswers(src) {
+    var out = {};
+    Object.keys(src || {}).forEach(function (k) {
+      var a = src[k] || {};
+      var v = a.v || null, c = a.c || "";
+      if (v || String(c).trim()) out[k] = { v: v, c: c };
     });
-    var el = document.getElementById("allCount");
-    if (el) el.textContent = lastAll.length ? (lastAll.length + " reviewer(s) replied.") : "No replies yet.";
-
-    var agg = document.getElementById("aggBody");
-    if (agg) {
-      agg.innerHTML = ITEMS.map(function (it, i) {
-        var y = 0, n = 0, h = 0, notes = 0;
-        lastAll.forEach(function (r) {
-          var a = (r.answers || {})[it.id] || {};
-          if (isNote(it)) { if ((a.c || "").trim()) notes++; return; }
-          if (a.v === "Y") y++; else if (a.v === "N") n++; else if (a.v === "H") h++;
-        });
-        if (isNote(it)) {
-          return '<tr>' +
-            '<td><span class="qn">Q' + (i + 1) + '</span> ' + esc(it.label) + '</td>' +
-            '<td class="n dash">—</td><td class="n dash">—</td><td class="n dash">—</td>' +
-            '<td><span class="a-note">' + notes + ' comment' + (notes === 1 ? "" : "s") + '</span></td>' +
-          '</tr>';
-        }
-        var tot = y + n + h || 1;
-        return '<tr>' +
-          '<td><span class="qn">Q' + (i + 1) + '</span> ' + esc(it.label) + '</td>' +
-          '<td class="n"><span class="a-y">' + y + '</span></td>' +
-          '<td class="n"><span class="a-n">' + n + '</span></td>' +
-          '<td class="n"><span class="a-h">' + h + '</span></td>' +
-          '<td><span class="bar">' +
-            '<i class="y" style="width:' + (y / tot * 100) + '%"></i>' +
-            '<i class="n" style="width:' + (n / tot * 100) + '%"></i>' +
-            '<i class="h" style="width:' + (h / tot * 100) + '%"></i>' +
-          '</span></td>' +
-        '</tr>';
-      }).join("");
-    }
-
-    var people = document.getElementById("peopleCard");
-    if (!people) return;
-    if (!lastAll.length) { people.innerHTML = '<div class="empty-note">No replies yet.</div>'; return; }
-
-    people.innerHTML = lastAll.map(function (r, idx) {
-      var lines = ITEMS.map(function (it, i) {
-        var a = (r.answers || {})[it.id] || {};
-        var cm = (a.c || "").trim();
-        if (!a.v && !cm) return "";
-        var reply = isNote(it)
-          ? '<span class="a-note">Comment</span>'
-          : '<span class="' + (a.v ? ANSWER_CLASS[a.v] : "a-x") + '">' + (a.v ? esc(ansLabel(it, a.v)) : "—") + '</span>';
-        return '<div class="pline">' +
-          '<span class="q">Q' + (i + 1) + '</span>' +
-          '<span class="v">' + reply +
-            (cm ? '<span class="c">' + esc(cm) + '</span>' : "") +
-          '</span>' +
-        '</div>';
-      }).join("");
-      var ov = (r.overall || "").trim();
-      return '<div class="person">' +
-        '<div class="person-head">' +
-          '<b>' + esc(reviewerName(r, idx)) + '</b>' +
-          '<span class="when">' + esc(B.stamp(r.updatedAt)) + '</span>' +
-        '</div>' +
-        '<div class="person-body">' + (lines || '<div class="pline"><span class="q">—</span><span class="v">No answers</span></div>') +
-          (ov ? '<div class="pline"><span class="q">Final</span><span class="v"><span class="c">' + esc(ov) + '</span></span></div>' : "") +
-        '</div>' +
-      '</div>';
-    }).join("");
+    return out;
   }
 
-  function loadAll() {
-    if (!connected) { toast("Shared storage is off, so other replies are not available."); return; }
-    var el = document.getElementById("allCount");
-    if (el) el.textContent = "Loading…";
-    B.listAll(DOC.id).then(renderAll, function (err) {
-      if (el) el.textContent = "Could not load replies: " + err.message;
+  /* Apply what is on the server. Two things are protected from being
+     overwritten: edits not yet pushed, and the field with the cursor in it. */
+  function applyRemote(remote) {
+    if (!remote) return;
+    var sig = remoteSig(remote);
+    if (sig === lastRemote) return;
+    lastRemote = sig;
+
+    var activeId = (document.activeElement && document.activeElement.id) || "";
+    var next = { overall: remote.overall || "", answers: normAnswers(remote.answers), updatedAt: Date.now() };
+
+    var hold = {};
+    Object.keys(dirty).forEach(function (id) { hold[id] = true; });
+    ITEMS.forEach(function (it) { if (activeId === "c-" + it.id) hold[it.id] = true; });
+
+    Object.keys(hold).forEach(function (id) {
+      if (state.answers[id]) next.answers[id] = state.answers[id];
+      else delete next.answers[id];
+    });
+    if (dirtyOverall || activeId === "rvOverall") next.overall = state.overall;
+
+    state = next;
+    saveLocal();
+    repaintAll();
+  }
+
+  function pollRemote() {
+    if (!connected || pushing) return;
+    if (Object.keys(dirty).length || dirtyOverall) return;   // our own edit is in flight
+    if (document.visibilityState === "hidden") return;
+    B.loadShared(DOC.id).then(function (r) { if (r) applyRemote(r); }, function () {});
+  }
+
+  /* ---------------- first connect ----------------
+     Anything already typed into this browser is lifted into the shared
+     document, so a person who filled the page in before sharing was switched
+     on does not lose it. It only fills blanks — a value someone else has
+     already put in is never overwritten. Done once per document; after that
+     the shared document is simply the truth. */
+  function syncedKey() { return "board.synced." + DOC.id; }
+  function alreadySynced() {
+    try { return localStorage.getItem(syncedKey()) === "1"; } catch (e) { return false; }
+  }
+  function markSynced() {
+    try { localStorage.setItem(syncedKey(), "1"); } catch (e) {}
+  }
+
+  function hasValue(a) { return !!a && (!!a.v || !!String(a.c || "").trim()); }
+
+  /* Older entries lived in one document per person. Fold them in the first
+     time, so nothing written under the old model is stranded. */
+  function legacyAnswers() {
+    return B.listAll(DOC.id).then(function (list) {
+      var merged = { answers: {}, overall: "" };
+      (list || []).slice().sort(function (a, b) {
+        return String(a.updatedAt || "").localeCompare(String(b.updatedAt || ""));
+      }).forEach(function (r) {
+        Object.keys(r.answers || {}).forEach(function (k) {
+          if (hasValue(r.answers[k])) merged.answers[k] = r.answers[k];
+        });
+        if (String(r.overall || "").trim()) merged.overall = r.overall;
+      });
+      return merged;
+    }, function () { return { answers: {}, overall: "" }; });
+  }
+
+  function firstConnect() {
+    return B.loadShared(DOC.id).then(function (shared) {
+      var local = { answers: normAnswers(state.answers), overall: state.overall || "" };
+
+      if (alreadySynced()) {
+        if (shared) applyRemote(shared);
+        else { dirtyOverall = !!local.overall; Object.keys(local.answers).forEach(markDirty); }
+        return;
+      }
+
+      var pre = shared ? Promise.resolve(null) : legacyAnswers();
+      return pre.then(function (legacy) {
+        var base = { answers: normAnswers((shared || legacy || {}).answers), overall: (shared || legacy || {}).overall || "" };
+        var lifted = 0;
+
+        Object.keys(local.answers).forEach(function (id) {
+          var mine = local.answers[id];
+          if (!hasValue(base.answers[id])) {
+            base.answers[id] = mine;
+            markDirty(id);
+            lifted++;
+            return;
+          }
+          /* Someone got here first. Their answer stands, but nothing typed
+             here is thrown away — a differing choice or comment is appended
+             so both are visible and the difference can be settled by hand. */
+          var theirs = base.answers[id];
+          var add = [];
+          if (mine.v && theirs.v && mine.v !== theirs.v) {
+            add.push("[also marked: " + ansLabel(itemById(id) || {}, mine.v) + "]");
+          }
+          var mc = String(mine.c || "").trim(), tc = String(theirs.c || "").trim();
+          if (mc && mc !== tc && tc.indexOf(mc) === -1) add.push(mc);
+          if (!add.length) return;
+
+          base.answers[id] = { v: theirs.v, c: (tc ? tc + "\n\n" : "") + "⚠ another reply: " + add.join(" ") };
+          markDirty(id);
+          lifted++;
+        });
+        if (!String(base.overall).trim() && String(local.overall).trim()) {
+          base.overall = local.overall;
+          dirtyOverall = true;
+        }
+        if (!shared && legacy) {
+          Object.keys(base.answers).forEach(markDirty);
+          if (String(base.overall).trim()) dirtyOverall = true;
+        }
+
+        state = { overall: base.overall, answers: base.answers, updatedAt: Date.now() };
+        lastRemote = remoteSig(base);
+        saveLocal();
+        repaintAll();
+        markSynced();
+
+        if (lifted) toast(lifted + " entr" + (lifted === 1 ? "y" : "ies") + " from this browser added to the shared page.");
+      });
     });
   }
 
@@ -405,16 +467,7 @@
   function wire() {
     var o = document.getElementById("rvOverall");
     o.value = state.overall;
-    o.addEventListener("input", function () { state.overall = o.value; touch(); });
-
-    document.getElementById("btnRefresh").addEventListener("click", loadAll);
-
-    document.getElementById("btnAll").addEventListener("click", function () {
-      var sec = document.getElementById("allview");
-      sec.hidden = false;
-      sec.scrollIntoView({ block: "start" });
-      loadAll();
-    });
+    o.addEventListener("input", function () { state.overall = o.value; dirtyOverall = true; touch(); });
 
     document.getElementById("btnJump").addEventListener("click", function () {
       var target = null;
@@ -433,7 +486,12 @@
     });
 
     document.getElementById("btnReset").addEventListener("click", function () {
-      if (!window.confirm("Clear everything you have entered on this page?")) return;
+      var msg = connected
+        ? "Clear this page for everyone on the passcode? This cannot be undone."
+        : "Clear everything entered on this page?";
+      if (!window.confirm(msg)) return;
+      ITEMS.forEach(function (it) { markDirty(it.id); });
+      dirtyOverall = true;
       state = blank();
       saveLocal();
       repaintAll();
@@ -455,25 +513,24 @@
         if (note) note.textContent = "Shared storage is not configured, so this stays in your browser.";
         var rn = document.getElementById("roomName");
         if (rn && room && room.label) rn.textContent = "· " + room.label;
-        document.getElementById("btnAll").disabled = true;
         return;
       }
       if (!room || !room.key) { setSync("off", "Local only"); return; }
       connected = true;
       var name = document.getElementById("roomName");
       if (name && room.label) name.textContent = "· " + room.label;
-      return B.loadMine(DOC.id).then(function (remote) {
-        if (remote && remote.answers) {
-          var remoteTime = remote.updatedAt ? new Date(remote.updatedAt).getTime() : 0;
-          var localHasData = Object.keys(state.answers).length > 0 || state.overall;
-          if (!localHasData || remoteTime >= (state.updatedAt || 0)) {
-            state = { overall: remote.overall || "", answers: remote.answers || {}, updatedAt: remoteTime };
-            saveLocal(); repaintAll();
-          } else {
-            pushRemote();
-          }
-        }
+
+      return firstConnect().then(function () {
         setSync("on", "Shared");
+        if (Object.keys(dirty).length || dirtyOverall) pushRemote();
+
+        /* Pick up what other people write, without a reload. */
+        if (pollTimer) clearInterval(pollTimer);
+        pollTimer = setInterval(pollRemote, 15000);
+        document.addEventListener("visibilitychange", function () {
+          if (document.visibilityState === "visible") pollRemote();
+        });
+        window.addEventListener("focus", pollRemote);
       });
     }).catch(function (err) {
       console.warn("[board] connect failed", err);
