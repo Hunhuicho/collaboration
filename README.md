@@ -9,6 +9,9 @@ other's replies.
 - Identity: **anonymous auth**; access control is the shared passcode
 - Gate: a passcode is required before any page renders (`public/assets/access.js`)
 
+**Live:** <https://collaboration-a43.pages.dev> — Firebase project `collaboration-ae736`,
+shared storage on. Section 2 is the one-time setup and is already done for this deployment.
+
 Without a passcode the documents still open and you can answer — entries just stay in your browser.
 Enter a passcode and shared storage switches on from that moment.
 
