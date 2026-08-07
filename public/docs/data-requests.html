@@ -55,6 +55,31 @@
 .req-ans .k{font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--accent); font-weight:750;}
 .req-ans .review.inline{border-top:0; padding-top:8px;}
 
+/* A decision that hangs off the request above it */
+.subreq{margin-top:14px; margin-left:26px; border-left:3px solid var(--accent);}
+.subreq .req-rank{background:transparent; color:var(--accent-2); border:1px solid var(--line); font-size:12px;}
+@media (prefers-color-scheme:dark){.subreq .req-rank{background:transparent; color:var(--accent-2);}}
+:root[data-theme="dark"] .subreq .req-rank{background:transparent; color:var(--accent-2);}
+:root[data-theme="light"] .subreq .req-rank{background:transparent; color:var(--accent-2);}
+.subreq .req-head h3{font-size:15.5px;}
+@media (max-width:640px){.subreq{margin-left:0;}}
+
+.req-body.one{grid-template-columns:1fr;}
+
+table.fam{width:100%; border-collapse:collapse; font-size:13px; margin-top:4px;}
+table.fam th{
+  text-align:left; font-size:10.5px; letter-spacing:.07em; text-transform:uppercase;
+  color:var(--muted); font-weight:700; padding:0 12px 7px 0; border-bottom:1px solid var(--line);
+}
+table.fam td{padding:9px 12px 9px 0; border-bottom:1px solid var(--line); vertical-align:top; color:var(--ink-2);}
+table.fam tr:last-child td{border-bottom:0;}
+table.fam .fam-code{font-family:var(--mono); font-weight:700; color:var(--ink); white-space:nowrap;}
+table.fam .fam-desc{color:var(--ink); font-weight:600;}
+table.fam ul{margin:0; padding-left:16px; display:flex; flex-direction:column; gap:3px;}
+
+.opt .k{color:var(--accent) !important;}
+.opt.warn .k{color:var(--hold) !important;}
+
 .more{
   display:flex; gap:12px; align-items:center; flex-wrap:wrap;
   padding:14px 20px; background:var(--surface-3); border-radius:6px; margin-top:16px;
@@ -81,9 +106,9 @@
     <h1>Urgent Data Requests</h1>
     <p class="sub">Data we are waiting on, most urgent first.</p>
     <div class="hero-meta">
-      <div><span class="k">Open requests</span><strong>3</strong></div>
+      <div><span class="k">Open requests</span><strong>3 + 1 decision</strong></div>
       <div><span class="k">Reply with</span><strong>Status · owner · date</strong></div>
-      <div><span class="k">Updated</span><strong>2026-08-04</strong></div>
+      <div><span class="k">Updated</span><strong>2026-08-07</strong></div>
     </div>
   </header>
 
@@ -139,6 +164,102 @@
       <div class="req-ans">
         <span class="k">Status &amp; note</span>
         <div data-review="q1" data-variant="inline"></div>
+      </div>
+    </div>
+
+    <!-- decision that hangs off request 1 -->
+    <div class="card req subreq">
+      <div class="req-head">
+        <span class="req-rank">1a</span>
+        <div>
+          <h3>Decision — should L2 be redefined on the UNSPSC 4-digit Family?</h3>
+          <p class="why">One UNSPSC Family often covers several of our current L2 categories, so an AI mapping has to guess which L2 to pick. Raised by email.</p>
+          <div class="req-tags">
+            <span class="pill amber">DECISION NEEDED</span>
+            <span class="pill blue">AFFECTS REQUEST 1</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="req-must">
+        <span class="k">Why it sits here</span>
+        <p>This decides what <b>“the L2 code”</b> means. Until it is settled, request 1 maps to the <b>current</b> L2.</p>
+      </div>
+
+      <div class="req-body one">
+        <div class="req-cell">
+          <span class="k">One Family, several L2 — examples from the email</span>
+          <table class="fam">
+            <thead><tr><th>Family</th><th>Description</th><th>Current L2 categories it could be</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="fam-code">7215</td>
+                <td class="fam-desc">Specialized Trade Construction and Maintenance Services</td>
+                <td><ul>
+                  <li>Mechanical Maintenance Services</li>
+                  <li>Electrical &amp; Instrumentation Maintenance Services</li>
+                  <li>HVAC &amp; Building Systems Maintenance Services</li>
+                  <li>Scaffolding &amp; Access Services</li>
+                </ul></td>
+              </tr>
+              <tr>
+                <td class="fam-code">8110</td>
+                <td class="fam-desc">Professional Engineering Services</td>
+                <td><ul>
+                  <li>Engineering &amp; Technical Services</li>
+                  <li>R&amp;D &amp; Technical Services</li>
+                </ul></td>
+              </tr>
+              <tr>
+                <td class="fam-code">8011</td>
+                <td class="fam-desc">Human Resources Services</td>
+                <td><ul>
+                  <li>HR &amp; Talent Services</li>
+                  <li>Travel, Training &amp; Corporate Services</li>
+                </ul></td>
+              </tr>
+              <tr>
+                <td class="fam-code">8013</td>
+                <td class="fam-desc">Real Estate Services</td>
+                <td><ul>
+                  <li>Property &amp; Building Leases</li>
+                  <li>Facilities Management</li>
+                </ul></td>
+              </tr>
+              <tr>
+                <td class="fam-code">8014</td>
+                <td class="fam-desc">Marketing and Distribution Services</td>
+                <td><ul>
+                  <li>Marketing &amp; Communications Services</li>
+                  <li>Office Supplies &amp; Printing</li>
+                </ul></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="req-body">
+        <div class="req-cell opt">
+          <span class="k">A · Redefine L2 = UNSPSC Family</span>
+          <p>The proposal in the email. One Family, one L2, so the mapping is unambiguous and easy to maintain.</p>
+          <p><b>Cost:</b> the distinctions in the examples above disappear — mechanical, electrical, HVAC and scaffolding all become one L2. The 3-digit purchasing group is matched to L2 (request 3), so that collapses with it.</p>
+        </div>
+        <div class="req-cell opt">
+          <span class="k">B · Align L2 to UNSPSC Class (6-digit)</span>
+          <p>Still one-to-one and still standard, but a level finer, so the trades above stay apart.</p>
+          <p><b>To check:</b> whether the current L2 categories really do separate at Class level.</p>
+        </div>
+        <div class="req-cell opt warn">
+          <span class="k">C · Keep L2, use UNSPSC as an attribute</span>
+          <p>Leave the hierarchy alone and classify each material to L2 directly, with UNSPSC as one more input rather than the route.</p>
+          <p><b>Cost:</b> no clean one-to-one with UNSPSC.</p>
+        </div>
+      </div>
+
+      <div class="req-ans">
+        <span class="k">Decision &amp; note</span>
+        <div data-review="q1u" data-variant="inline"></div>
       </div>
     </div>
 
@@ -280,6 +401,9 @@ window.REVIEW_DOC = {
     { id:"q1", sec:"01", label:"Existing indirect materials re-mapped to the new L2", variant:"inline",
       choices: [["Y","Provided"],["H","In progress"],["N","Blocked"]],
       q:"Existing indirect material codes mapped onto the new mat_grp_L2" },
+    { id:"q1u", sec:"01", label:"Decision — redefine L2 on the UNSPSC Family?", variant:"inline",
+      choices: [["Y","A · Redefine L2 = Family"],["H","B · Align to Class (6-digit)"],["N","C · Keep current L2"]],
+      q:"Whether the L2 hierarchy should be redefined on the UNSPSC 4-digit Family" },
     { id:"q2", sec:"02", label:"Chemical name, group and material mapping check", variant:"inline",
       choices: [["Y","Checked, looks right"],["H","In progress"],["N","Issues found"]],
       q:"Chemical name, chemical group and the mapping to material data" },
