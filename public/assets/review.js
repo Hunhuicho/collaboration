@@ -281,7 +281,10 @@
       if (!answered(it, src)) { c.none++; return; }
       if (isNote(it)) { c.note++; return; }
       var v = (src[it.id] || {}).v;
-      if (v === "Y") c.Y++; else if (v === "N") c.N++; else if (v === "H") c.H++;
+      /* A document may use its own codes (A / B / C for a set of options).
+         Those belong in no agree-disagree column, so they are counted the
+         same way a comment-only item is — answered, but not tallied. */
+      if (v === "Y") c.Y++; else if (v === "N") c.N++; else if (v === "H") c.H++; else c.note++;
     });
     return c;
   }
@@ -308,7 +311,7 @@
         var a = state.answers[it.id] || {}, cm = (a.c || "").trim();
         var reply = isNote(it)
           ? '<span class="' + (cm ? "a-note" : "a-x") + '">' + (cm ? "Comment" : "—") + '</span>'
-          : '<span class="' + (a.v ? ANSWER_CLASS[a.v] : "a-x") + '">' + (a.v ? esc(ansLabel(it, a.v)) : "—") + '</span>';
+          : '<span class="' + (a.v ? (ANSWER_CLASS[a.v] || "a-note") : "a-x") + '">' + (a.v ? esc(ansLabel(it, a.v)) : "—") + '</span>';
         return '<tr>' +
           '<td><span class="qn">Q' + (i + 1) + '</span> ' + esc(it.label) + '</td>' +
           '<td class="a">' + reply + '</td>' +

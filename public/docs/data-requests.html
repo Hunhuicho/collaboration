@@ -155,9 +155,9 @@ table.fam ul{margin:0; padding-left:16px; display:flex; flex-direction:column; g
           <p>Fill it in this sheet, in the same file.</p>
         </div>
         <div class="req-cell">
-          <span class="k">UNSPSC</span>
-          <p>L2 is <b>not</b> being redefined on UNSPSC — see 1a below.</p>
-          <p>Map to the <b>current</b> L2.</p>
+          <span class="k">UNSPSC — open</span>
+          <p>How L2 and UNSPSC should relate is still being decided — see 1a below.</p>
+          <p>For this request, map to the <b>current</b> L2.</p>
         </div>
       </div>
 
@@ -172,18 +172,18 @@ table.fam ul{margin:0; padding-left:16px; display:flex; flex-direction:column; g
       <div class="req-head">
         <span class="req-rank">1a</span>
         <div>
-          <h3>UNSPSC — keep L2 as it is and map the 4-digit onto it</h3>
-          <p class="why">Answer to the proposal raised by email. One UNSPSC Family does cover several of our L2 categories, but we would rather carry that than flatten L2.</p>
+          <h3>Decision — how should L2 and UNSPSC relate?</h3>
+          <p class="why">One UNSPSC Family covers several of our L2 categories, so a Family code on its own cannot pick the L2. Raised by email. Three ways out — pick one.</p>
           <div class="req-tags">
-            <span class="pill blue">OUR POSITION</span>
-            <span class="pill amber">AGREE?</span>
+            <span class="pill amber">DECISION NEEDED</span>
+            <span class="pill blue">AFFECTS REQUEST 1</span>
           </div>
         </div>
       </div>
 
       <div class="req-must">
         <span class="k">What this means for request 1</span>
-        <p>L2 does not change, so request 1 stands as written — map to the <b>current</b> L2.</p>
+        <p>A and B replace the L2 list, C keeps it. Until this is settled, request 1 maps to the <b>current</b> L2.</p>
       </div>
 
       <div class="req-body one">
@@ -233,18 +233,24 @@ table.fam ul{margin:0; padding-left:16px; display:flex; flex-direction:column; g
 
       <div class="req-body">
         <div class="req-cell opt">
-          <span class="k">Why not redefine L2 on the Family</span>
-          <p>It would make the mapping one-to-one, but at the cost of the detail in the table above — mechanical, electrical, HVAC and scaffolding would all become a single L2.</p>
-          <p>The 3-digit purchasing group is matched to L2 (request 3), so it would collapse with it.</p>
+          <span class="k">A · Drop L2, use the UNSPSC 4-digit</span>
+          <p>Our L2 list goes away and the Family code becomes the category. One-to-one, nothing to reconcile.</p>
+          <p><b>Cost:</b> the detail in the table above goes with it — mechanical, electrical, HVAC and scaffolding become one category. The 3-digit purchasing group is matched to L2 (request 3), so it collapses too.</p>
+        </div>
+        <div class="req-cell opt">
+          <span class="k">B · Rebuild L2 on the UNSPSC 6-digit</span>
+          <p>Same idea as A but one level finer, so the four trades above stay apart and the purchasing groups built on them survive.</p>
+          <p><b>To check:</b> whether our current L2 categories really do separate cleanly at 6-digit level.</p>
         </div>
         <div class="req-cell opt warn">
-          <span class="k">What we take on instead</span>
-          <p>UNSPSC Family to L2 stays <b>many-to-one</b>, so the Family alone cannot pick the L2. An automated mapping needs a second signal — the material description or the purchasing group — and the ones it cannot call go to a person.</p>
+          <span class="k">C · Keep L2, give each one a 4-digit code</span>
+          <p>What was already asked for. The L2 list stays as it is and each L2 carries its UNSPSC Family, so several L2s may share one Family.</p>
+          <p><b>Cost:</b> stays <b>many-to-one</b>, so the ambiguity does not go away. It has to be written down instead — for each Family with more than one L2, a note saying how to tell them apart.</p>
         </div>
       </div>
 
       <div class="req-ans">
-        <span class="k">Do you agree?</span>
+        <span class="k">Which one?</span>
         <div data-review="q1u" data-variant="inline"></div>
       </div>
     </div>
@@ -387,9 +393,9 @@ window.REVIEW_DOC = {
     { id:"q1", sec:"01", label:"Existing indirect materials re-mapped to the new L2", variant:"inline",
       choices: [["Y","Provided"],["H","In progress"],["N","Blocked"]],
       q:"Existing indirect material codes mapped onto the new mat_grp_L2" },
-    { id:"q1u", sec:"01", label:"UNSPSC 4-digit mapped onto the current L2", variant:"inline",
-      choices: [["Y","Agree"],["N","Disagree"],["H","Needs discussion"]],
-      q:"Keeping L2 as it is and mapping the UNSPSC 4-digit Family onto it, rather than redefining L2" },
+    { id:"q1u", sec:"01", label:"Decision — how L2 and UNSPSC relate", variant:"inline",
+      choices: [["A","A · Drop L2, use 4-digit"],["B","B · Rebuild L2 on 6-digit"],["C","C · Keep L2 + 4-digit code"]],
+      q:"How the L2 hierarchy and the UNSPSC code should relate" },
     { id:"q2", sec:"02", label:"Chemical name, group and material mapping check", variant:"inline",
       choices: [["Y","Checked, looks right"],["H","In progress"],["N","Issues found"]],
       q:"Chemical name, chemical group and the mapping to material data" },
